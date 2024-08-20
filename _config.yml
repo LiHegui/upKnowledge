@@ -1,3 +1,4 @@
 theme: jekyll-theme-minimal
 title: 测试pages
 description: 测试
+root: /dist/.vuepress/dist

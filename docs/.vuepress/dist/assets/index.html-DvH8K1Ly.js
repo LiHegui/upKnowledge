@@ -1,1 +1,0 @@
-import{_ as e,o as t,c as i}from"./app-DHLwyd6l.js";const n={};function r(a,c){return t(),i("div")}const s=e(n,[["render",r],["__file","index.html.vue"]]),_=JSON.parse('{"path":"/interview/Vite/","title":"","lang":"zh-CN","frontmatter":{},"headers":[],"git":{},"filePathRelative":"interview/Vite/index.md"}');export{s as comp,_ as data};

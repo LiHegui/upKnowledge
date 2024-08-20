@@ -1,1 +1,0 @@
-import{_ as e,o as t,c as r}from"./app-DHLwyd6l.js";const n={};function a(i,o){return t(),r("div")}const s=e(n,[["render",a],["__file","index.html.vue"]]),_=JSON.parse('{"path":"/interview/ES6/Generator/","title":"","lang":"zh-CN","frontmatter":{},"headers":[],"git":{},"filePathRelative":"interview/ES6/Generator/index.md"}');export{s as comp,_ as data};

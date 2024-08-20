@@ -1,1 +1,0 @@
-import{_ as e,o as t,c as n}from"./app-DHLwyd6l.js";const r={};function a(i,c){return t(),n("div")}const s=e(r,[["render",a],["__file","index.html.vue"]]),_=JSON.parse('{"path":"/interview/Vue3/%E6%80%A7%E8%83%BD%E6%8F%90%E5%8D%87/","title":"","lang":"zh-CN","frontmatter":{},"headers":[],"git":{},"filePathRelative":"interview/Vue3/性能提升/index.md"}');export{s as comp,_ as data};

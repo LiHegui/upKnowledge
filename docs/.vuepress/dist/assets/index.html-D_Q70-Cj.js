@@ -1,3 +1,0 @@
-import{_ as t,o as n,c as a,a as e}from"./app-DHLwyd6l.js";const o={},s=e("h1",{id:"防抖",tabindex:"-1"},[e("a",{class:"header-anchor",href:"#防抖"},[e("span",null,"防抖")])],-1),c=e("pre",null,[e("code",null,`每次触发跟上一次触发要有一定的时间间隔，要不然会重新计算时间
-`)],-1),l=e("h1",{id:"节流",tabindex:"-1"},[e("a",{class:"header-anchor",href:"#节流"},[e("span",null,"节流")])],-1),r=e("pre",null,[e("code",null,`每隔一段时间触发一次
-`)],-1),i=[s,c,l,r];function d(_,h){return n(),a("div",null,i)}const f=t(o,[["render",d],["__file","index.html.vue"]]),u=JSON.parse('{"path":"/tools/docs/interview/JavaScript/%E9%98%B2%E6%8A%96%E4%B8%8E%E8%8A%82%E6%B5%81/","title":"防抖","lang":"zh-CN","frontmatter":{},"headers":[],"git":{},"filePathRelative":"tools/docs/interview/JavaScript/防抖与节流/index.md"}');export{f as comp,u as data};

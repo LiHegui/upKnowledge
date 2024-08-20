@@ -1,0 +1,26 @@
+## 安装Git
+
+
+
+## 安装nginx
+
+### nginx常用的命令
+- nginx 启动
+- nginx stop 停止
+- nginx -s quit 安全退出
+- nginx -s reload 重新加载配置文件
+- ps aux|grep nginx 查看nginx进程
+
+## 关于防火墙
+
+页面访问不了=> 大概率都是防火墙的问题
+
+- 设置
+
+    ```cmd
+    firewall-cmd --permanent --zone=public --add-port=80/tcp
+    ```
+- 重载
+    ```cmd
+    firewall-cmd --reload
+    ```

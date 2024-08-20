@@ -1,0 +1,127 @@
+<script>
+    let effectCallback = null
+
+    //dep
+    class Dep {
+        constructor() {
+            this.dep = []
+        }
+        depend() {
+            if (effectCallback) {
+                this.dep.push(effectCallback)
+            }
+        }
+        notify() {
+            this.dep.forEach(item => item())
+        }
+    }
+
+    //watchEffect
+    function watchEffect(effect) {
+        effectCallback = effect
+        effect()
+        effectCallback = null
+    }
+
+    //reactive
+    const reactive = {
+        get(target, key) {
+            let dep = getTargetKey(target, key)
+            dep.depend()
+            return Reflect.get(target, key)
+        },
+        set(target, key, value) {
+            let dep = getTargetKey(target, key)
+            dep.notify()
+            let res = Reflect.get(target, key, value)
+            return
+        }
+    }
+    let depMap = new WeakMap()
+    //getTargetKey
+    function getTargetKey(target, key) {
+        let targetMap = depMap.get(target)
+        if (!targetMap) {
+            depMap.set(target, targetMap = new Map())
+        }
+        let keyDep = depMap.get(key)
+        if (!keyDep) {
+            depMap.set(target, keyDep = new Dep())
+        }
+        return keyDep
+    }
+    let data = {
+        num: 1
+    }
+    const newProxy = new Proxy(data, reactive)
+    watchEffect(() => {
+        console.log(data.num);
+    })
+
+    // Dep
+    const targetMap = new WeakMap()
+    let watchCallback = null
+    function getTargetDep(target, key) {
+        let depsMap = targetMap.get(target)
+        if (!depsMap) {
+            targetMap.set(target, depsMap = new Map())
+        }
+        let dep = depsMap.get(key)
+        if (!dep) {
+            depsMap.set(key, dep = new Dep())
+        }
+        return dep
+    }
+
+    // reactive
+    const reactiveHandler = {
+        get(target, key) {
+            let dep = getTargetDep(target, key)
+            dep.depend()
+            return Reflect.get(target, key)
+        },
+        set(target, key, value) {
+            let res = Reflect.set(target, key, value)
+            let dep = getTargetDep(target, key)
+            dep.notify()
+            return res
+        }
+    }
+
+    function reactive(row) {
+        return new Proxy(row, reactiveHandler)
+    }
+
+
+    class Dep {
+        constructor() {
+            this.dep = []
+        }
+        depend() {
+            if (watchCallback) {
+                this.dep.push(watchCallback)
+            }
+        }
+        notify() {
+            this.dep.forEach(callback => callback())
+        }
+    }
+    let data = reactive({
+        name: 'loong'
+    })
+    // Wacth
+    function watchEffect(effect) {
+        watchCallback = effect
+        effect()
+        watchCallback = null
+    }
+    watchEffect(() => {
+        console.log('更新视图1',data.name)
+    })
+    watchEffect(() => {
+        console.log('更新视图2',data.name)
+    })
+    watchEffect(() => {
+        console.log('更新视图3',data.name)
+    })
+</script>

@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <div class="triangle1"></div>
+    <div class="triangle2">▼</div>
+    <div class="triangle3"></div>
+    <div class="triangle4"></div>
+    <div class="triangle5"></div>
+    <div class="triangle6"></div>
+</body>
+
+<style>
+    /*
+1. 设置不同颜色的 border
+通过 border 所占用面积形成三角形
+无法设置阴影
+*/
+    .triangle1 {
+        display: inline-block;
+        width: 0;
+        height: 0;
+        border-top: 100px solid blue;
+        border-left: 50px solid transparent;
+        border-right: 50px solid transparent;
+        box-shadow: inset 0 0 10px rgba(0, 255, 0, .5);
+    }
+
+    /*
+2. 使用三角形字体
+这种方式实现的三角形，相当于是字体，只能修改字体的一些样式，
+像阴影边框之类的就不能设置了，
+有以下几种三角形：◄、►、▼、▲、◀、▶、⊿、△、▽、▷、◁，
+一般输入法里面都会有。
+*/
+    .triangle2 {
+        display: inline-block;
+        width: 100px;
+        height: auto;
+        font-size: 100px;
+        color: blue;
+        box-shadow: inset 0 0 10px rgba(0, 255, 0, .5);
+    }
+
+    /*
+3. linear-gradient() 线性渐变
+先画一个图形，
+通过background: linear-gradient()指定一条轴线以及颜色的起始位置和结束位置，
+代码运行后，背景色就会沿着这条轴线按起始位置和结束位置被渲染，从而从视觉上形成想要的图形。
+*/
+    .triangle3 {
+        display: inline-block;
+        height: 100px;
+        width: 120px;
+        /* 线性方向是从左上角到右下角，背景色从蓝色开始变，到50%位置时切换为透明色再开始变，最后到100%位置时以透明色结束 */
+        background: linear-gradient(to bottom right, blue, blue 50%, transparent 50%, transparent 100%);
+        box-shadow: inset 0 0 10px rgba(0, 255, 0, .5);
+    }
+
+    /*
+4. conic-gradient() 锥形渐变
+先画一个图形，
+通过background: conic-gradient()指定一个起始角度和旋转原点，
+然后以原点为中心，沿着圆周进行变化，
+从而获得想要的图形。
+*/
+    .triangle4 {
+        display: inline-block;
+        height: 100px;
+        width: 120px;
+        /* 绘制圆心在（0, 0），绘制起点在90度，从蓝色开始绘制到40度的位置，从40.1度开始绘制透明色 */
+        background: conic-gradient(from 90deg at 0 0, blue 0, blue 40deg, transparent 40.1deg);
+        box-shadow: inset 0 0 10px rgba(0, 255, 0, .5);
+    }
+
+    /*
+5. 通过伪元素实现三角形
+先画一个图形1，
+再通过伪元素添加一个宽高一样的图形2，
+然后通过transform-origin设置图形2的旋转原点x，y坐标，
+通过transform: rotate()设置图形2的旋转角度，
+代码运行后，图形2就会以原点为中心，在图形1的有限空间内，旋转一定的角度，从而形成一个三角形，
+我们还可以设置图形1的宽高和图形2的原点和旋转角度来获得不同的三角形。
+*/
+    .triangle5 {
+        display: inline-block;
+        height: 100px;
+        width: 120px;
+        position: relative;
+        overflow: hidden;
+        background-color: #fff;
+        box-shadow: inset 0 0 10px rgba(0, 255, 0, .5);
+    }
+
+    .triangle5::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        background: blue;
+        transform-origin: 0 0;
+        transform: rotate(56deg);
+        box-shadow: inset 0 0 10px rgba(0, 255, 0, .5);
+    }
+
+    /*
+6. clip-path 使用裁剪创建元素的可显示区域
+该方法实际上是截取长方形部分从而形成三角形
+polygon可以定义多边形，里面的每对参数表示多边形的每个连接点的坐标（X,Y）。
+*/
+    .triangle6 {
+        display: inline-block;
+        height: 100px;
+        width: 100px;
+        background: blue;
+        clip-path: polygon(0 0, 100% 0, 0 100%, 0 0);
+        box-shadow: inset 0 0 10px rgba(0, 255, 0, .5);
+    }
+</style>
+
+</html>

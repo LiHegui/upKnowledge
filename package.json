@@ -1,0 +1,24 @@
+{
+  "name": "test",
+  "version": "0.0.1",
+  "description": "A VuePress project",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "dev": "yarn docs:dev",
+    "docs:build": "vuepress build docs",
+    "docs:clean-dev": "vuepress dev docs --clean-cache",
+    "docs:dev": "vuepress dev docs",
+    "docs:update-package": "yarn dlx vp-update"
+  },
+  "devDependencies": {
+    "@vuepress/bundler-vite": "^2.0.0-rc.7",
+    "@vuepress/plugin-search": "^2.0.0-rc.18",
+    "@vuepress/theme-default": "^2.0.0-rc.11",
+    "vue": "^3.4.0",
+    "vuepress": "^2.0.0-rc.7"
+  },
+  "dependencies": {
+    "vuepress-plugin-md-enhance": "^2.0.0-rc.36"
+  }
+}

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <button onClick="click()">
+        节流添加
+        <span id="num">0</span>
+    </button>
+</body>
+<script>
+    // 节流函数
+    function throttle(callback, delay) {
+        let lastTime = 0;
+        return function () {
+            let currentTime = Date.now()
+            if ((currentTime - lastTime) > delay) {
+                callback.apply(this, arguments);
+                lastTime = currentTime;
+            }
+        }
+    }
+    let num = document.getElementById('num');
+    let number = 0
+    let fun = throttle(function () {
+        num.innerText = ++number
+    }, 1000)
+    num.addEventListener('click', () => {
+        fun();
+    })
+</script>
+
+</html>

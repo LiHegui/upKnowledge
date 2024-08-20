@@ -1,0 +1,1 @@
+import{_ as t,o as e,c as r}from"./app-DHLwyd6l.js";const o={};function a(c,n){return e(),r("div")}const i=t(o,[["render",a],["__file","route.html.vue"]]),_=JSON.parse('{"path":"/repository/Linux/route.html","title":"","lang":"zh-CN","frontmatter":{},"headers":[],"git":{},"filePathRelative":"repository/Linux/route.md"}');export{i as comp,_ as data};

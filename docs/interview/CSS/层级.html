@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <div class="div">
+
+    </div>
+    <div class="father">
+        <div class="son1">
+
+        </div>
+        <div class="son2">
+
+        </div>
+    </div>
+    <div myapp class="ceshi">
+        <span>123</span>
+    </div>
+    <div style="height: 2000px;">
+        <div class="dw">11</div>
+        <div class="dw">22</div>
+    </div>
+
+</body>
+
+<style>
+    * {
+        padding: 0;
+        margin: 0;
+    }
+
+
+
+    .update {
+        width: 200px;
+        height: 200px;
+    }
+
+    .div {
+        height: 100px;
+        background-color: aqua;
+        margin: 50px;
+    }
+
+
+
+    div[myapp] span {
+        background-color: red;
+    }
+
+    .ceshi span {
+        background-color: orange;
+    }
+
+    .father {
+        margin: 50px;
+        width: 300px;
+        height: 300px;
+        background-color: #bfa;
+        overflow: hidden;
+    }
+
+    .son1 {
+        width: 100px;
+        height: 100px;
+        background-color: red;
+        margin: 20px;
+    }
+
+    .son2 {
+        width: 100px;
+        height: 100px;
+        margin: 20px;
+        background-color: blue;
+    }
+
+    .dw {
+        position: sticky;
+        height: 100px;
+        width: 100px;
+        top: 0;
+        background-color: red;
+    }
+</style>
+
+<script>
+    window.onload = () => {
+        const el = document.querySelector('.div')
+        el.classList.add('update')
+    }
+</script>
+
+</html>

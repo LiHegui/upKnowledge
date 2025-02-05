@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <div>
+        <h1>单行省略</h1>
+        <div id="single">四阿含丢哈速度哈岁的哈韩的沙石底还坏话爱上对撒谎对啊是丢hi和i</div>
+        <h1>多行省略</h1>
+        <div id="more">
+            四阿含丢哈速度哈岁的哈韩的沙石底还坏话爱上对撒谎对啊是丢hi和i   
+        </div>
+    </div>
+    <style>
+        #single {
+            width: 100px;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+
+        #more {
+            width: 100px;
+            -webkit-line-clamp: 2;
+            display: -webkit-box;
+            -webkit-box-orient: vertical;   
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+    </style>
+</body>
+
+</html>

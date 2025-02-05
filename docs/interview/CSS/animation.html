@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <h1>transition</h1>
+    <div id="box1">Hello World!</div>
+    <h1>transform</h1>
+    <div id="box2">Hello World!</div>
+    <h1>animation</h1>
+    <div id="box3">Hello World!</div>
+    <style>
+        #box1 {
+            width: 100px;
+            height: 100px;
+            background-color: blue;
+            transition: all 1s ease-in-out;
+            cursor: pointer;
+        }
+
+        #box1:hover {
+            width: 200px;
+            width: 200px;
+            color: red;
+            background-color: yellow;
+        }
+
+        #box2 {
+            width: 100px;
+            height: 100px;
+            background-color: blue;
+            /* transition: transform 1s ease-in-out; */
+        }
+
+        #box2:hover {
+            transform: scale(1.5);
+        }
+
+        #box3 {
+            width: 100px;
+            height: 100px;
+            background-color: blue;
+            animation-name: example;
+            animation-duration: 2s;
+            animation-timing-function: ease-in-out;
+            animation-delay: 1s;
+            animation-iteration-count: infinite;
+            animation-direction: alternate;
+            animation-fill-mode: forwards;
+            animation-play-state: running;
+        }
+
+        @keyframes example {
+            from {
+                transform: translateX(0);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(200px);
+                opacity: 1;
+            }
+        }
+    </style>
+</body>
+
+</html>

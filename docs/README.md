@@ -1,31 +1,8 @@
 # 升级喽
 
-## 新增功能，代码一键运行
+## 面试算法题
 
-::: normal-demo demo
-
-```html
-<div></div>
-```
-
-```js
-console.log(1)
-```
-
-```scss
-div {
-    width: 100px;
-    height: 100px;
-    background-color: red;
-}
-```
-
-:::
-
-运行
-
-![](./repository/image.png)
-
+[面试经典 150 题](https://leetcode.cn/studyplan/top-interview-150/)
 
 ## 🐥 面试题
 

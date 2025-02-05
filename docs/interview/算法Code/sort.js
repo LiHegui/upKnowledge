@@ -1,4 +1,4 @@
-let arr = [10, 2, 8, 51, 34, 32, 56, 78]
+let arr = [1, 3, 2, 5, 4, 6, 7, 8, 9, 0];
 /**
  * 冒泡排序-正序
  * @param {*} arr
@@ -18,6 +18,8 @@ function BubbleSort(arr) {
     }
     return tempArr
 }
+
+console.log(BubbleSort(arr));
 
 
 /**
@@ -71,5 +73,5 @@ function QuickSort(arr, s, e) {
     QuickSort(arr, swapIndex + 1, e)
 }
 
-QuickSort(arr, 0, arr.length - 1)
-console.log(arr)
+// QuickSort(arr, 0, arr.length - 1)
+// console.log(arr)

@@ -2,12 +2,14 @@
 
 ## 说说你对盒子模型的理解?
 
-二者就行切换 box-sizing: content-box(标准)|border-box(怪异盒子)|inherit(父元素继承)
+一个盒子由四个部分组成：content、padding、border、margin
 
-- 盒子模型
-    - 宽度 content + padding + border
-- IE盒子模型
-    - 宽度 content
+切换方式 box-sizing: content-box(标准)|border-box(怪异盒子)|inherit(父元素继承)
+
+- 标准盒子模型
+    - 宽度 = content
+- IE怪异盒子模型
+    - 宽度 =  content + padding + border
 
 ## 回流与重绘
 - 回流

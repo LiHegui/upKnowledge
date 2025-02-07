@@ -1,7 +1,7 @@
 # Javascript面试题
 ## 说说JavaScript中的数据类型？存储上的差别？
 - 基本类型
-  - number、string、boolean、null、undefined、symbol
+  - number、string、boolean、null（音标：`/ nʌl /`） 、undefined、symbol
   - 存储于栈上
 - 引用类型
   - 统称为Object, 又可以细分为Function、Array等
@@ -45,7 +45,7 @@
     对数组中的每个元素执行一次回调函数，如果所有元素都满足回调函数的条件，返回 true，否则返回 false。
 - reduce
     累计的效果，不改变原数组
-    ```
+    ```js
         console.log(array.reduce((accumulator, currentValue, index, array) => {
             return accumulator + currentValue;
         }));
@@ -54,7 +54,7 @@
     返回为累计值
 - filter
     过滤，不会改变原函数
-    ```
+    ```js
         console.log('过滤掉2的倍数');
         console.log(array.filter((item) => item % 2));
         console.log('不改变原数组', array);

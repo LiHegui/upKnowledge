@@ -31,4 +31,4 @@ node_modules
 
 # assets
 
-# docs/.vuepress/dist/*
+docs/.vuepress/dist/*

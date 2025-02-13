@@ -4,7 +4,7 @@
 订阅发布模式是一种消息传递模式，发布者发布消息，订阅者接收消息。
 :::
 
-::: demo
+::: normal-demo
 ```js
 // 订阅发布
 class PubSub {
@@ -103,7 +103,7 @@ pubsub.notify(TYPE_C);
 观察者模式是一种对象间的一对多依赖关系，当一个对象的状态发生改变时，所有依赖于它的对象都得到通知并被自动更新。
 :::
 
-:::demo
+::: normal-demo
 ```ts
 // 观察者模式
 class Subject {

@@ -30,7 +30,11 @@ export default defineUserConfig({
       },
       {
         text: 'WebAPI',
-        children: ['https://webapis-playground.vercel.app'],
+        children: [
+          'https://webapis-playground.vercel.app', 
+          'https://vue3js.cn/interview/',
+          'https://www.wangdoc.com/'
+        ],
       },
     ],
   }),

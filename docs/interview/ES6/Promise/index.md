@@ -21,6 +21,104 @@ Promise存在三种状态fulfilled rejected pedding,状态不可逆
         添加一个 finally 处理函数，无论 Promise 对象的状态如何都会被调用。finally 方法返回一个新的 Promise 对象，可以链式调用。
 # 代码实现Promise
 详细见Promise文件
+
+::: demo
+```js
+// 如何实现一个Promise
+// 三种状态
+const PENDING = 'PENDING';
+const FULFILLED = 'FULFILLED';
+const REJECTED = 'REJECTED';
+class myPromise {
+    constructor(executor) {
+        this.status = PENDING;
+        this.value = undefined;
+        this.reason = undefined;
+        // 存放成功的回调
+        this.onResolvedCallbacks = [];
+        // 存放失败的回调
+        this.onRejectedCallbacks = [];
+        let resolve = (value) => {
+            if (this.status === PENDING) {
+                this.status = FULFILLED;
+                this.value = value;
+                // 依次将对应的函数执行
+                this.onResolvedCallbacks.forEach(fn => fn());
+            }
+        }
+        let reject = (reason) => {
+            if (this.status === PENDING) {
+                this.status = REJECTED;
+                this.reason = reason;
+                // 依次将对应的函数执行
+                this.onRejectedCallbacks.forEach(fn => fn());
+            }
+        }
+        try {
+            executor(resolve, reject)
+        } catch (error) {
+            reject(error)
+        }
+    }
+    then(onFulfilled, onRejected) {
+        if (this.status === FULFILLED) {
+            onFulfilled(this.value)
+        }
+
+        if (this.status === REJECTED) {
+            onRejected(this.reason)
+        }
+
+        if (this.status === PENDING) {
+            // 如果promise的状态是 pending，需要将 onFulfilled 和 onRejected 函数存放起来，等待状态确定后，再依次将对应的函数执行
+            this.onResolvedCallbacks.push(() => {
+                onFulfilled(this.value)
+            });
+
+            // 如果promise的状态是 pending，需要将 onFulfilled 和 onRejected 函数存放起来，等待状态确定后，再依次将对应的函数执行
+            this.onRejectedCallbacks.push(() => {
+                onRejected(this.reason);
+            })
+        }
+    }
+}
+const promise = new Promise((resolve, reject) => {
+    resolve('成功');
+}).then(
+    (data) => {
+        console.log('success', data)
+    },
+    (err) => {
+        console.log('faild', err)
+    }
+)
+```
+:::
+
 # 手撕promise.all
 我们在Promise基础之上进行实现all方法
 整体思路就是Promise.all的特征就是接受一组Promise,输出结果为这一组的结果
+
+
+::: demo
+```js
+// 如何实现一个Promise.all
+function promiseAll(promises) {
+    return new Promise((resolve, reject) => {
+        const results = [];
+        let count = 0;
+        for (let i = 0; i < promises.length; i++) {
+            promises[i].then((result) => {
+                results[i] = result;
+                count++;
+                if (count === promises.length) {
+                    resolve(results);
+                }
+            }).catch((error) => {
+                reject(error);
+            });
+        }
+    });
+}
+```
+:::

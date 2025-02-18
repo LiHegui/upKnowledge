@@ -631,7 +631,7 @@ GUI线程和JS线程是互斥的，会导致
 
 
 
-## Redux
+## 面试题：你是怎么理解Redux的？
 
 **对Redux的理解**
 
@@ -641,7 +641,7 @@ Redux 是一个用于 JavaScript 应用的状态管理库，常用于 React 应�
 
 1. **Store**：存储应用状态的容器，整个应用只有一个 Store。
 2. **State**：应用的状态，存储在 Store 中，是一个普通的 JavaScript 对象。
-3. **Action**：描述状态变化的普通对象，通常包含一个 `type` 字段来指示动作类型，还可以包含其他数据。
+3. **Action**：描述状态变化的普通对象，通常包含一个 `type` 字段来指示动作类型，还可以包含其他数据。状态只能通过触发 Action 来改变
 4. **Reducer**：纯函数，接收当前状态和 Action，返回新的状态。Reducer 定义了状态如何响应 Action 进行变化。
 5. **Dispatch**：用于触发 Action 的方法，Store 通过 Dispatch 接收 Action 并更新状态。
 6. **Subscribe**：用于监听状态变化的方法，当状态变化时，订阅的回调函数会被调用。
@@ -761,39 +761,84 @@ React组件的生命周期分为三个阶段
 - useLayoutEffect useLayoutEffect与useEffect用法相似，主要区别是它是在渲染前(此时Dom已经根据VDom进行了修改，但是还没有渲染呈现到屏幕上)同步执行的
 - useCallback 用于在2次渲染间保存函数实例，防止多次渲染造成的函数重新创建，一般只在需要将函数作为 props 传递给子组件或将其作为依赖项传递给其他 Hook 时，才需要考虑使用 useCallback 进行优化
 
-# React的Router如何使用(V6)？
-- BrowserRouter 和 HashRouter还是应用的顶层
-- Routes包裹Route
-    V6版本采用的是Routes包裹Route来规范路由。
-- History
-**路由器组件**
-- BrowserRouter
-    使用干净的URL将当前位置存储在浏览器的地址栏中，并使用浏览器的内置历史记录堆栈进行导航。
-    - basename
-        在特定位置上进行运行, 如/app下运行。
-        ```javascript
-            <BrowerRouter basename='/app'></BrowerRouter>
-        ```
-    - future
-    - window
-- HashRouter
-**Route**
-Route里面有很多可以配置的东西
-    -path
+# 说说React Router有几种模式？实现原理？
 
-    - action
-    - errorElement
-        错误元素，当在loader、actions或组件渲染抛出异常时起作用。
-    - lazy
-    - loader
-    - shouldRevalidate
-**钩子**
-- useRoutes
-    该钩子的功能相当于`<Routes>`,但是它使用JavaScript对象不是`<Route>`元素来定义路由。
-    `<Route>`这些对象具有与普通元素相同的属性，但是他们不需要JSX。
-    我们利用该属性可以做抽离路由成路由表（类似于Vue的路由表）
-# Router如何进行验证操作？
-- 如上 `## Route`
+React Router 主要支持两种路由模式：
+
+- **BrowserRouter**（基于 HTML5 History API）
+- **HashRouter**（基于 URL 的 hash 部分）
+
+**1. BrowserRouter**
+- **特点**：使用 HTML5 的 History API（`pushState`、`replaceState` 和 `popstate` 事件）来保持 UI 和 URL 的同步。
+- **URL 格式**：`http://example.com/path`
+- **优点**：URL 更简洁，没有 `#` 符号，更符合现代 Web 应用的习惯。
+- **缺点**：需要服务器配置支持，确保在直接访问或刷新页面时能正确返回应用入口文件。
+
+**2. HashRouter**
+- **特点**：使用 URL 的 hash 部分（即 `#` 后面的部分）来保持 UI 和 URL 的同步。
+- **URL 格式**：`http://example.com/#/path`
+- **优点**：兼容性更好，不需要服务器额外配置，适合不支持 HTML5 History API 的旧浏览器。
+- **缺点**：URL 中包含 `#`，不够美观，且 SEO 不友好。
+
+**实现原理**
+
+**1. BrowserRouter 的实现原理**
+- **History API**：BrowserRouter 依赖于 HTML5 的 History API，通过 `pushState` 和 `replaceState` 方法来改变 URL，而不刷新页面。
+- **监听 URL 变化**：通过监听 `popstate` 事件来响应浏览器的前进和后退操作。
+- **路由匹配**：根据当前的 URL 路径，匹配对应的路由组件并渲染。
+
+```javascript
+import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
+
+function App() {
+  return (
+    <Router>
+      <Switch>
+        <Route path="/about" component={About} />
+        <Route path="/" component={Home} />
+      </Switch>
+    </Router>
+  );
+}
+```
+
+**2. HashRouter 的实现原理**
+- **Hash 变化**：HashRouter 使用 URL 的 hash 部分来模拟路由变化，通过 `window.location.hash` 来改变 URL 的 hash 部分。
+- **监听 hash 变化**：通过监听 `hashchange` 事件来响应 URL 的 hash 变化。
+- **路由匹配**：根据当前的 hash 值，匹配对应的路由组件并渲染。
+
+```javascript
+import { HashRouter as Router, Route, Switch } from 'react-router-dom';
+
+function App() {
+  return (
+    <Router>
+      <Switch>
+        <Route path="/about" component={About} />
+        <Route path="/" component={Home} />
+      </Switch>
+    </Router>
+  );
+}
+```
+
+**对比**
+
+| 特性            | BrowserRouter                  | HashRouter                  |
+|-----------------|--------------------------------|-----------------------------|
+| URL 格式        | `http://example.com/path`      | `http://example.com/#/path` |
+| 依赖 API        | HTML5 History API              | URL hash                    |
+| 服务器配置      | 需要支持                      | 不需要                      |
+| 兼容性          | 现代浏览器                    | 所有浏览器                  |
+| SEO             | 友好                          | 不友好                      |
+| 使用场景        | 现代 Web 应用                 | 旧版浏览器或简单应用        |
+
+**总结**
+
+- **BrowserRouter**：适合现代 Web 应用，URL 简洁，SEO 友好，但需要服务器支持。
+- **HashRouter**：兼容性好，无需服务器配置，适合旧版浏览器或简单应用，但 URL 中包含 `#`，SEO 不友好。
+
+根据应用的需求和运行环境，可以选择合适的路由模式。
     
 
 

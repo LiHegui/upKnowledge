@@ -715,6 +715,7 @@ Redux 通过集中管理应用状态，使状态变化可预测且易于调试�
 类式组件中会有这种写法
 
 ## 说说 React 生命周期有哪些不同阶段？每个阶段对应的方法是？
+
 React组件的生命周期分为三个阶段
 - 挂载阶段
     - constructor
@@ -744,7 +745,7 @@ React组件的生命周期分为三个阶段
         此方法用于组件卸载前，清理一些注册事件是监听事件
 
 
-## 常用的Hooks
+## 说说对React Hooks的理解？解决了什么问题？
 
 - useEffect 让函数式组件可以处理副作用(与UI渲染无关的一切代码)，并且可以模拟 componentDidMount，componentDidUpdate、compentWillUnMount等生命周期
     执行机制
@@ -761,7 +762,7 @@ React组件的生命周期分为三个阶段
 - useLayoutEffect useLayoutEffect与useEffect用法相似，主要区别是它是在渲染前(此时Dom已经根据VDom进行了修改，但是还没有渲染呈现到屏幕上)同步执行的
 - useCallback 用于在2次渲染间保存函数实例，防止多次渲染造成的函数重新创建，一般只在需要将函数作为 props 传递给子组件或将其作为依赖项传递给其他 Hook 时，才需要考虑使用 useCallback 进行优化
 
-# 说说React Router有几种模式？实现原理？
+## 说说React Router有几种模式？实现原理？
 
 React Router 主要支持两种路由模式：
 

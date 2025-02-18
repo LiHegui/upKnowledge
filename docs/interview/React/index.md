@@ -223,6 +223,7 @@ class AnotherComponent extends React.Component {
 
 ## 说说React的事件机制？
 
+
 React基于浏览器的事件机制自身实现了一套事件机制，包括事件注册、事件的合成、事件冒泡、事件派发等
 
 在React中这套事件机制被称之为合成事件
@@ -232,6 +233,7 @@ React 的事件机制与原生 DOM 事件机制有所不同，它是 React 自�
 ---
 
 1. **合成事件（Synthetic Event）**
+
 React 的事件是合成事件，它是 React 封装的一个跨浏览器的事件对象。合成事件是对原生 DOM 事件的包装，提供了统一的 API 和行为，确保在不同浏览器中表现一致。
 
 - **特点**：
@@ -429,7 +431,8 @@ State.propTypes = {
 }
 export default State;
 ```
-# super() 和 super(props) 有什么区别？
+## super() 和 super(props) 有什么区别？
+
 super()和super(props)都是调用父类构造函数的语句。
 - super()
     会调用父类的构造函数并将this绑定到子类的实例。如果子类的构造函数中
@@ -437,10 +440,9 @@ super()和super(props)都是调用父类构造函数的语句。
 - super(props)
     则是在子类的构造函数中调用父类的构造函数，并将props对象出传递给父类的构造函数。
     props对象传递给父类的构造函数，以便在组件中使用this.props访问它。
-## super
-在JavaScript中，super是一个关键字，用于调用父类中的构造函数和方法。
-- 当子类继承父类时，子类必须使用 super 调用父类的构造函数，以便子类可以继承父类的属性和方法。在 constructor 方法中，使用 super 调用父类的构造函数时，可以使用 this 关键字访问子类的属性和方法
-# 说说 React中的setState执行机制
+
+## 说说 React中的setState执行机制
+
 类式组件中有setState机制
 - 组件中多次调用setState()，会进行合并，组件只执行一次更新操作
 - 流程
@@ -582,9 +584,11 @@ setState一定会合并吗
 
 **Fiber**
 
-js引擎和页面渲染引擎是在同一个渲染线程之内，两者是互斥关系。如果在某个阶段执行任务特别长，例如在定时器阶段或Begin Frame阶段执行时间非常长，时间已经明显超过了16ms，那么就会阻塞页面的渲染，从而出现卡顿现象。
+js引擎和页面渲染引擎是在同一个渲染线程之内，两者是互斥关系。
+如果在某个阶段执行任务特别长，例如在定时器阶段或Begin Frame阶段执行时间非常长，时间已经明显超过了16ms，那么就会阻塞页面的渲染，从而出现卡顿现象。
 
->在 react16 引入 Fiber 架构之前，react 会采用递归对比虚拟DOM树，找出需要变动的节点，然后同步更新它们，这个过程 react 称为reconcilation（协调）。在reconcilation期间，react 会一直占用浏览器资源，会导致用户触发的事件得不到响应。实现的原理如下所示：
+>在 react16 引入 Fiber 架构之前，react 会采用递归对比虚拟DOM树，找出需要变动的节点，然后同步更新它们，这个过程 react 称为reconcilation（协调）。
+>在reconcilation期间，react 会一直占用浏览器资源，会导致用户触发的事件得不到响应。实现的原理如下所示：
 
 **Vue 是没有 Fiber**
 
@@ -619,16 +623,6 @@ Fiber是链表数据结构，fiber tree 是单链表结构
 ## 为什么说React中的props是只读的？
 
 React中props是单项数据流，父组件传进子组件的数据props改变后，子组件也会进行改变，但是子组件不可更改props的值，让变化变得难以预测
-
-## React Fiber它的目的是解决什么问题？
-
-GUI线程和JS线程是互斥的，会导致
-- GUI负责绘制
-- JS执行脚本
-
-
-## React组件化
-
 
 
 ## 面试题：你是怎么理解Redux的？

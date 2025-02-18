@@ -139,7 +139,7 @@
             // 可能是对象或者普通的值  如果是函数的话是不需要深拷贝
             if (typeof obj !== "object") return obj;
             // 检查是否已经克隆过该对象，防止循环引用
-            if (hash.get(obj)) return hash.get(obj);
+            if (hash.has(obj)) return hash.get(obj);
             let cloneObj = new obj.constructor();
             // 找到的是所属类原型上的constructor,而原型上的 constructor指向的是当前类本身
             hash.set(obj, cloneObj);

@@ -5,34 +5,6 @@
 
 类式组件中会有这种写法
 
-## 说说 React 生命周期有哪些不同阶段？每个阶段对应的方法是？
-React组件的生命周期分为三个阶段
-- 挂载阶段
-    - constructor
-        实力过程中自动调用的方法，在方法内部通过super关键字获取来自父组件的props在该方法中，通常的操作
-        为初始化state状态或者在this上挂载方法。
-    - getDerivedStateFromProps
-        静态方法
-        getDerivedStateFormProps()在调用render方法之前，在初始化和后续更新都会被调用。
-        该方法会返回一个对象来更新state,如果返回null则不更新任何内容。
-    - render
-        类组件必须要实现的方法，用于渲染DOM结构，可以访问state与prop属性。
-    - componentDidMount
-        组件挂载实例上之后，就是在render之后执行，用于一些数据获取、事件监听等操作。
-- 更新阶段
-    - getDerivedStateFromProps
-        如上，该方法初始化和更新时都会调用。
-    - shouldComponentUpdate
-        shouldComponentUpdate() 在组件更新之前调用， 返回true时组件更新， 返回false则不更新
-    - render
-        类组件必须要实现的方法，用于渲染DOM结构，可以访问state与prop属性。
-    - getSnapshotBeforeUpdate
-        在最近一次的渲染输出被提交之前调用。在 render 之后，即将对组件进行挂载时调用。
-    - componentDidUpdate
-        完成更新之后调用
-- 卸载阶段
-    - componentWillUnmount
-        此方法用于组件卸载前，清理一些注册事件是监听事件
 ## 说说React render方法的原理？在什么时候会被触发？
 render函数在react里面有两种形式。
 - 类式组件

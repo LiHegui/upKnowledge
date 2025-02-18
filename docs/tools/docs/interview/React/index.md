@@ -100,31 +100,47 @@ JSX是JavaScript的一种语法拓展，它和模板语言很像，但是它具�
 
 
 
-## React 生命周期
+## <span style="color: red; font-weight: 700;">React 生命周期</span>
 
-组件初始化 -> render方法 
-
-渲染工作流
-指的是从组件数据改变到组件实际更新发生的过程
-
-React15
-
-挂载 -> 更新 -> 卸载
-
-- constructor()
-- componentWillReceiveProps()
-  父组件触发更新时触发（不一定是相关的props）
-- componentWillUnmount
-  组件卸载时触发（组件被移除 ）
-
-React16
-
-废弃了componentWillMount
-
-- getDerivedStateFromProps, 替代compponentWillReceiveProps
-  使用Props来派生/更新state
-  在更新和挂载两个阶段都会触发
- 
+React组件的生命周期分为三个阶段
+- 挂载阶段
+    - constructor
+        实力过程中自动调用的方法，在方法内部通过super关键字获取来自父组件的props在该方法中，通常的操作
+        为初始化state状态或者在this上挂载方法。
+    - getDerivedStateFromProps
+        静态方法
+        getDerivedStateFormProps()在调用render方法之前，在初始化和后续更新都会被调用。
+        该方法会返回一个对象来更新state,如果返回null则不更新任何内容。
+    - render
+        类组件必须要实现的方法，用于渲染DOM结构，可以访问state与prop属性。
+    - componentDidMount
+        组件挂载实例上之后，就是在render之后执行，用于一些数据获取、事件监听等操作。
+- 更新阶段
+    - getDerivedStateFromProps
+        如上，该方法初始化和更新时都会调用。
+    - shouldComponentUpdate
+        shouldComponentUpdate() 在组件更新之前调用， 返回true时组件更新， 返回false则不更新
+    - render
+        类组件必须要实现的方法，用于渲染DOM结构，可以访问state与prop属性。
+    - getSnapshotBeforeUpdate
+        在最近一次的渲染输出被提交之前调用。在 render 之后，即将对组件进行挂载时调用。
+    - componentDidUpdate
+        完成更新之后调用
+- 卸载阶段
+    - componentWillUnmount
+        此方法用于组件卸载前，清理一些注册事件是监听事件
+## 说说React render方法的原理？在什么时候会被触发？
+render函数在react里面有两种形式。
+- 类式组件
+    指的是render方法
+- 函数式组件
+    指的是函数本身
+## 触发时机
+- 组件初始构建
+- 类组件调用setState修改状态
+- 函数组件通过useState hook改变状态
+- 类组件重新渲染
+- 函数组件重新渲染
 
 
 

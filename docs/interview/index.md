@@ -10,7 +10,7 @@
 
 ## JavaScript
 
-[JavaScript面试题](./JavaScript/route.md)
+[JavaScript面试题](./JavaScript/index.md)
 
 ## TypeScript
 

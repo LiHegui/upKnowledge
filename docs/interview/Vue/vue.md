@@ -244,63 +244,87 @@ watch支持异步，还可以设置deep进行深度监听
 
 
 
-## 请描述下你对vue生命周期的理解？
+## <span style="color: red;">请描述下你对vue生命周期的理解？</span>
 
 - Vue2  创建->挂载->更新->销毁
-  - beforeCreate
+  - `beforeCreate`
       组件创建之初
-  - Created
-      组将创建之后，此时页面结构还没好，data里面的数据已经可以用了
-  - BeforeMounte
-      组件挂载之前
-  - Mouted
+  - `Created`
+      组将创建之后，此时页面结构还没好，data里面的数据已经可以用了，（数据劫持已完成）
+  - `BeforeMounte`
+      组件挂载之前，开始解析`template`中的结构， 子组件开始进行解析->知道子组件进行挂载
+  - `Mouted`
       组件挂载之后，此时页面结构都已存在
-  - beforeUpdate
+  - `beforeUpdate`
       组件更新之前
-  - Updated
+  - `Updated`
       组件更新之后
-  - beforeDestory
-      组件销毁之前
-  - destoryed
+  - `beforeDestory`
+      组件销毁之前, 此时适合清除一些定时器或者监听事件之类的
+  - `destoryed`
       组件销毁之后
-  - activated
+  - `activated`
       keep-live组件激活时触发
-  - deactivated
+  - `deactivated`
       keep-alive 缓存的组件停用时调用
 - Vue3
-  - onBeforeMount – 在挂载开始之前被调用：相关的 render 函数首次被调用。
-  - onMounted – 组件挂载时调用
-  - onBeforeUpdate  – 数据更新时调用，发生在虚拟 DOM 打补丁之前。这里适合在更新之前访问现有的 DOM，比如手动移除已添加的事件监听器。
-  - onUpdated  –  由于数据更改导致的虚拟 DOM 重新渲染和打补丁，在这之后会调用该钩子。
-  - onBeforeUnmount –  在卸载组件实例之前调用。在这个阶段，实例仍然是完全正常的。
-  - onUnmounted – 卸载组件实例后调用。调用此钩子时，组件实例的所有指令都被解除绑定，所有事件侦听器都被移除，所有子组件实例被卸载。
-  - onActivated  –  被 keep-alive 缓存的组件激活时调用。
-  - onDeactivated – 被 keep-alive 缓存的组件停用时调用。
-  - onErrorCaptured – 当捕获一个来自子孙组件的错误时被调用。此钩子会收到三个参数：错误对象、发生错误的组件实例以及一个包含错误来源信息的字符串。此钩子可以返回 false 以阻止该错误继续向上传播。
+  - `onBeforeMount` – 在挂载开始之前被调用：相关的 render 函数首次被调用。
+  - `onMounted` – 组件挂载时调用
+  - `onBeforeUpdate`  – 数据更新时调用，发生在虚拟 DOM 打补丁之前。这里适合在更新之前访问现有的 DOM，比如手动移除已添加的事件监听器。
+  - `onUpdated`  –  由于数据更改导致的虚拟 DOM 重新渲染和打补丁，在这之后会调用该钩子。
+  - `onBeforeUnmount` –  在卸载组件实例之前调用。在这个阶段，实例仍然是完全正常的。
+  - `onUnmounted` – 卸载组件实例后调用。调用此钩子时，组件实例的所有指令都被解除绑定，所有事件侦听器都被移除，所有子组件实例被卸载。
+  - `onActivated`  –  被 keep-alive 缓存的组件激活时调用。
+  - `onDeactivated` – 被 keep-alive 缓存的组件停用时调用。
+  - `onErrorCaptured` – 当捕获一个来自子孙组件的错误时被调用。此钩子会收到三个参数：错误对象、发生错误的组件实例以及一个包含错误来源信息的字符串。此钩子可以返回 false 以阻止该错误继续向上传播。
 
-### 父子组件发生更新，生命周期的情况
+### 父子组件渲染、销毁、更新生命周期的情况
 
 一句话 自上而下的创建 自下而上的挂载
 
-父组件的beforeUpdate钩子函数被调用。
-子组件的beforeUpdate钩子函数被调用。
-子组件的updated钩子函数被调用。
-父组件的updated钩子函数被调用。
-### 父子组件初始渲染的时生命周期执行情况
-父组件的beforeCreate钩子函数被调用。
-父组件的created钩子函数被调用。
-父组件的beforeMount钩子函数被调用。
-子组件的beforeCreate钩子函数被调用。
-子组件的created钩子函数被调用。
-子组件的beforeMount钩子函数被调用。
-子组件的mounted钩子函数被调用。
-父组件的mounted钩子函数被调用。
-在这个过程中，父组件首先被创建并挂载，然后子组件被创建并挂载。在每个组件的生命周期函数中，可以进行一些初始化操作，例如获取数据或准备组件的状态。
-需要注意的是，在组件渲染之前，beforeCreate和created钩子函数被调用，而在组件渲染之后，beforeMount和mounted钩子函数被调用。在这些钩子函数中，可以执行一些在组件渲染之前或之后需要进行的操作。
-另外，在每个组件的destroyed钩子函数中，可以执行一些在组件被销毁时需要进行的操作，例如清理定时器或取消事件监听器。
+**渲染**
+父`beforeCreate` -> 父`created` -> 父`beforeMount` -> 子`beforeCreate` -> 子`created` -> 子`beforeMount` -> 子`mounted` -> 父`mounted`
+
+**销毁**
+父`beforeDestroy` -> 子`beforeDestroy` -> 子`destroyed` -> 父`destroyed`
+
+**更新**
+父`beforeUpdate` -> 子`beforeUpdate` -> 子`updated` -> 父`updated`
 ### 异步生命周期
 
-async created 
+`async created`
+
+1. 组件初始化：
+
+Vue 创建组件实例，初始化 data、computed、methods 等。
+
+2. 进入 created 钩子。
+
+执行 async created：
+
+console.log('created hook start') 立即执行。
+
+3. 遇到 await this.fetchData()，fetchData 是一个返回 Promise 的异步函数。
+
+await 会暂停 created 钩子的执行，等待 fetchData 的 Promise 完成。
+
+4. 等待异步操作完成：
+
+在 fetchData 的 Promise 完成之前，created 钩子不会继续执行。
+
+其他生命周期钩子（如 mounted）也不会被触发。
+
+5. 异步操作完成：
+
+fetchData 的 Promise 完成，await 恢复执行。
+
+console.log('created hook end', data) 执行。
+
+6. 继续生命周期：
+
+created 钩子执行完毕后，Vue 会继续执行后续的生命周期钩子（如 mounted）。
+
+
 
 async mounted
 
@@ -315,9 +339,6 @@ keep-alive 是 Vue.js 内置的一个抽象组件，用于缓存具有相同组�
     ...Element
 </keep-live>
 ```
-
-
-
 
 ## v-if和v-for的优先级是什么？
 v-if 是控制元素显示与隐藏
@@ -402,6 +423,8 @@ Vue2的响应式是基于Object.defineProperty实现的
 Vue3的响应式是基于ES6的Proxy来实现的
 弊端就是：Object.defineProperty只对初始对象里的属性有监听作用，而对新增的属性无效。这也是为什么Vue2中对象新增属性的修
 改需要使用Vue.$set来设值的原因。
+
+
 
 ## 双向数据绑定是什么？
 
@@ -543,29 +566,35 @@ vnode
 我们在Vue中尝尝写一些模板template => ast => render()形成虚拟DOM =>真实DOM
 数据发生改变时，需要必将这一次与上一次的渲染结果，也就是比较两次的虚拟DOM树
 比较过程：
+
 patch是一个递归过程、深度优先、同层比较的策略
+
 - 新旧节点进行比较是否相同，相同就就行下一步，不相同就进行节点的替换或者插入操作
 - 对相同节点的属性进行判断，如果属性发生变化，就进行更新
 - 对子节点进行递归比较，如果子节点有变化就进行更新或者删除
 - 对旧节点剩余的节点进行删除操作
 
-## 你了解vue的diff算法吗？说说看
+## <span style="color: red;">你了解vue的diff算法吗？说说看</span>
 
 Vue Diff算法
+
 组件内响应式数据发生变更触发实例执行其更新函数、更新函数会再次执行render函数获取最新的虚拟DOM
 然后执行patch函数，并传入两次的虚拟DOM, 通过Diff算法比较二者变化的地方、最后将其转化为真实DOM
 
-### diff算法的优化
-- 避免使用index作为唯一的key，尽可能使用具有唯一性的标识符作为key
-- 尽可能减少dom的嵌套层级和节点的数量，较少diff算法的计算
-- 尽量减少频繁增删节点，适当使用vshow和vif控制节点的显示和隐藏
+diff的过程就是调用名为patch的函数，比较新旧节点，一边比较一边给真实的DOM打补丁
 
-**Diff 算法的核心思想是Diff就是将新老虚拟DOM的不同点找到并生成一个补丁，并根据这个补丁生成更新操作，以最小化对实际 DOM 的操作，提高页面渲染的性能和效率**
+### diff算法的优化
+- 避免使用`index`作为唯一的`key`，尽可能使用具有唯一性的标识符作为`key`
+- 尽可能减少`dom`的嵌套层级和节点的数量，较少`diff`算法的计算
+- 尽量减少频繁增删节点，适当使用`v-show`和`v-if`控制节点的显示和隐藏
+
+**`Diff` 算法的核心思想是Diff就是将新老虚拟`DOM`的不同点找到并生成一个补丁，并根据这个补丁生成更新操作，以最小化对实际 `DOM` 的操作，提高页面渲染的性能和效率**
 
 ## 你知道vue中key的原理吗？说说你对它的理解
-在Vue中，key是用来帮助Vue识别节点的优化手段，v-for或者diff算法中同层比较的时候，都是会利用key
+
+在`Vue`中，`key`是用来帮助`Vue`识别节点的优化手段，`v-for`或者`diff`算法中同层比较的时候，都是会利用`key`
 来比较新旧元素，尽可能复用已有的元素。
-key是给每一个vnode的唯一id，也是diff的一种优化策略，可以根据key，更准确， 更快的找到对应的vnode节点
+`key`是给每一个`vnode`的唯一`id`，也是diff的一种优化策略，可以根据`key`，更准确， 更快的找到对应的`vnode`节点
 
 
 ## 推荐视频

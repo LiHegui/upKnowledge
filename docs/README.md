@@ -14,7 +14,7 @@
 
 ### [JavaScript](./interview/JavaScript/index.md)
 
-### [JavaScript](./interview/Ts/index.md)
+### [TypeScript](./interview/Ts/index.md)
 
 ### [React](./interview/React/index.md)
 
@@ -23,7 +23,6 @@
 ### [Git](./interview/git/index.md)
 
 ### [算法](./interview/算法Code/index.md)
-
 
 ### [设计模式](./interview/设计模式/index.md)
 

@@ -4,9 +4,9 @@
 
 * async await是一种用于简化JavaScript中异步编程的语法。<span style="color: red;">是基于Promise的语法糖</span>，提供了一种更方便、更易理解的方式来处理异步操作。
 
-* async是一个放在函数声明前的关键字，表示该函数是一个异步函数。这个函数总是返回一个Promise。如果函数内部返回了一个非Promise值，async函数会自动把这个值用Promise.resolve()封装成一个解决（resolved）状态的Promise。
+* <span style="color: red;">async是一个放在函数声明前的关键字，表示该函数是一个异步函数。这个函数总是返回一个Promise。如果函数内部返回了一个非Promise值，async函数会自动把这个值用Promise.resolve()封装成一个解决（resolved）状态的Promise。</span>
 
-* async/await能够使用传统的try/catch结构来捕获异常，这使得异步代码的错误处理更加直观和方便。
+* <span style="color: red;">async/await能够使用传统的try/catch结构来捕获异常</span>，这使得异步代码的错误处理更加直观和方便。
 
 ### 一次性发送多个请求，保证他们的顺序？
 
@@ -37,21 +37,20 @@ function sendRequestsConcurrently(urls) {
 如果其中一个请求失败了，使用Promise.all会导致全部Promise被拒绝。如果你需要保证即使个别请求失败了，也要保证其他请求的数据被处理，可以考虑Promise.allSettled方法。<br>
 最后可以简单提一下Promise.allSettled的特性，表明对不同Promise处理方式的深入了解。
 
-### 如果是await一个非promise会发生什么
-
 ### async await的实现原理
 
+通过生成器`Generator`和 `Promise` 的结合，模拟了 `async/await` 的行为。它的核心思想是利用生成器的暂停和恢复机制，结合 `Promise` 的异步处理能力，实现类似 await 的功能。这种模拟虽然不如原生 `async/await` 高效，但它很好地展示了 `async/await` 的工作原理。
+
+::: normal-demo
 ```js
 function p(num) {
   return Promise.resolve(num * 2)
 }
-
 function* generator() {
   const value1 = yield p(1)
   const value2 = yield p(value1)
   return value2
 }
-
 function higherOrderFn(generatorFn) {
   return () => {
     return new Promise((resolve, reject) => {
@@ -60,13 +59,11 @@ function higherOrderFn(generatorFn) {
       const doYield = (val)=>{
         console.log(val)
         let res
-
         try{
           res = gen.next(val)
         }catch(err){
             reject(err)
         }
-
         const {value,done} = res
         // done === true 函数结束，resolve结果
         if(done){
@@ -76,18 +73,16 @@ function higherOrderFn(generatorFn) {
           value.then((val)=>{doYield(val)})
         }
       }
-
       doYield()
     })
   }
 }
-
 const asyncFn = higherOrderFn(generator)()
 // undefined
 // 2
 // 4
 ```
-
+:::
 ### 推荐文章
 
 [详解 async/await —— 从入门到实现原理](https://juejin.cn/post/7288963802649608250?searchId=20250224095329E728068825CAB4E955B4)
@@ -364,7 +359,9 @@ function promiseAll(promises) {
 }
 ```
 :::
-## 🚩[Proxy](/interview/ES6/Proxy/index.md)
+## 说说你知道的Proxy?
+
+
 
 
 ## 什么是Reflect?

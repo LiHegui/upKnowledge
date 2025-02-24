@@ -1,5 +1,0 @@
-const fs = require('fs')
-fs.appendFileSync('a.txt','world')
-fs.appendFileSync('a.txt','world')
-const res = fs.readFileSync('a.txt','utf-8')
-console.log(res)

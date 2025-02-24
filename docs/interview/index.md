@@ -10,7 +10,7 @@
 
 ## JavaScript
 
-[JavaScript面试题](./JavaScript/route.md)
+[JavaScript面试题](./JavaScript/index.md)
 
 ## TypeScript
 
@@ -39,6 +39,8 @@
 
 ## 网络
 [网络相关面试题](./网络/index.md)
+
+[网络](./网络/index.md)
 
 ## 浏览器
 

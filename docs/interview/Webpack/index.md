@@ -195,3 +195,12 @@ Webpack 工作过程中，有一些关键的生命周期函数，它们是插件
     }
 
     module.exports = MyPlugin;//导出插件
+
+
+## 常见的loader
+
+- babel-loader 处理JS代码
+- style-loader csS注入到index.html中
+
+
+## webpack 如何进行性能优化

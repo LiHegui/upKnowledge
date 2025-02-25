@@ -1,4 +1,4 @@
-# 升级喽
+# [升级喽](https://lihegui.github.io/upKnowledge/#%F0%9F%9A%80-%E7%9F%A5%E8%AF%86%E5%BA%93)
 
 ## 面试算法题 🚀
 

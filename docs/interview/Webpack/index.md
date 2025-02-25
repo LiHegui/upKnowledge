@@ -1,13 +1,49 @@
-## 说说你对webpack的理解？解决了什么问题？
-webapck的最初目标是实现前端的模块化，旨在更高效地管理和维护项目中的每一个资源。
+# `Webpack`面试题
+
+## 说说你对`webpack`的理解？解决了什么问题？
+
+**`webpack` 是一个用于现代JavaScript应用程序的静态模块打包工具**
+
+**`webapck`的最初目标是实现前端的模块化，旨在更高效地管理和维护项目中的每一个资源。**
+
+当 webpack处理应用程序时，它会在内部构建一个依赖图，此依赖图对应映射到项目所需的每个模块（不再局限js文件），并生成一个或多个 bundle
+
+解决问题
+
+- 模块化
+    多个模块 => bundle.js
+- 资源管理
+    处理不局限于JavaScript文件时，处理其它资源时，也作为资源管理，并将其打包到最终的bundle中
+- 代码分割与懒加载
+    - 代码分割
+    - 懒加载
+- 开发环境优化
+    - 热更新HMR
+    - 开发服务器（webpack-dev-server） -> 发过程中提供一个本地服务器，并自动重新加载页面
+- 生产环境优化
+    - Tree Shaking => 去除多余代码
+    - 代码压缩
 
 
 ## 说说webpack的构建流程?
-webpack的运行流程就是一个串行的过程，它的工作流程就是将各个插件串联起来。
-- 初始化流程:从配置文件和shell语句读取与合并参数，并初始化需要的内置的和配置的插件以及执行环境所需要的参数
-- 编译构建流程：从入口文件entry出发，针对每个module模块串行调用loader去编译文件，再找到module依赖的module，递归地进行编译处理
--对编译后地module组合成chunk，把chunk转换成文件，输出到指定出口文件目录
-- 在整个过程中，webpack会广播各种事件，而插件只需要监听它所关心的事件，就能加入到这条webpack机制中，然后改变webpack的运作，使整个系统的拓展性很好
+
+Webpack 的运行流程是一个串行的过程，从启动到结束会依次执行以下流程：
+
+  1. 初始化参数：从配置文件和shell语句读取与合并参数，并初始化需要的内置的和配置的插件以及执行环境所需要的参数, 得出最终的参数；
+
+  2. 开始编译：用上一步得到的参数初始化 `Compiler` 对象，加载所有配置的插件，执行对象的 `run`方法开始执行编译；
+
+  3. 确定入口：根据配置中的 `entry` 找出所有的入口文件；
+
+  4. 编译模块：从入口文件出发，调用所有配置的 `Loader` 对模块进行翻译，再找出该模块依赖的模块，再递归本步骤直到所有入口依赖的文件都经过了本步骤的处理；
+
+  5. 完成模块编译：在经过第4步使用 Loader 翻译完所有模块后，得到了每个模块被翻译后的最终内容以及它们之间的依赖关系；
+
+  6. 输出资源：根据入口和模块之间的依赖关系，组装成一个个包含多个模块的 `Chunk`，再把每个 `Chunk` 转换成一个单独的文件加入到输出列表，这步是可以修改输出内容的最后机会；
+
+  7. 输出完成：在确定好输出内容后，根据配置确定输出的路径和文件名，把文件内容写入到文件系统。
+
+在以上过程中，`Webpack` 会在特定的时间点广播出特定的事件，插件在监听到感兴趣的事件后会执行特定的逻辑，并且插件可以调用 `Webpack` 提供的 `API` 改变 `Webpack` 的运行结果。
 
 ## 说说webpack的热更新是如何做到的？原理是什么？
 热更新的配置项为HMR默认就是为true
@@ -134,37 +170,43 @@ Webpack 工作过程中，有一些关键的生命周期函数，它们是插件
 - 使用DLLPlugin插件
 - 使用cache-loader
 - terser启动多线程
-- 合理使用sourceMAP 
+- 合理使用sourceMap
+    
 
 ## 如何实现一个loader、plugin？
 实现一个loader：
-    loader模块如下：
-    module.exports = function (source) {
-      const options = this.getOptions() // 获取 webpack 配置中传来的 option
-      this.callback(null, addSign(source, options.sign))
-      return
-    }
+loader模块如下：
+```js
+module.exports = function (source) {
+    const options = this.getOptions() // 获取 webpack 配置中传来的 option
+    this.callback(null, addSign(source, options.sign))
+    return
+}
 
-    function addSign(content, sign) {
-     return `/** ${sign} */\n${content}`
-    }
-    配置如下：
-    module: {
+function addSign(content, sign) {
+    return `/** ${sign} */\n${content}`
+}
+```
+
+配置如下：
+```js
+module: {
     rules: [
-      {
+        {
         test: /\.js$/,
         use: [
-          'console-loader',
-          {
+            'console-loader',
+            {
             loader: 'name-loader',
             options: {
-              sign: 'we-doctor@2021',
+                sign: 'we-doctor@2021',
             },
-          },
+            },
         ],
-      },
+        },
     ],
-    }，
+}，
+```
 
 实现一个plugin：
     class MyPlugin {//定义一个插件类
@@ -197,10 +239,25 @@ Webpack 工作过程中，有一些关键的生命周期函数，它们是插件
     module.exports = MyPlugin;//导出插件
 
 
-## 常见的loader
+## 常见的loader和如何手写一个loader
 
 - babel-loader 处理JS代码
 - style-loader csS注入到index.html中
 
 
+
+
+### 如何手写一个loader
+
+
+
+## 常见的plugin
+
+- HtmlWebpackPlugin --> 打包生成的js 模块引⼊到该 html 中
+- clean-webpack-plugin --> 删除（清理）构建目录
+- mini-css-extract-plugin --> 分离css成多个文件
+
 ## webpack 如何进行性能优化
+
+
+

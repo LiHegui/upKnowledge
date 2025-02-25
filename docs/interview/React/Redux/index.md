@@ -5,7 +5,9 @@ redux是一个状态容器
     被对应的reducer处理，于是state完成更新。
 - 组件可以派发（dispatch）行为action给store，而不是直接通知其它组件。
 - 其它组件可以通过订阅store中的状态state来刷新自己的视图
+
 ## redux怎么用
+
 - 创建 action
 ```javascript
 // actions.js

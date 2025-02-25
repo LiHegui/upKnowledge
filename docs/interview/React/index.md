@@ -837,3 +837,239 @@ function App() {
     
 
 
+## Fiber
+
+js引擎和页面渲染引擎是在同一个渲染线程之内，两者是互斥关系。如果在某个阶段执行任务特别长，例如在定时器阶段或Begin Frame阶段执行时间非常长，时间已经明显超过了16ms，那么就会阻塞页面的渲染，从而出现卡顿现象。
+
+>在 react16 引入 Fiber 架构之前，react 会采用递归对比虚拟DOM树，找出需要变动的节点，然后同步更新它们，这个过程 react 称为reconcilation（协调）。在reconcilation期间，react 会一直占用浏览器资源，会导致用户触发的事件得不到响应。实现的原理如下所示：
+
+### Vue 是没有 Fiber
+
+Vue 是基于 template 和 watcher 的组件级更新，把每个更新任务分割得足够小，不需要使用到 Fiber 架构，将任务进行更细粒度的拆分
+React 是不管在哪里调用 setState，都是从根节点开始更新的，更新任务还是很大，需要使用到 Fiber 将大任务分割为多个小任务，可以中断和恢复，不阻塞主进程执行高优先级的任务
+
+### fiber是一种新的数据结构
+
+Fiber 可以理解为是一个执行单元，也可以理解为是一种数据结构
+
+每执行一个执行单元, react就会检查还剩余多长时间， 如果没有将会把控制权让出去。
+
+**fiber链表数据结构**
+
+Fiber是链表数据结构，fiber tree 是单链表结构
+
+### fiber执行原理
+
+从根节点开始渲染和调度的过程可以分为两个阶段：render 阶段、commit 阶段
+
+1. render 阶段
+    这个阶段是可中断的，找出所有节点的变更
+    1. React Fiber首先是将虚拟DOM树转化为Fiber tree，因此每个节点都有child、sibling、return属性
+    2. 
+2. commit 阶段
+    这个阶段是不可中断的，会执行所有的变更
+
+
+## 高阶组件（已发-李和贵）
+
+### 高阶组件是什么？
+
+::: tip
+高阶组件（HOC）是 React 中用于复用组件逻辑的一种高级技巧。HOC 自身不是 React API 的一部分，它是一种基于 React 的组合特性而形成的设计模式。
+
+**高阶组件是参数为组件，返回值为新组件的函数**
+:::
+
+在此期间，我们可以对该组件进行props处理，事件处理等工作
+
+### 认识高阶组件
+
+1. 复用逻辑
+
+    对组件进行加工处理，根据需求来定制专属化的HOC
+
+2. 强化props
+  
+    劫持上一层传过来的props,混入新的props
+
+3. 赋能组件
+  
+    HOC有一项独特的特性，就是可以给被HOC包裹的业务组件，提供一些拓展功能，比如说额外的生命周期，额外的事件，但是这种HOC，可能需要和业务组件紧密结合
+
+4. 控制渲染
+  
+    劫持渲染是hoc一个特性，在wrapComponent包装组件中，可以对原来的组件，进行条件渲染，节流渲染，懒加载等功能
+
+**使用方式**
+
+- 装饰器模式
+
+- 函数包裹
+
+**两种不同的高阶组件**
+
+- 正向的属性代理
+    ```javascript
+      function HOC(WrapComponent){
+        return class Advance extends React.Component{
+          state={
+              name:'loong'
+          }
+          render(){
+              return <WrapComponent  { ...this.props } { ...this.state }  />
+          }
+        }
+      }
+    ```
+
+    我们来看一下上面这个例子，return 返回结果是父组件（代理组件）对子组件（业务组件）的一系列操作
+
+    **在 fiber tree上，先mounted组件，然后才是我们的业务组件**
+
+- 反向的组件继承
+    ```javascript
+        class Index extends React.Component{
+            render(){
+                return <div> hello,world  </div>
+            }
+        }
+        function HOC(Component){
+            return class wrapComponent extends Component{
+
+            }
+        }
+        export default HOC(Index) 
+    ```
+    HOC采用继承的方式, 代理组件继承了业务组件的本身，我们在使用的时候直接实例化代理组件HOC即可
+
+### 编写高阶组件
+
+很多文章对其有很多分类，我这里就按照我的理解去分类
+
+1. 增强props
+    混入props 代理组件state状态会混入（上面有混入的例子）, 初次之外我们还可以进行控制state的更新
+    ```javascript
+    function classHOC(WrapComponent){
+        return class  Idex extends React.Component{
+            constructor(){
+                super()
+                this.state={
+                    name:'alien'
+                }
+            }
+            changeName(name){
+                this.setState({ name })
+            }
+            render(){
+                return <WrapComponent { ...this.props }  { ...this.state } changeName={this.changeName.bind(this)  }  />
+            }
+        }
+    }
+    function Index(props){
+        const [ value ,setValue ] = useState(null)
+        const { name ,changeName } = props
+        return <div>
+            <div>   hello,world , my name is { name }</div>
+            改变name <input onChange={ (e)=> setValue(e.target.value)  }  />
+            <button onClick={ ()=>  changeName(value) }  >确定</button>
+        </div>
+    }
+
+    export default classHOC(Index)
+    ```
+
+    我们看这个例子，代理组件中`changeName={this.changeName.bind(this)} `，绑定changeName方法。用来更新name属性（代理组件中，说实话让我想起来了闭包）。
+
+    题外话：上面的例子中changeName绑定的是一个函数，然后利用bind改变其this指向（返回值是一个函数），在Index组件使用的时候`<button onClick={ ()=>  changeName(value) }  >确定</button>` , 才可以正确更新到代理组建的state。如果不绑定就会找不到该方法。
+
+2. 控制渲染
+    代理组件通过处理可以控制子组件是否显示
+
+    可以通过变量控制，也可以通过其它方式。达到控制渲染的目的就可以了
+
+    我们来看一个优化的例子💨
+
+    ```javascript
+        function HOC (Component){
+            return function renderWrapComponent(props){
+                const { num } = props
+                const RenderElement = useMemo(() =>  <Component {...props}  /> ,[ num ])
+                return RenderElement
+            }
+        }
+        class Index extends React.Component{
+        render(){
+            console.log(`当前组件是否渲染`,this.props)
+            return <div>hello,world, my name is alien </div>
+        }
+        }
+        const IndexHoc = HOC(Index)
+
+        export default ()=> {
+            const [ num ,setNumber ] = useState(0)
+            const [ num1 ,setNumber1 ] = useState(0)
+            const [ num2 ,setNumber2 ] = useState(0)
+            return <div>
+                <IndexHoc  num={ num } num1={num1} num2={ num2 }  />
+                <button onClick={() => setNumber(num + 1) } >num++</button>
+                <button onClick={() => setNumber1(num1 + 1) } >num1++</button>
+                <button onClick={() => setNumber2(num2 + 1) } >num2++</button>
+            </div>
+        }
+    ```
+    上面的例子应该很好理解，代理组件通过useMemo钩子来依据props传入的num,来决定是否更新子组件
+
+3. 劫持生命周期
+
+```javascript
+function HOC (Component){
+  const proDidMount = Component.prototype.componentDidMount 
+  Component.prototype.componentDidMount = function(){
+     console.log('劫持生命周期：componentDidMount')
+     proDidMount.call(this)
+  }
+  return class wrapComponent extends React.Component{
+      render(){
+        return <Component {...this.props}  />
+      }
+  }
+}
+```
+
+也是很好理解，代理组件保存子组建的生命周期函数，然后重新设置对应的生命周期函数
+
+4. 事件处理
+
+我们来看分析下面这个例子💨
+
+```javascript
+function ClickHoc (Component){
+  return  function Wrap(props){
+    const dom = useRef(null)
+    useEffect(()=>{
+     const handerClick = () => console.log('发生点击事件') 
+     dom.current.addEventListener('click',handerClick)
+     return () => dom.current.removeEventListener('click',handerClick)
+    },[])
+    return  <div ref={dom} ><Component  {...props} /></div>
+  }
+}
+```
+其实就是代理组件上面加了一个click监听事件
+
+5. 获取自定义组件ref
+   
+   我们知道在自定义组件上面ref是无用的，我们可以使用代理组件包裹业务组件即可，`ref={dom}`在代理组件上，即可获取
+   ```javascript
+    return  <div ref={dom} ><Component  {...props} /></div>
+   ```
+
+### 高阶组件实践
+
+可以参卡`推荐文章`中的这一章节，写的很详细
+
+
+
+### 推荐文章
+
+[「react进阶」一文吃透React高阶组件(HOC)](https://juejin.cn/post/6940422320427106335?searchId=20240314203945EF18D3514FDD63A655E1#heading-44)

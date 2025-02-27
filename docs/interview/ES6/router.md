@@ -259,7 +259,7 @@ Promise存在三种状态fulfilled rejected pedding,状态不可逆
 ### 代码实现Promise
 详细见Promise文件
 
-::: demo
+::: normal-demo
 ```js
 // 如何实现一个Promise
 // 三种状态
@@ -337,7 +337,7 @@ const promise = new Promise((resolve, reject) => {
 整体思路就是Promise.all的特征就是接受一组Promise,输出结果为这一组的结果
 
 
-::: demo
+::: normal-demo
 ```js
 // 如何实现一个Promise.all
 function promiseAll(promises) {

@@ -1,0 +1,11 @@
+/* .vuepress/styles/index.scss */
+
+/* 设置全局字体 */
+body {
+    font-family: 'fangsong', sans-serif;
+
+    h2 {
+        color: var(--vp-c-accent);
+        font-weight: 900;
+    }
+}

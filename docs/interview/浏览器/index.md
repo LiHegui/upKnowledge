@@ -81,7 +81,7 @@ myWorker.postMessage('Hello, worker!');
 2. DNS查询
 3. TCP链接
 4. HTTP请求
-5. 相应请求
+5. 响应请求
 6. 页面渲染
 
 ## 说一下你理解的浏览器缓存

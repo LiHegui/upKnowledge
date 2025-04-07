@@ -1,12 +1,3 @@
-// import { viteBundler } from '@vuepress/bundler-vite'
-// import { defaultTheme } from '@vuepress/theme-default'
-// import { defineUserConfig } from 'vuepress'
-
-// export default defineUserConfig({
-//   bundler: viteBundler(),
-//   theme: defaultTheme(),
-// })
-
 /**
  * 新版升级配置
  */
@@ -46,7 +37,6 @@ export default defineUserConfig({
       placeholder: '搜索文档',
       hotKeys: ['s', '/'], // 触发搜索的快捷键
       maxSuggestions: 10, // 最大建议数
-      // 多语言支持（根据主题配置调整）
       locales: {
         '/': { placeholder: 'Search' },
         '/zh/': { placeholder: '搜索' },

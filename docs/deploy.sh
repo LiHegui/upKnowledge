@@ -14,6 +14,7 @@ cd .vuepress/dist
 git init
 git add -A
 git commit -m 'deploy'
+git branch -M master
 
 # 如果发布到 https://<USERNAME>.github.io/<REPO>
 git push -f git@github.com:lihegui/upKnowledge.git master:gh-pages

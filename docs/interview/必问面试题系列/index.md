@@ -8,129 +8,131 @@
 
 - 常见的 JavaScript 内存泄漏
 
-### 1.意外的全局变量
+### 有哪些源导致内存泄漏
 
-    - 描述：最常见也是最容易犯的错误之一,在非严格模式下,创建了全局变量，但未在函数中定义，导致变量无法被垃圾回收机制回收。
+1. 意外的全局变量
 
-    ```javascript
-    function foo() {
-      bar = "这是一个意外的全局变量"; // 没有用 var, let, const 声明
-      this.anotherGlobal = "另一个全局变量"; // 在函数内部，this 默认指向 window
-    }
-    foo();
-    ```
+   - 描述：最常见也是最容易犯的错误之一,在非严格模式下,创建了全局变量，但未在函数中定义，导致变量无法被垃圾回收机制回收。
 
-    - 解决方法：
+   ```javascript
+   function foo() {
+     bar = "这是一个意外的全局变量"; // 没有用 var, let, const 声明
+     this.anotherGlobal = "另一个全局变量"; // 在函数内部，this 默认指向 window
+   }
+   foo();
+   ```
 
-    1. 在函数内部，使用 var, let, const 声明变量。
-    2. 始终使用 'use strict'; 开启严格模式。
+   - 解决方法：
 
-### 2.被遗忘的定时器或回调函数
+   1. 在函数内部，使用 var, let, const 声明变量。
+   2. 始终使用 'use strict'; 开启严格模式。
 
-    - 描述：setInterval, setTimeout 如果不再需要但却没有被清除，其内部引用的变量或函数也无法被回收。
+2. 被遗忘的定时器或回调函数
 
-    ```javascript
-    // 定时器泄漏
-    let someData = getHugeData();
-    setInterval(() => {
-      const node = document.getElementById("Node");
-      if (node) {
-        node.innerHTML = JSON.stringify(someData);
-      }
-    }, 1000); // 即使节点从 DOM 中移除了，定时器仍在执行，someData 也无法被回收
+   - 描述：setInterval, setTimeout 如果不再需要但却没有被清除，其内部引用的变量或函数也无法被回收。
 
-    // 被遗忘的回调（例如未移除的事件监听器）
+   ```javascript
+   // 定时器泄漏
+   let someData = getHugeData();
+   setInterval(() => {
+     const node = document.getElementById("Node");
+     if (node) {
+       node.innerHTML = JSON.stringify(someData);
+     }
+   }, 1000); // 即使节点从 DOM 中移除了，定时器仍在执行，someData 也无法被回收
 
-    function setup() {
-      const element = document.getElementById("button");
-      element.addEventListener("click", onClick); // 添加了监听器
-      // 但如果后续 element 被移除，而没有移除这个监听器，监听器函数和其闭包作用域都不会被释放
-    }
+   // 被遗忘的回调（例如未移除的事件监听器）
 
-    // 应该提供一个清理函数
+   function setup() {
+     const element = document.getElementById("button");
+     element.addEventListener("click", onClick); // 添加了监听器
+     // 但如果后续 element 被移除，而没有移除这个监听器，监听器函数和其闭包作用域都不会被释放
+   }
 
-    function teardown() {
-      const element = document.getElementById("button");
-      element.removeEventListener("click", onClick); // 必须移除！
-    }
-    ```
+   // 应该提供一个清理函数
 
-    - 解决方法：
+   function teardown() {
+     const element = document.getElementById("button");
+     element.removeEventListener("click", onClick); // 必须移除！
+   }
+   ```
 
-    1. 使用 clearInterval 或 clearTimeout 及时清理不再需要的定时器。
-    2. 对于事件监听器，在对象被销毁时（例如在组件的 unmount 生命周期或 useEffect 的清理函数中）使用 removeEventListener 主动移除。
+   - 解决方法：
 
-### 3.脱离 DOM 的引用
+   1. 使用 clearInterval 或 clearTimeout 及时清理不再需要的定时器。
+   2. 对于事件监听器，在对象被销毁时（例如在组件的 unmount 生命周期或 useEffect 的清理函数中）使用 removeEventListener 主动移除。
 
-    - 描述：当你将 DOM 元素保存在 JavaScript 中（例如在一个数组或对象中），即使你已经从页面上移除了这个 DOM 元素，由于它仍然被 JavaScript 引用着，它也不会被垃圾回收。
+3. 脱离 DOM 的引用
 
-    ```js
-    // 在 JS 中缓存一个 DOM 元素
+   - 描述：当你将 DOM 元素保存在 JavaScript 中（例如在一个数组或对象中），即使你已经从页面上移除了这个 DOM 元素，由于它仍然被 JavaScript 引用着，它也不会被垃圾回收。
 
-    const elements = {
-      button: document.getElementById("my-button"),
-    };
+   ```js
+   // 在 JS 中缓存一个 DOM 元素
 
-    // 后来从 DOM 树中移除了这个按钮
-    document.body.removeChild(document.getElementById("my-button"));
+   const elements = {
+     button: document.getElementById("my-button"),
+   };
 
-    // 此时，按钮元素本身已经从 DOM 移除了
-    // 但因为它还被 elements.button 引用着，所以它占用的内存不会被释放。
-    ```
+   // 后来从 DOM 树中移除了这个按钮
+   document.body.removeChild(document.getElementById("my-button"));
 
-    - 解决方法：
+   // 此时，按钮元素本身已经从 DOM 移除了
+   // 但因为它还被 elements.button 引用着，所以它占用的内存不会被释放。
+   ```
 
-    1. 确保在移除 DOM 元素后，也清除对它的所有 JavaScript 引用（例如将 elements.button 设置为 null）。
+   - 解决方法：
 
-### 4.闭包的不当使用
+   1. 确保在移除 DOM 元素后，也清除对它的所有 JavaScript 引用（例如将 elements.button 设置为 null）。
 
-    - 描述：闭包是 JavaScript 的强大功能，它会保留对其外部词法环境的引用。因为闭包引用了外部作用域中的变量，这些变量可能会阻止外部作用域中的对象被垃圾回收,如果闭包持有大量数据的引用，即使外部函数已经执行完毕，这些数据也不会被释放
+4. 闭包的不当使用
 
-    ```javascript
-    function outer() {
-      const bigData = new Array(1000000).fill("*"); // 一个大数组
+   - 描述：闭包是 JavaScript 的强大功能，它会保留对其外部词法环境的引用。因为闭包引用了外部作用域中的变量，这些变量可能会阻止外部作用域中的对象被垃圾回收,如果闭包持有大量数据的引用，即使外部函数已经执行完毕，这些数据也不会被释放
 
-      return function inner() {
-        // 内部函数（闭包）被返回
-        // 即使 inner 没有显式使用 bigData，它仍然持有对 outer 环境的引用
-        console.log("闭包被调用了");
-        // 如果这里使用了 bigData，问题会更明显
-      };
-    }
+   ```javascript
+   function outer() {
+     const bigData = new Array(1000000).fill("*"); // 一个大数组
 
-    const closureFn = outer(); // outer 执行完毕，但 bigData 不会被释放，因为 closureFn 这个闭包还存在着
-    ```
+     return function inner() {
+       // 内部函数（闭包）被返回
+       // 即使 inner 没有显式使用 bigData，它仍然持有对 outer 环境的引用
+       console.log("闭包被调用了");
+       // 如果这里使用了 bigData，问题会更明显
+     };
+   }
 
-    - 解决方法：
+   const closureFn = outer(); // outer 执行完毕，但 bigData 不会被释放，因为 closureFn 这个闭包还存在着
+   ```
 
-    1. 注意闭包的生命周期。如果闭包不需要了，将其引用置为 null (closureFn = null)。
-    2. 谨慎地在闭包中持有大型数据的引用，如果不需要这些数据，确保在适当的时候解除引用。
+   - 解决方法：
 
-### 5.未清理的 Map 和 Set 等集合
+   1. 注意闭包的生命周期。如果闭包不需要了，将其引用置为 null (closureFn = null)。
+   2. 谨慎地在闭包中持有大型数据的引用，如果不需要这些数据，确保在适当的时候解除引用。
 
-    - 描述：Map 和 Set 等集合对其中的键和值是强引用。如果你将一个对象作为键存入 Map，即使这个对象在其他地方已经没有任何引用了，只要它还在 Map 中，它就不会被回收。Set 同理
+5. 未清理的 Map 和 Set 等集合
 
-    ```js
-    let obj = { id: 1 };
-    const map = new Map();
-    map.set(obj, "some value");
+   - 描述：Map 和 Set 等集合对其中的键和值是强引用。如果你将一个对象作为键存入 Map，即使这个对象在其他地方已经没有任何引用了，只要它还在 Map 中，它就不会被回收。Set 同理
 
-    // 即使清除了外部对 obj 的引用
-    obj = null;
+   ```js
+   let obj = { id: 1 };
+   const map = new Map();
+   map.set(obj, "some value");
 
-    // 对象 { id: 1 } 仍然存在于 map 中，不会被 GC
-    console.log(map.keys()); // 仍然可以访问到它
-    ```
+   // 即使清除了外部对 obj 的引用
+   obj = null;
 
-    - 解决方法：使用 WeakMap 和 WeakSet。它们是弱引用集合，其键必须是对象，且不会阻止垃圾回收机制回收这些对象。当键对象在其他地方没有被引用时，它会被自动从 WeakMap/WeakSet 中移除。
+   // 对象 { id: 1 } 仍然存在于 map 中，不会被 GC
+   console.log(map.keys()); // 仍然可以访问到它
+   ```
 
-    ```js
-    let obj = { id: 1 };
-    const weakMap = new WeakMap();
-    weakMap.set(obj, "some value");
+   - 解决方法：使用 WeakMap 和 WeakSet。它们是弱引用集合，其键必须是对象，且不会阻止垃圾回收机制回收这些对象。当键对象在其他地方没有被引用时，它会被自动从 WeakMap/WeakSet 中移除。
 
-    obj = null; // 此时，对象 { id: 1 } 可以被 GC，它也会从 weakMap 中自动消失
-    ```
+   ```js
+   let obj = { id: 1 };
+   const weakMap = new WeakMap();
+   weakMap.set(obj, "some value");
+
+   obj = null; // 此时，对象 { id: 1 } 可以被 GC，它也会从 weakMap 中自动消失
+   ```
 
 ### 如何检查
 

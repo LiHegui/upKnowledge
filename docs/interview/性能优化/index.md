@@ -1,10 +1,127 @@
-# 前端-性能优化
+# 前端性能优化
 
-## 什么是懒加载？
+## 什么是懒加载（Lazy Loading）？
 
-## 如何优化动画？
+懒加载是指延迟加载资源或组件，在真正需要展示时才加载，**减少首屏资源体积**。
 
-## 前端性能优化—预请求
+**常见场景：**
 
+```js
+// 图片懒加载（Intersection Observer）
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const img = entry.target
+      img.src = img.dataset.src
+      observer.unobserve(img)
+    }
+  })
+})
+document.querySelectorAll('img[data-src]').forEach(img => observer.observe(img))
 
+// 路由懒加载（Vue Router）
+{
+  path: '/about',
+  component: () => import('./views/About.vue')  // 动态导入
+}
+```
+
+## 如何优化动画性能？
+
+1. **使用 `transform` 和 `opacity`** 替代 `top`/`left` 等引发回流的属性
+2. **开启硬件加速**
+   ```css
+   .box {
+     will-change: transform;  /* 提前告知浏览器该元素将变化 */
+     transform: translateZ(0); /* 创建新图层，启用 GPU 加速 */
+   }
+   ```
+3. **使用 `requestAnimationFrame`** 替代 setTimeout/setInterval
+   ```js
+   function animate() {
+     // 动画逻辑
+     requestAnimationFrame(animate) // 和屏幕刷新率同步
+   }
+   requestAnimationFrame(animate)
+   ```
+4. **60fps 目标**：每帧预绝 16.7ms，避免长任务阴塞主线程
+
+## 前端性能优化——预请求 (Prefetch / Preload)
+
+| 属性 | 说明 | 适用场景 |
+|------|------|----------|
+| `preload` | **现在**需要，高优先加载 | 当前页面的关键资源 |
+| `prefetch` | **未来**可能需要，低优先级 | 下一个页面的资源 |
+| `preconnect` | 提前建立 TCP 连接 | CDN 、第三方 API |
+| `dns-prefetch` | 提前 DNS 解析 | 跨域资源 |
+
+```html
+<!-- preload: 当前页必用字体 -->
+<link rel="preload" href="font.woff2" as="font" crossorigin>
+<!-- prefetch: 下一页的脚本 -->
+<link rel="prefetch" href="/next-page.js">
+```
+
+## 图片优化的方式有哪些？
+
+1. **选择合适格式**：JPG（写实图）、PNG（透明图）、WebP（压缩率更高）、SVG（图标、矢量图）
+2. **压缩**：工具压缩（TinyPNG）或构建时自动压缩
+3. **懒加载**：视口内才加载（Intersection Observer）
+4. **响应式图片**：`srcset` + `sizes` 根据屏幕分辨率加载
+5. **CDN**：图片放 CDN 加速全球访问
+6. **雪碧图**（Sprite）：小图标合并，减少 HTTP 请求数
+7. **Base64**：极小图标直接嵌入 CSS
+
+## 如何减少首屏加载时间（资源加载优化）？
+
+1. **减少请求数**
+   - HTTP/2 多路实现多请求并发
+   - 将小资源 inline（base64图片）
+   - 合并 CSS/JS 文件
+2. **减小文件体积**
+   - Gzip / Brotli 压缩
+   - Tree Shaking 去除未用代码
+   - 代码分割（Code Splitting）
+3. **缓存策略**
+   - 设置强缓存 `Cache-Control: max-age=31536000`
+   - 文件内容 hash（webpack 内容哈希）
+4. **CDN 加速**：静态资源部署到 CDN
+5. **首屏内容优先加载**
+   - 关键 CSS inline 到 `<head>`
+   - 自底部加载 `<script>` 或使用 `defer`
+
+## 什么是防抖（debounce）和节流（throttle）？
+
+**防抖：** 频繁触发后延迟执行，在 n 秒内只执行最后一次。
+```js
+function debounce(fn, delay) {
+  let timer
+  return (...args) => {
+    clearTimeout(timer)
+    timer = setTimeout(() => fn(...args), delay)
+  }
+}
+// 适用：搜索输入框、表单验证
+```
+
+**节流：** 在 n 秒内最多执行一次。
+```js
+function throttle(fn, delay) {
+  let last = 0
+  return (...args) => {
+    const now = Date.now()
+    if (now - last >= delay) {
+      last = now
+      fn(...args)
+    }
+  }
+}
+// 适用：滚动事件、鼠标移动
+```
+
+## 什么是虚拟列表（Virtual List）？
+
+只渲染**可视口区域内**的数据项，副层圣上下格占位符，用于重渲染大量数据时的性能优化。
+
+当列表数据超过 **1000+** 条时，应考虑使用虚拟列表。
 

@@ -2,21 +2,139 @@
 
 ## 生命周期
 
+Vue3 的生命周期与 Vue2 基本对应，但名称有变化，且支持在 `setup()` 中使用组合式 API 形式调用。
+
+| Vue2 | Vue3（Options API）| Vue3（Composition API）|
+|------|-------------------|------------------------|
+| `beforeCreate` | `beforeCreate` | — （用 `setup()` 替代）|
+| `created` | `created` | — （用 `setup()` 替代）|
+| `beforeMount` | `beforeMount` | `onBeforeMount` |
+| `mounted` | `mounted` | `onMounted` |
+| `beforeUpdate` | `beforeUpdate` | `onBeforeUpdate` |
+| `updated` | `updated` | `onUpdated` |
+| `beforeDestroy` | `beforeUnmount` | `onBeforeUnmount` |
+| `destroyed` | `unmounted` | `onUnmounted` |
+
+```js
+import { onMounted, onUpdated, onUnmounted } from 'vue'
+
+setup() {
+  onMounted(() => {
+    console.log('组件挂载完成')
+  })
+  onUnmounted(() => {
+    console.log('组件卸载，清除定时器/监听器')
+  })
+}
+```
+
+**执行顺序（父子组件）**：
+```
+父 beforeCreate -> 父 created -> 父 beforeMount
+  -> 子 beforeCreate -> 子 created -> 子 beforeMount -> 子 mounted
+父 mounted
+```
 
 ## ref
 
-## reactive
+`ref` 用于创建一个**响应式的引用**，可以持有任意类型的值（基本类型或对象）。
 
 ```js
- // --------------- reactive 模块 --------------- 
-    /**
-     * 收集所有依赖的 WeakMap 实例：
-     * 1. `key`：响应性对象
-     * 2. `value`：`Map` 对象
-     * 		1. `key`：响应性对象的指定属性
-     * 		2. `value`：指定对象的指定属性的 执行函数
-     */
-    const targetMap = new WeakMap()
+import { ref } from 'vue'
+
+const count = ref(0)
+console.log(count.value) // 0，JS 中通过 .value 访问
+// 模板中自动解包，不需要 .value
+```
+
+**ref vs reactive：**
+
+| 对比 | `ref` | `reactive` |
+|------|-------|------------|
+| 适用类型 | 任意类型 | 对象/数组 |
+| 访问方式 | `.value` | 直接访问 |
+| 解构 | 需 `toRefs` | 需 `toRefs` |
+| 模板自动解包 | ✅ | ✅ |
+
+## reactive
+
+`reactive` 基于 `Proxy` 实现，返回对象的响应式代理。
+
+```js
+import { reactive } from 'vue'
+
+const state = reactive({
+  count: 0,
+  user: { name: 'Tom' }
+})
+// 直接访问和修改
+state.count++
+state.user.name = 'Jerry'
+```
+
+**响应式原理（核心代码）：**
+
+```js
+// --------------- reactive 模块 ---------------
+/**
+ * 收集所有依赖的 WeakMap 实例：
+ * 1. key：响应性对象
+ * 2. value：Map 对象
+ *    1. key：响应性对象的指定属性
+ *    2. value：指定对象的指定属性的执行函数
+ */
+const targetMap = new WeakMap()
+
+function track(target, key) {
+  if (!activeEffect) return
+  let depsMap = targetMap.get(target)
+  if (!depsMap) targetMap.set(target, (depsMap = new Map()))
+  let dep = depsMap.get(key)
+  if (!dep) depsMap.set(key, (dep = new Set()))
+  dep.add(activeEffect)
+}
+
+function trigger(target, key) {
+  const depsMap = targetMap.get(target)
+  if (!depsMap) return
+  const dep = depsMap.get(key)
+  if (dep) triggerEffects(dep)
+}
+```
+
+## Composition API vs Options API
+
+| 对比 | Options API | Composition API |
+|------|-------------|-----------------|
+| 逻辑组织 | 按选项分散（data/methods/computed）| 按功能聚合 |
+| 逻辑复用 | Mixin（有命名冲突风险）| 自定义 Hook（`useXxx`）|
+| TypeScript | 较弱 | 完整支持 |
+| 学习曲线 | 平缓 | 稍陡 |
+
+```js
+// 自定义 Hook 示例：useCounter
+export function useCounter(initial = 0) {
+  const count = ref(initial)
+  const increment = () => count.value++
+  const decrement = () => count.value--
+  return { count, increment, decrement }
+}
+
+// 在组件中使用
+const { count, increment } = useCounter(10)
+```
+
+## Vue3 有哪些新特性？
+
+1. **Composition API** — `setup()`、`ref`、`reactive`、`computed`、`watch`
+2. **Teleport** — 将组件渲染到任意 DOM 位置（如模态框传送到 body）
+3. **Fragment** — 组件支持多根节点
+4. **Suspense** — 异步组件加载时的 fallback 内容
+5. **`<script setup>`** — 更简洁的 SFC 写法，编译时语法糖
+6. **v-model 升级** — 支持多个 v-model，自定义修饰符
+7. **Proxy 响应式** — 替代 `Object.defineProperty`，支持新增属性、数组变化
+8. **TypeScript** — 源码全部用 TS 重写，类型支持更完整
+
 
     /**
      * 收集依赖

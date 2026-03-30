@@ -50,6 +50,13 @@ export default defineUserConfig({
           ],
         },
         {
+          text: '🤖 AI × 前端',
+          collapsible: true,
+          children: [
+            '/interview/AI/index.md',
+          ],
+        },
+        {
           text: '基础三件套',
           collapsible: true,
           children: [

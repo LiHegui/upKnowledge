@@ -2,7 +2,8 @@
   "scripts": {
     "dev": "npm run docs:dev",
     "docs:dev": "vuepress dev docs",
-    "docs:build": "vuepress build docs"
+    "docs:build": "vuepress build docs",
+    "deploy": "bash docs/deploy.sh"
   },
   "devDependencies": {
     "@vuepress/bundler-vite": "^2.0.0-rc.19",

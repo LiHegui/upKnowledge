@@ -5,7 +5,7 @@ import { defaultTheme } from '@vuepress/theme-default'
 import { defineUserConfig } from 'vuepress/cli'
 import { viteBundler } from '@vuepress/bundler-vite'
 import { mdEnhancePlugin } from "vuepress-plugin-md-enhance";
-import { searchPlugin } from '@vuepress/plugin-search'
+import { searchProPlugin } from 'vuepress-plugin-search-pro'
 
 export default defineUserConfig({
   lang: 'zh-CN',
@@ -281,14 +281,23 @@ export default defineUserConfig({
 
   bundler: viteBundler(),
   plugins: [
-    searchPlugin({
-      // 基础配置
-      placeholder: '搜索文档',
-      hotKeys: ['s', '/'], // 触发搜索的快捷键
-      maxSuggestions: 10, // 最大建议数
+    searchProPlugin({
+      // 索引全部内容（包括正文）
+      indexContent: true,
+      // 搜索热键
+      hotKeys: [{ key: 'k', ctrl: true }, '/'],
+      // 自定义搜索项目
+      customFields: [
+        {
+          // 索引 frontmatter 中的 tag 字段
+          getter: (page) => page.frontmatter.tag,
+          formatter: '标签：$content',
+        },
+      ],
       locales: {
-        '/': { placeholder: 'Search' },
-        '/zh/': { placeholder: '搜索' },
+        '/': {
+          placeholder: '🔍 搜索文档（Ctrl+K）',
+        },
       },
     }),
     mdEnhancePlugin({

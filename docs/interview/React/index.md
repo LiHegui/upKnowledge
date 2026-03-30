@@ -577,8 +577,9 @@ console.log(this.state.count); // 输出更新后的状态值
 setState一定会合并吗
 
 其实不然，完全替换的时候，就不会合并。合并只是一种优化策略。
-## [React 高阶组件](./高阶组件.md)
+## React 高阶组件（HOC）
 
+> 详见下方「高阶组件」章节
 
 ## React fiber是什么？有什么用？
 

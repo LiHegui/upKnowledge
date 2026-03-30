@@ -1,3 +1,5 @@
+# Git 面试题
+
 ## 说说你对git reset 和 git revert 的理解？区别?
 
 git reset和git revert都是用来撤销更改的命令。

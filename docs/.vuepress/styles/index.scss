@@ -1,11 +1,16 @@
 /* .vuepress/styles/index.scss */
 
-/* 设置全局字体 */
-body {
-    font-family: 'fangsong', sans-serif;
+/* 字体切换：由 FontSwitcher 组件通过 JS 动态设置 --custom-font-family */
+:root {
+  --custom-font-family: FangSong, STFangSong, 仿宋, FangSong_GB2312, fangsong, serif;
+}
 
-    h2 {
-        color: var(--vp-c-accent);
-        font-weight: 900;
-    }
+body,
+.theme-default-content {
+  font-family: var(--custom-font-family) !important;
+
+  h2 {
+    color: var(--vp-c-accent);
+    font-weight: 900;
+  }
 }

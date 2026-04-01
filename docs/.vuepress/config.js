@@ -65,7 +65,6 @@ export default defineUserConfig({
             '/interview/CSS/sass和less.md',
             '/interview/CSS/style-components.md',
             '/interview/JavaScript/index.md',
-            '/interview/ES6/router.md',
           ],
         },
         {

@@ -24,7 +24,11 @@
 | 🛠️ 开发模式 | `.github/agents/dev-mode.agent.md` | 开发功能、新增内容、修复问题 |
 | 🎤 面试官模式 | `.github/agents/interviewer.agent.md` | 模拟面试、练习题库 |
 | 📚 题库维护模式 | `.github/agents/qa-maintain.agent.md` | 维护题目、更新答案 |
+## 可用 Skill 一览
 
+| Skill | 文件 | 触发关键词 |
+|-------|------|----------|
+| 📥 知识点注入 | `.github/skills/kb-inject/SKILL.md` | 「加进去」「补充到对应位置」「加一个问题」「融合进来」「写进知识库」「更新知识库」 |
 ---
 
 ## 项目背景

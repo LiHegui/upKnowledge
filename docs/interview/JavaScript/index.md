@@ -47,12 +47,12 @@ console.log(obj1.name) // 'Bob'
 
 **A:**
 
-| 对比维度 | `null` | `undefined` |
-|---------|--------|-------------|
-| 含义 | 明确赋值为"空" | 声明了但未赋值 |
-| 类型 | `typeof null === 'object'`（历史遗留 Bug） | `typeof undefined === 'undefined'` |
-| 常见场景 | 手动清空对象引用 | 变量未初始化、函数无返回值 |
-| 相等比较 | `null == undefined` → `true` | `null === undefined` → `false` |
+| 对比维度 | `null`                                     | `undefined`                        |
+| -------- | -------------------------------------------- | ------------------------------------ |
+| 含义     | 明确赋值为"空"                               | 声明了但未赋值                       |
+| 类型     | `typeof null === 'object'`（历史遗留 Bug） | `typeof undefined === 'undefined'` |
+| 常见场景 | 手动清空对象引用                             | 变量未初始化、函数无返回值           |
+| 相等比较 | `null == undefined` → `true`            | `null === undefined` → `false`  |
 
 ---
 
@@ -60,13 +60,13 @@ console.log(obj1.name) // 'Bob'
 
 **A:**
 
-| 特性 | `var` | `let` | `const` |
-|------|-------|-------|---------|
-| 作用域 | 函数作用域 | 块级作用域 | 块级作用域 |
-| 变量提升 | ✅ 有（值为 undefined） | ❌ 暂时性死区（TDZ） | ❌ 暂时性死区 |
-| 重复声明 | ✅ 允许 | ❌ 报错 | ❌ 报错 |
-| 重新赋值 | ✅ 允许 | ✅ 允许 | ❌ 不允许（基本类型）；对象属性可变 |
-| 挂载到 window | ✅ | ❌ | ❌ |
+| 特性          | `var`                 | `let`              | `const`                           |
+| ------------- | ----------------------- | -------------------- | ----------------------------------- |
+| 作用域        | 函数作用域              | 块级作用域           | 块级作用域                          |
+| 变量提升      | ✅ 有（值为 undefined） | ❌ 暂时性死区（TDZ） | ❌ 暂时性死区                       |
+| 重复声明      | ✅ 允许                 | ❌ 报错              | ❌ 报错                             |
+| 重新赋值      | ✅ 允许                 | ✅ 允许              | ❌ 不允许（基本类型）；对象属性可变 |
+| 挂载到 window | ✅                      | ❌                   | ❌                                  |
 
 ```js
 // const 对象属性可以修改，但不能重新赋值
@@ -136,6 +136,7 @@ getType(/abc/)    // 'RegExp'
 JavaScript 中访问一个变量时，引擎会先在**当前作用域**查找，找不到则沿**作用域链**向上逐层查找，直到全局作用域。
 
 作用域分类：
+
 - **全局作用域**：整个脚本可访问
 - **函数作用域**：`var` 声明在其所在函数内可见
 - **块级作用域**：`let`/`const` 声明在 `{}` 内可见
@@ -293,13 +294,13 @@ console.log(c.getName()) // 'Alice'
 console.log(c.getType()) // 'child'
 ```
 
-| 继承方式 | 优点 | 缺点 |
-|---------|------|------|
-| 原型链继承 | 简单 | 引用类型属性共享、无法传参 |
-| 构造函数继承 | 可传参、属性独立 | 无法继承原型方法 |
-| 组合继承 | 解决上两者问题 | 父构造函数调用两次 |
-| **寄生组合** ✅ | 最完善 | 略复杂 |
-| ES6 class extends | 语法简洁 | 本质是寄生组合的语法糖 |
+| 继承方式              | 优点             | 缺点                       |
+| --------------------- | ---------------- | -------------------------- |
+| 原型链继承            | 简单             | 引用类型属性共享、无法传参 |
+| 构造函数继承          | 可传参、属性独立 | 无法继承原型方法           |
+| 组合继承              | 解决上两者问题   | 父构造函数调用两次         |
+| **寄生组合** ✅ | 最完善           | 略复杂                     |
+| ES6 class extends     | 语法简洁         | 本质是寄生组合的语法糖     |
 
 ---
 
@@ -309,13 +310,13 @@ console.log(c.getType()) // 'child'
 
 `this` 的值由**函数的调用方式**决定，而非定义时的位置（箭头函数除外）。
 
-| 调用方式 | this 指向 |
-|---------|----------|
-| 普通函数调用 | 全局对象（非严格模式）/ `undefined`（严格模式） |
-| 对象方法调用 | 该对象 |
-| `new` 构造函数 | 新创建的实例 |
-| `call/apply/bind` | 显式传入的对象 |
-| 箭头函数 | 词法作用域中的 `this`（定义时决定，不可改变） |
+| 调用方式            | this 指向                                        |
+| ------------------- | ------------------------------------------------ |
+| 普通函数调用        | 全局对象（非严格模式）/`undefined`（严格模式） |
+| 对象方法调用        | 该对象                                           |
+| `new` 构造函数    | 新创建的实例                                     |
+| `call/apply/bind` | 显式传入的对象                                   |
+| 箭头函数            | 词法作用域中的 `this`（定义时决定，不可改变）  |
 
 ```js
 const obj = {
@@ -329,6 +330,65 @@ obj.greetArrow()
 
 ---
 
+## Q: 经典综合题：分析以下代码的输出？（原型链 + 提升 + this + new 优先级）
+
+**A:**
+
+```js
+function Foo() {
+  getName = function () { console.log(1); };
+  return this;
+}
+Foo.getName = function () { console.log(2); };
+Foo.prototype.getName = function () { console.log(3); };
+var getName = function () { console.log(4); };
+function getName() { console.log(5); }
+
+Foo.getName();       // 2
+getName();           // 4
+Foo().getName();     // 1
+getName();           // 1
+new Foo.getName();   // 2
+new Foo().getName(); // 3
+```
+
+**逐步分析：**
+
+**① 提升阶段（执行前）**
+
+```js
+// 引擎实际处理顺序：
+function getName() { console.log(5) }  // 函数声明整体提升（最优先）
+var getName                             // var 重复声明，忽略
+// 执行时：
+getName = function () { console.log(4) } // 覆盖掉 5
+```
+
+| 调用 | 结果 | 原因 |
+|------|------|------|
+| `Foo.getName()` | **2** | Foo 的静态方法 |
+| `getName()` | **4** | `var getName = fn4` 执行后覆盖了函数声明 fn5 |
+| `Foo().getName()` | **1** | 非 `new` 调用，`this = window`；构造函数内 `getName = fn1` 污染全局；`return this` 返回 `window`，调用全局 `getName` |
+| `getName()` | **1** | 上一步全局 `getName` 已被污染为 fn1 |
+| `new Foo.getName()` | **2** | `.` 优先级 > 无参 `new`；等价于 `new (Foo.getName)()`，构造调用静态方法 |
+| `new Foo().getName()` | **3** | 有参 `new` 优先级最高；`new Foo()` 创建实例 `{}`，实例无 `getName`，沿原型链找到 `Foo.prototype.getName` |
+
+**② `new` 运算符优先级说明**
+
+| 写法 | 优先级 | 等价于 |
+|------|--------|--------|
+| `new Foo()` 带括号 | 19 | 先 new 再访问成员 |
+| `new Foo` 不带括号 | 18 | 先访问成员再 new |
+| 成员访问 `.` | 19 | — |
+
+所以：
+- `new Foo.getName()` → `new (Foo.getName)()` → 输出 **2**
+- `new Foo().getName()` → `(new Foo()).getName()` → 输出 **3**
+
+> ⚠️ **注意**：`Foo()` 执行时构造函数内 `getName = fn1` **没有 `this.`**，是对全局变量的赋值，这是一个隐式全局的副作用，与实例无关。
+
+---
+
 ## 手写实现篇
 
 ## Q: 如何实现 new 关键字？
@@ -336,6 +396,7 @@ obj.greetArrow()
 **A:**
 
 `new` 的执行步骤：
+
 1. 创建一个空对象，原型链接到构造函数的 `prototype`
 2. 将构造函数的 `this` 绑定到新对象，执行构造函数
 3. 如果构造函数返回对象类型，返回该对象；否则返回新创建的对象
@@ -363,11 +424,11 @@ console.log(p.name) // 'Alice'
 
 **三者区别：**
 
-| 方法 | 参数形式 | 执行时机 |
-|------|---------|---------|
-| `call(ctx, arg1, arg2)` | 逐个传参 | 立即执行 |
-| `apply(ctx, [arg1, arg2])` | 数组传参 | 立即执行 |
-| `bind(ctx, arg1, arg2)` | 逐个传参 | 返回新函数，延迟执行 |
+| 方法                         | 参数形式 | 执行时机             |
+| ---------------------------- | -------- | -------------------- |
+| `call(ctx, arg1, arg2)`    | 逐个传参 | 立即执行             |
+| `apply(ctx, [arg1, arg2])` | 数组传参 | 立即执行             |
+| `bind(ctx, arg1, arg2)`    | 逐个传参 | 返回新函数，延迟执行 |
 
 **手写 bind：**
 
@@ -399,11 +460,11 @@ console.log(boundGreet('!')) // 'Hello, Alice!'
 
 **方案对比：**
 
-| 方案 | 优点 | 缺点 |
-|------|------|------|
-| `JSON.parse(JSON.stringify())` | 简单 | 不支持 Function/undefined/Symbol/Date/RegExp/循环引用 |
-| 递归 + WeakMap | 完整支持 | 代码较多 |
-| `structuredClone()`（原生）✅ | 原生支持 | 不支持 Function |
+| 方案                             | 优点     | 缺点                                                  |
+| -------------------------------- | -------- | ----------------------------------------------------- |
+| `JSON.parse(JSON.stringify())` | 简单     | 不支持 Function/undefined/Symbol/Date/RegExp/循环引用 |
+| 递归 + WeakMap                   | 完整支持 | 代码较多                                              |
+| `structuredClone()`（原生）✅  | 原生支持 | 不支持 Function                                       |
 
 **手写深拷贝（递归 + WeakMap 处理循环引用）：**
 
@@ -514,19 +575,71 @@ function ajax(options) {
 
 **三种状态**：`pending` → `fulfilled` / `rejected`，状态一旦改变不可逆。
 
-| 方法 | 说明 |
-|------|------|
-| `Promise.resolve(val)` | 返回一个已成功的 Promise |
-| `Promise.reject(err)` | 返回一个已失败的 Promise |
-| `.then(onFulfilled, onRejected)` | 注册成功/失败回调，返回新 Promise |
-| `.catch(onRejected)` | 捕获错误，等价于 `.then(null, onRejected)` |
-| `.finally(fn)` | 无论成功失败都执行 |
-| `Promise.all(promises)` | 全部成功才 resolve，一个失败即 reject |
-| `Promise.allSettled(promises)` | 等待全部结束，返回每个结果（无论成功/失败） |
-| `Promise.race(promises)` | 第一个完成（成功或失败）就 resolve/reject |
-| `Promise.any(promises)` | 第一个成功就 resolve，全失败才 reject |
+| 方法                               | 说明                                         |
+| ---------------------------------- | -------------------------------------------- |
+| `Promise.resolve(val)`           | 返回一个已成功的 Promise                     |
+| `Promise.reject(err)`            | 返回一个已失败的 Promise                     |
+| `.then(onFulfilled, onRejected)` | 注册成功/失败回调，返回新 Promise            |
+| `.catch(onRejected)`             | 捕获错误，等价于 `.then(null, onRejected)` |
+| `.finally(fn)`                   | 无论成功失败都执行                           |
+| `Promise.all(promises)`          | 全部成功才 resolve，一个失败即 reject        |
+| `Promise.allSettled(promises)`   | 等待全部结束，返回每个结果（无论成功/失败）  |
+| `Promise.race(promises)`         | 第一个完成（成功或失败）就 resolve/reject    |
+| `Promise.any(promises)`          | 第一个成功就 resolve，全失败才 reject        |
 
-**手写 Promise（核心版）：**
+**.then(onFulfilled, onRejected) 详解：**
+
+`.then` 接收两个参数：第一个 `onFulfilled` 在 Promise **resolve** 时执行，第二个 `onRejected` 在 Promise **reject** 时执行：
+
+```js
+p.then(
+  (data) => { console.log('fulfilled:', data) },  // resolve 时走这里
+  (err)  => { console.log('rejected:', err)  }    // reject 时走这里
+)
+```
+
+| 情况 | 走哪个回调 |
+|------|-----------|
+| `resolve(value)` | `onFulfilled` |
+| `reject(reason)` | `onRejected` |
+| 抛出异常 `throw` | `onRejected` |
+
+> ⚠️ **与 `.catch()` 的区别**：`.then(onFulfilled, onRejected)` 中的 `onRejected` **捕获不到** `onFulfilled` 内部抛出的错误，而链式 `.catch()` 可以，推荐用后者。
+
+**链式 .then 的传值规则：**
+
+`.then()` 始终返回一个新的 Promise，下一个 `.then` 收到的值取决于上一个回调的返回：
+
+```js
+// 情况一：回调有返回值 → 下一个 then 的 onFulfilled 收到该值
+p.then(() => 'hello').then((data) => console.log(data))   // → 'hello'
+
+// 情况二：回调返回 Promise → 等该 Promise 决议后再传给下一个 then
+p.then(() => fetch('/api')).then((res) => console.log(res))
+
+// 情况三：没有 return → 下一个 then 收到 undefined
+p.then(() => { console.log('done') }).then((data) => console.log(data))  // → undefined
+
+// 情况四：回调内部 throw → 下一个 then 走 onRejected
+p.then(() => { throw new Error('出错了') })
+ .then(null, (err) => console.log(err))   // → Error: 出错了
+```
+
+**最容易踩坑的点：**`onRejected` 正常执行并 return 后，异常已被"处理"，后续链会走 `onFulfilled`，而非继续传递错误：
+
+```js
+Promise.reject('error')
+  .then(null, (err) => {
+    console.log('捕获了:', err)   // 执行
+    return '已处理'
+  })
+  .then(
+    (data) => console.log(data),  // → '已处理'，走这里！
+    (err)  => console.log(err)    // 不走这里
+  )
+```
+
+**手写 Promise（完整版，含链式调用 / .catch / .finally）：**
 
 ```js
 const PENDING = 'PENDING'
@@ -558,16 +671,62 @@ class MyPromise {
     try { executor(resolve, reject) } catch (e) { reject(e) }
   }
 
+  // then 返回新 Promise，支持链式调用
   then(onFulfilled, onRejected) {
-    if (this.status === FULFILLED) onFulfilled(this.value)
-    if (this.status === REJECTED)  onRejected(this.reason)
-    if (this.status === PENDING) {
-      this.onResolvedCallbacks.push(() => onFulfilled(this.value))
-      this.onRejectedCallbacks.push(() => onRejected(this.reason))
-    }
+    // 参数不传时透传到下一个 then
+    onFulfilled = typeof onFulfilled === 'function' ? onFulfilled : val => val
+    onRejected  = typeof onRejected  === 'function' ? onRejected  : err => { throw err }
+
+    return new MyPromise((resolve, reject) => {
+      const handleFulfilled = () => {
+        try { resolve(onFulfilled(this.value)) } catch (e) { reject(e) }
+      }
+      const handleRejected = () => {
+        try { resolve(onRejected(this.reason)) } catch (e) { reject(e) }
+      }
+
+      if (this.status === FULFILLED) handleFulfilled()
+      if (this.status === REJECTED)  handleRejected()
+      if (this.status === PENDING) {
+        this.onResolvedCallbacks.push(handleFulfilled)
+        this.onRejectedCallbacks.push(handleRejected)
+      }
+    })
+  }
+
+  // catch 是 then(null, onRejected) 的语法糖
+  catch(onRejected) {
+    return this.then(null, onRejected)
+  }
+
+  // finally 无论成功失败都执行 fn，且透传原来的值/原因
+  finally(fn) {
+    return this.then(
+      val => MyPromise.resolve(fn()).then(() => val),
+      err => MyPromise.resolve(fn()).then(() => { throw err })
+    )
+  }
+
+  // 静态方法
+  static resolve(value) {
+    if (value instanceof MyPromise) return value
+    return new MyPromise(resolve => resolve(value))
+  }
+
+  static reject(reason) {
+    return new MyPromise((_, reject) => reject(reason))
   }
 }
 ```
+
+**关键点说明：**
+
+| 方法 | 实现要点 |
+|------|---------|
+| `.then` | 返回新 Promise；回调结果作为下一个 Promise 的 resolve 值；回调 throw 则 reject |
+| `.catch` | 等价于 `.then(null, onRejected)`，本质复用 `then` |
+| `.finally` | 无论状态都执行 `fn`，不改变原来的值/原因向后透传 |
+| 参数缺省 | `onFulfilled` 不传默认 `val => val`；`onRejected` 不传默认 `err => { throw err }`，实现值/错误穿透 |
 
 **手写 Promise.all：**
 
@@ -730,7 +889,7 @@ console.log('4')               // 同步
 
 **A:**
 
-**Set**：无序不重复的值集合（类似数学中的集合）
+**Set**：有序不重复的值集合（类似数学中的集合）
 
 ```js
 const s = new Set([1, 2, 2, 3])
@@ -759,14 +918,89 @@ for (const [k, v] of m) {
 }
 ```
 
+**底层实现：为什么 Set/Map 是"有序"的？**
+
+你可能会疑惑：*"它们底层是哈希表，哈希表本身不是无序的吗？"*
+
+没错，标准哈希表确实无序。为了实现插入顺序的遍历，JavaScript 引擎底层通常采用 **"哈希表 + 双向链表"** 的复合结构：
+
+| 结构 | 作用 |
+|------|------|
+| **哈希部分** | 实现 O(1) 复杂度的快速查找、去重 |
+| **链表/指针部分** | 每个元素额外记录「前一个」和「后一个」插入的元素是谁 |
+| **遍历过程** | 沿链表从头走到尾，而非扫描整个哈希桶 |
+
+**特殊细节：删除再重插会改变顺序**
+
+```js
+const s = new Set([1, 2, 3])
+s.delete(2)   // 剩下 [1, 3]
+s.add(2)      // 2 被添加到末尾，顺序变为 [1, 3, 2]
+```
+
+> ⚠️ **注意**：重新插入的元素会排到末尾，而不是回到原来的位置。
+
 **Weak 版本的区别：**
 
-| 特性 | Set/Map | WeakSet/WeakMap |
-|------|---------|-----------------|
-| 键/值类型 | 任意 | 只能是对象（WeakSet 值、WeakMap 键） |
-| 垃圾回收 | 持有强引用，阻止 GC | **弱引用**，对象无其他引用时可被 GC |
-| 可枚举 | ✅ 有 size/forEach | ❌ 无法遍历、无 size |
-| 适用场景 | 通用 | 存储 DOM 节点等临时数据，防内存泄漏 |
+| 特性      | Set/Map             | WeakSet/WeakMap                           |
+| --------- | ------------------- | ----------------------------------------- |
+| 键/值类型 | 任意                | 只能是对象（WeakSet 值、WeakMap 键）      |
+| 垃圾回收  | 持有强引用，阻止 GC | **弱引用**，对象无其他引用时可被 GC |
+| 可枚举    | ✅ 有 size/forEach  | ❌ 无法遍历、无 size                      |
+| 适用场景  | 通用                | 存储 DOM 节点等临时数据，防内存泄漏       |
+
+**手写 Set（简化版）：**
+
+```js
+class MySet {
+  constructor() {
+    this.data = []
+  }
+  add(value) {
+    if (!this.has(value)) this.data.push(value)
+    return this
+  }
+  delete(value) {
+    const index = this.data.indexOf(value)
+    if (index !== -1) { this.data.splice(index, 1); return true }
+    return false
+  }
+  has(value) {
+    return this.data.indexOf(value) !== -1
+  }
+  get size() { return this.data.length }
+  clear() { this.data = [] }
+  values() { return this.data }
+  forEach(callback) {
+    this.data.forEach(v => callback(v, v, this))
+  }
+}
+```
+
+**手写 Map（简化版）：**
+
+```js
+class MyMap {
+  constructor() {
+    this.data = {}
+  }
+  set(key, value) { this.data[key] = value; return this }
+  get(key) { return this.data[key] }
+  has(key) { return Object.prototype.hasOwnProperty.call(this.data, key) }
+  delete(key) {
+    if (this.has(key)) { delete this.data[key]; return true }
+    return false
+  }
+  get size() { return Object.keys(this.data).length }
+  clear() { this.data = {} }
+  entries() { return Object.entries(this.data) }
+  forEach(callback) {
+    for (const [k, v] of this.entries()) callback(v, k, this)
+  }
+}
+```
+
+> ⚠️ **注意**：简化版 Map 用对象模拟，键只能是字符串/Symbol，原生 Map 的键可以是任意类型（包括对象），底层实现差异较大。
 
 ---
 
@@ -809,11 +1043,11 @@ const handler = {
 }
 ```
 
-| 对比 | `Object.xxx` | `Reflect.xxx` |
-|------|-------------|---------------|
-| 返回值 | 多种形式 | 统一返回布尔值等规范结果 |
-| 报错方式 | 部分操作直接抛异常 | 返回 false，不抛出 |
-| 与 Proxy 配合 | 不一致 | 完全对应，推荐配合使用 |
+| 对比          | `Object.xxx`     | `Reflect.xxx`          |
+| ------------- | ------------------ | ------------------------ |
+| 返回值        | 多种形式           | 统一返回布尔值等规范结果 |
+| 报错方式      | 部分操作直接抛异常 | 返回 false，不抛出       |
+| 与 Proxy 配合 | 不一致             | 完全对应，推荐配合使用   |
 
 ---
 
@@ -821,14 +1055,14 @@ const handler = {
 
 **A:**
 
-| 对比维度 | CommonJS（CJS） | ES6 Module（ESM） |
-|---------|----------------|-------------------|
-| 使用环境 | Node.js 服务端 | 浏览器 + Node.js |
-| 语法 | `require()` / `module.exports` | `import` / `export` |
-| 加载时机 | 运行时加载（动态） | 编译时静态分析 |
-| 缓存 | 首次加载后缓存，再次 require 返回缓存 | 同模块只加载一次 |
-| 导出值 | 值的**拷贝**（修改原模块不影响已导出的值） | 值的**动态绑定**（原模块修改会同步） |
-| Tree Shaking | ❌ 不支持 | ✅ 支持（静态分析未使用代码） |
+| 对比维度     | CommonJS（CJS）                                  | ES6 Module（ESM）                          |
+| ------------ | ------------------------------------------------ | ------------------------------------------ |
+| 使用环境     | Node.js 服务端                                   | 浏览器 + Node.js                           |
+| 语法         | `require()` / `module.exports`               | `import` / `export`                    |
+| 加载时机     | 运行时加载（动态）                               | 编译时静态分析                             |
+| 缓存         | 首次加载后缓存，再次 require 返回缓存            | 同模块只加载一次                           |
+| 导出值       | 值的**拷贝**（修改原模块不影响已导出的值） | 值的**动态绑定**（原模块修改会同步） |
+| Tree Shaking | ❌ 不支持                                        | ✅ 支持（静态分析未使用代码）              |
 
 ```js
 // CommonJS
@@ -851,32 +1085,32 @@ export default function main() {}
 
 **修改原数组：**
 
-| 方法 | 说明 | 返回值 |
-|------|------|--------|
-| `push(item)` | 末尾添加 | 新长度 |
-| `pop()` | 末尾删除 | 被删除的元素 |
-| `unshift(item)` | 头部添加 | 新长度 |
-| `shift()` | 头部删除 | 被删除的元素 |
+| 方法                           | 说明      | 返回值           |
+| ------------------------------ | --------- | ---------------- |
+| `push(item)`                 | 末尾添加  | 新长度           |
+| `pop()`                      | 末尾删除  | 被删除的元素     |
+| `unshift(item)`              | 头部添加  | 新长度           |
+| `shift()`                    | 头部删除  | 被删除的元素     |
 | `splice(start, n, ...items)` | 删除/插入 | 被删除的元素数组 |
-| `sort(compareFn)` | 排序 | 原数组 |
-| `reverse()` | 反转 | 原数组 |
+| `sort(compareFn)`            | 排序      | 原数组           |
+| `reverse()`                  | 反转      | 原数组           |
 
 **不修改原数组：**
 
-| 方法 | 说明 | 返回值 |
-|------|------|--------|
-| `slice(start, end)` | 截取 | 新数组 |
-| `concat(...items)` | 合并 | 新数组 |
-| `map(fn)` | 映射 | 新数组 |
-| `filter(fn)` | 过滤 | 新数组 |
-| `reduce(fn, init)` | 累计 | 累计结果 |
-| `forEach(fn)` | 遍历 | 无（不可 break） |
-| `find(fn)` | 查找第一个满足条件的元素 | 元素或 undefined |
-| `findIndex(fn)` | 查找第一个满足条件的下标 | 下标或 -1 |
-| `some(fn)` | 有一个满足→ true | 布尔值 |
-| `every(fn)` | 全部满足→ true | 布尔值 |
-| `flat(depth)` | 展平嵌套数组 | 新数组 |
-| `includes(val)` | 是否包含 | 布尔值 |
+| 方法                  | 说明                     | 返回值           |
+| --------------------- | ------------------------ | ---------------- |
+| `slice(start, end)` | 截取                     | 新数组           |
+| `concat(...items)`  | 合并                     | 新数组           |
+| `map(fn)`           | 映射                     | 新数组           |
+| `filter(fn)`        | 过滤                     | 新数组           |
+| `reduce(fn, init)`  | 累计                     | 累计结果         |
+| `forEach(fn)`       | 遍历                     | 无（不可 break） |
+| `find(fn)`          | 查找第一个满足条件的元素 | 元素或 undefined |
+| `findIndex(fn)`     | 查找第一个满足条件的下标 | 下标或 -1        |
+| `some(fn)`          | 有一个满足→ true        | 布尔值           |
+| `every(fn)`         | 全部满足→ true          | 布尔值           |
+| `flat(depth)`       | 展平嵌套数组             | 新数组           |
+| `includes(val)`     | 是否包含                 | 布尔值           |
 
 ```js
 // reduce 实现数组求和
@@ -893,21 +1127,21 @@ const arr = [1, 2, 2, 3]
 
 **A:**
 
-| 方法 | 说明 |
-|------|------|
-| `charAt(i)` | 获取指定位置字符 |
-| `indexOf(str)` / `lastIndexOf` | 查找子串位置，未找到返回 -1 |
-| `includes(str)` | 是否包含 |
-| `startsWith(str)` / `endsWith` | 以...开头/结尾 |
-| `slice(start, end)` | 截取子串 |
-| `split(sep)` | 分割为数组 |
-| `replace(search, replacement)` | 替换（支持正则） |
-| `trim()` / `trimStart()` / `trimEnd()` | 去空白 |
-| `padStart(len, fill)` / `padEnd` | 填充对齐 |
-| `repeat(n)` | 重复 |
-| `toUpperCase()` / `toLowerCase()` | 大小写转换 |
-| `match(reg)` | 匹配正则，返回匹配结果 |
-| **模板字符串** `` `${expr}` `` | ES6 插值语法 |
+| 方法                                         | 说明                        |
+| -------------------------------------------- | --------------------------- |
+| `charAt(i)`                                | 获取指定位置字符            |
+| `indexOf(str)` / `lastIndexOf`           | 查找子串位置，未找到返回 -1 |
+| `includes(str)`                            | 是否包含                    |
+| `startsWith(str)` / `endsWith`           | 以...开头/结尾              |
+| `slice(start, end)`                        | 截取子串                    |
+| `split(sep)`                               | 分割为数组                  |
+| `replace(search, replacement)`             | 替换（支持正则）            |
+| `trim()` / `trimStart()` / `trimEnd()` | 去空白                      |
+| `padStart(len, fill)` / `padEnd`         | 填充对齐                    |
+| `repeat(n)`                                | 重复                        |
+| `toUpperCase()` / `toLowerCase()`        | 大小写转换                  |
+| `match(reg)`                               | 匹配正则，返回匹配结果      |
+| **模板字符串** `` `${expr}` ``         | ES6 插值语法                |
 
 ---
 
@@ -964,13 +1198,13 @@ document.querySelector('ul').addEventListener('click', e => {
 
 **A:**
 
-| 对比 | `for...in` | `for...of` |
-|------|-----------|-----------|
-| 遍历内容 | 对象的**可枚举属性名**（包括原型链） | **可迭代对象**的元素值 |
-| 适用对象 | 普通对象 | 数组、字符串、Set、Map、Generator |
-| 原型链 | ✅ 会遍历到原型链属性 | ❌ 不涉及 |
-| Symbol 属性 | ❌ 不遍历 | 取决于迭代器实现 |
-| 建议 | 遍历对象属性时用 | 遍历有序集合时用 |
+| 对比        | `for...in`                               | `for...of`                      |
+| ----------- | ------------------------------------------ | --------------------------------- |
+| 遍历内容    | 对象的**可枚举属性名**（包括原型链） | **可迭代对象**的元素值      |
+| 适用对象    | 普通对象                                   | 数组、字符串、Set、Map、Generator |
+| 原型链      | ✅ 会遍历到原型链属性                      | ❌ 不涉及                         |
+| Symbol 属性 | ❌ 不遍历                                  | 取决于迭代器实现                  |
+| 建议        | 遍历对象属性时用                           | 遍历有序集合时用                  |
 
 ```js
 const obj = { a: 1, b: 2 }
@@ -982,6 +1216,79 @@ for (const val of arr) console.log(val)    // 10, 20, 30（值）
 
 ---
 
+## Q: 什么是可迭代协议和迭代器？为什么数组可以被 for...of 遍历？
+
+**A:**
+
+`for...of`、扩展运算符 `...`、`Array.from` 等能工作，是因为背后有两个协议：
+
+**1. 可迭代协议（Iterable Protocol）**
+
+对象必须实现 `[Symbol.iterator]` 方法，调用后返回一个**迭代器对象**。
+
+**2. 迭代器协议（Iterator Protocol）**
+
+迭代器对象必须实现 `next()` 方法，每次调用返回 `{ value, done }`：
+
+- `done: false` — 还有元素，`value` 为当前值
+- `done: true` — 遍历结束，`value` 为 `undefined`
+
+**数组内置了 `[Symbol.iterator]`，所以它天然可迭代：**
+
+```js
+const arr = ['a', 'b', 'c']
+
+// 数组内置了 Symbol.iterator
+console.log(typeof arr[Symbol.iterator])  // "function"
+
+// 手动获取迭代器，逐步调用
+const iterator = arr[Symbol.iterator]()
+iterator.next()  // { value: 'a', done: false }
+iterator.next()  // { value: 'b', done: false }
+iterator.next()  // { value: 'c', done: false }
+iterator.next()  // { value: undefined, done: true }
+```
+
+**内置的可迭代对象：**`Array`、`String`、`Map`、`Set`、`arguments`、`NodeList`、`Generator` 均实现了 `[Symbol.iterator]`。
+
+**自定义对象实现迭代：**
+
+```js
+const myObj = {
+  data: [1, 2, 3],
+  [Symbol.iterator]() {
+    let index = 0
+    const data = this.data
+    return {
+      next() {
+        if (index < data.length) {
+          return { value: data[index++], done: false }
+        }
+        return { value: undefined, done: true }
+      }
+    }
+  }
+}
+
+for (const val of myObj) {
+  console.log(val)  // 1, 2, 3
+}
+```
+
+**整体关系：**
+
+```
+可迭代对象（Iterable）
+  └── [Symbol.iterator]()
+        └── 返回 迭代器对象（Iterator）
+              └── next()
+                    └── { value, done }
+```
+
+> ⚠️ **注意**：普通对象 `{}` 没有实现 `[Symbol.iterator]`，所以不能用 `for...of` 遍历，只能用 `for...in`。
+
+---
+
 ## Q: 垃圾回收机制是什么？
 
 **A:**
@@ -989,14 +1296,17 @@ for (const val of arr) console.log(val)    // 10, 20, 30（值）
 JavaScript 通过自动垃圾回收（GC）释放不再使用的内存，主要有两种策略：
 
 **标记清除法（主流）：**
+
 1. GC 运行时，从根对象（全局变量、调用栈中的变量）出发，遍历标记所有可达对象
 2. 未被标记的对象视为垃圾，清除并回收内存
 
 **引用计数法（已基本淘汰）：**
+
 - 记录每个值被引用的次数，为 0 时回收
 - 缺陷：**循环引用**会导致内存无法释放
 
 **内存泄漏的常见原因：**
+
 - 闭包长期持有不需要的大对象
 - 全局变量意外挂载
 - 未清除的定时器、事件监听
@@ -1040,4 +1350,3 @@ Boolean(null)    // false
 Boolean([])      // true ⚠️ 空数组是 truthy
 Boolean({})      // true ⚠️ 空对象是 truthy
 ```
-

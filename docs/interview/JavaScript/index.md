@@ -565,6 +565,79 @@ function ajax(options) {
 
 ---
 
+## Q: 如何手写实现一个简易 Proxy？与原生 Proxy 有何差异？
+
+**A:**
+
+**核心思路**：利用 `Object.defineProperty` 为目标对象的每个属性定义 `getter` / `setter`，从而模拟 `get` / `set` 拦截行为。
+
+```js
+function createProxy(target, handler) {
+  const proxy = {};
+  const keys = Reflect.ownKeys(target);
+
+  for (const key of keys) {
+    Object.defineProperty(proxy, key, {
+      configurable: true,
+      enumerable: true,
+      get() {
+        if (handler.get) {
+          return handler.get(target, key, proxy);
+        }
+        return target[key];
+      },
+      set(value) {
+        if (handler.set) {
+          const result = handler.set(target, key, value, proxy);
+          if (result) target[key] = value;
+        } else {
+          target[key] = value;
+        }
+      }
+    });
+  }
+
+  return proxy;
+}
+```
+
+**使用示例：**
+
+```js
+const target = { name: 'Alice', age: 25 };
+
+const handler = {
+  get(target, prop) {
+    console.log(`[GET] ${prop}`);
+    return Reflect.get(target, prop);
+  },
+  set(target, prop, value) {
+    console.log(`[SET] ${prop} = ${value}`);
+    return Reflect.set(target, prop, value);
+  }
+};
+
+const proxy = createProxy(target, handler);
+console.log(proxy.name); // [GET] name → Alice
+proxy.age = 30;          // [SET] age = 30
+console.log(target.age); // 30
+```
+
+**与原生 `Proxy` 的差异：**
+
+| 特性 | 原生 `Proxy` | 手写实现 |
+|------|------------|---------|
+| 拦截不存在的属性 | ✅ 支持 | ❌ 直接返回 `undefined` |
+| 拦截数组索引/长度变化 | ✅ 支持 | ❌ 动态新增属性无法预先定义 |
+| 拦截 `delete` 操作 | ✅ 支持 | ❌ 无法拦截 |
+| 拦截 `in` 操作符 | ✅ 支持 | ❌ 需要 `has` trap |
+| 拦截 `Object.keys()` | ✅ 支持 | ❌ 只返回预定义属性 |
+| 性能 | 引擎级优化 | 较慢，需遍历定义每个属性 |
+
+> ⚠️ **注意**：手写实现本质上是对**已有属性**的拦截，`Object.defineProperty` 无法感知属性的新增与删除，这也是 Vue 2 响应式系统的同款局限——Vue 3 正是为此改用了原生 `Proxy`。
+
+---
+
 ## 异步编程篇
 
 ## Q: Promise 是什么？有哪些方法？
@@ -1031,6 +1104,18 @@ console.log(proxy.name) // '属性 name 不存在'
 
 Vue 3 的响应式系统就是基于 `Proxy` 实现的。
 
+**Proxy 常用拦截器（trap）一览：**
+
+| trap | 触发时机 | 对应 Reflect 方法 |
+|------|---------|-----------------|
+| `get` | 读取属性 | `Reflect.get` |
+| `set` | 设置属性 | `Reflect.set` |
+| `has` | `in` 运算符 | `Reflect.has` |
+| `deleteProperty` | `delete` 操作符 | `Reflect.deleteProperty` |
+| `apply` | 调用函数 | `Reflect.apply` |
+| `construct` | `new` 操作符 | `Reflect.construct` |
+| `ownKeys` | `Object.keys` 等枚举 | `Reflect.ownKeys` |
+
 **Reflect** 是一个内置对象，提供与 Proxy handler 一一对应的静态方法，将对象操作规范化。
 
 ```js
@@ -1048,6 +1133,88 @@ const handler = {
 | 返回值        | 多种形式           | 统一返回布尔值等规范结果 |
 | 报错方式      | 部分操作直接抛异常 | 返回 false，不抛出       |
 | 与 Proxy 配合 | 不一致             | 完全对应，推荐配合使用   |
+
+---
+
+## Q: 如何用 Proxy 实现响应式数据？
+
+**A:**
+
+核心思路：通过 `get` 陷阱**收集依赖**，通过 `set` 陷阱**触发更新**，递归代理嵌套对象。
+
+**手写简版响应式（Vue3 reactive 核心逻辑）：**
+
+```js
+// 依赖收集容器：WeakMap<target, Map<key, Set<effect>>>
+const targetMap = new WeakMap()
+let activeEffect = null
+
+// 收集依赖
+function track(target, key) {
+  if (!activeEffect) return
+  let depsMap = targetMap.get(target)
+  if (!depsMap) targetMap.set(target, (depsMap = new Map()))
+  let dep = depsMap.get(key)
+  if (!dep) depsMap.set(key, (dep = new Set()))
+  dep.add(activeEffect)
+}
+
+// 触发更新
+function trigger(target, key) {
+  const depsMap = targetMap.get(target)
+  if (!depsMap) return
+  const dep = depsMap.get(key)
+  if (dep) dep.forEach(effect => effect())
+}
+
+// 创建响应式对象
+function reactive(raw) {
+  return new Proxy(raw, {
+    get(target, key, receiver) {
+      const res = Reflect.get(target, key, receiver)
+      track(target, key)  // 依赖收集
+      // 深层对象递归代理
+      return typeof res === 'object' && res !== null ? reactive(res) : res
+    },
+    set(target, key, value, receiver) {
+      const result = Reflect.set(target, key, value, receiver)
+      trigger(target, key)  // 触发更新
+      return result
+    },
+    deleteProperty(target, key) {
+      const result = Reflect.deleteProperty(target, key)
+      trigger(target, key)
+      return result
+    }
+  })
+}
+
+// 副作用函数
+function effect(fn) {
+  activeEffect = fn
+  fn()  // 首次执行触发 get → 完成依赖收集
+  activeEffect = null
+}
+
+// 使用示例
+const state = reactive({ count: 0, user: { name: 'Tom' } })
+effect(() => {
+  console.log('count:', state.count)   // 自动追踪 count
+})
+state.count++  // 触发 trigger → 重新执行 effect → 打印 count: 1
+```
+
+**Proxy vs Object.defineProperty 实现响应式对比：**
+
+| 对比维度 | `Object.defineProperty` | `Proxy` |
+|---------|------------------------|---------|
+| 数组变化监听 | ❌ 需要重写 push/pop 等方法 | ✅ 原生拦截所有操作 |
+| 新增属性监听 | ❌ 需要手动 `Vue.set` | ✅ 自动拦截 |
+| 删除属性监听 | ❌ 不支持 | ✅ `deleteProperty` trap |
+| 性能 | 初始化时递归遍历所有属性 | 懒代理，访问时才递归 |
+| 浏览器兼容 | ✅ IE9+ | ❌ 不支持 IE |
+
+> ⚠️ **注意**：`Reflect.set` / `Reflect.get` 中必须传递 `receiver`，确保 `this` 指向正确，避免 getter/setter 继承链中 `this` 错误的 bug。
 
 ---
 

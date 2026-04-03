@@ -46,7 +46,7 @@
 ## 项目背景
 
 - 项目名：**upKnowledge** — 前端工程师个人知识库 + 文档站
-- 技术栈：VuePress 2.x + GitHub Pages
+- 技术栈：VitePress 1.x + GitHub Pages
 - 架构文档：`ARCHITECTURE.md`（每次开发任务前必须先读取）
 - 面试题库：`docs/interview/` 目录下各技术方向 Markdown 文件
 

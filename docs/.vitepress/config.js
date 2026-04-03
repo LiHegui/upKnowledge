@@ -31,7 +31,6 @@ export default defineConfig({
           collapsed: false,
           items: [
             { text: '手撕代码系列', link: '/interview/自测系列' },
-            { text: '必问面试题系列', link: '/interview/必问面试题系列/' },
           ],
         },
         {

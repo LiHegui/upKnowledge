@@ -1517,3 +1517,106 @@ Boolean(null)    // false
 Boolean([])      // true ⚠️ 空数组是 truthy
 Boolean({})      // true ⚠️ 空对象是 truthy
 ```
+
+---
+
+## 内存管理篇
+
+## Q: JavaScript 中有哪些常见的内存泄漏场景？如何排查和解决？
+
+**A:**
+
+**内存泄漏**是指程序分配的内存由于某种原因无法被垃圾回收器回收，导致内存持续增长，最终引发页面卡顿甚至崩溃。
+
+### 五大常见场景
+
+**1. 意外的全局变量**
+
+```js
+function foo() {
+  bar = '全局变量'         // 未声明，挂载到 window
+  this.global = '另一个'  // 非严格模式下 this 指向 window
+}
+```
+
+✅ 解决：始终使用 `const`/`let`/`var` 声明；开启 `'use strict'`。
+
+---
+
+**2. 被遗忘的定时器 / 事件监听器**
+
+```js
+// ❌ 泄漏：节点移除后定时器仍引用数据
+let data = fetchHugeData()
+setInterval(() => {
+  document.getElementById('node').innerHTML = JSON.stringify(data)
+}, 1000)
+
+// ❌ 泄漏：未移除的事件监听器
+element.addEventListener('click', handler)
+element.remove() // DOM 移除了，但监听器还在
+
+// ✅ 正确做法
+const timer = setInterval(fn, 1000)
+clearInterval(timer) // 不需要时清除
+
+element.removeEventListener('click', handler) // 销毁前移除
+```
+
+---
+
+**3. 脱离 DOM 的引用**
+
+```js
+// ❌ JS 中保留了对已移除 DOM 节点的引用
+const cache = { btn: document.getElementById('my-btn') }
+document.body.removeChild(document.getElementById('my-btn'))
+// btn 虽已从 DOM 移除，但 cache.btn 仍持有引用，无法被 GC
+
+// ✅ 解除引用
+cache.btn = null
+```
+
+---
+
+**4. 闭包不当使用**
+
+```js
+function outer() {
+  const bigData = new Array(1_000_000).fill('*')
+  return function inner() {
+    // 即使不使用 bigData，闭包仍持有 outer 环境引用
+    console.log('called')
+  }
+}
+const fn = outer()
+// fn = null  // ✅ 不需要时解除引用
+```
+
+---
+
+**5. 未清理的 Map / Set（应用 WeakMap / WeakSet）**
+
+```js
+// ❌ Map 强引用，obj 无法被 GC
+const map = new Map()
+let obj = { id: 1 }
+map.set(obj, 'value')
+obj = null // map 中仍有引用，对象不会被回收
+
+// ✅ WeakMap 弱引用，obj 置空后会自动从 WeakMap 中移除
+const weakMap = new WeakMap()
+let obj2 = { id: 2 }
+weakMap.set(obj2, 'value')
+obj2 = null // ✅ 可被 GC
+```
+
+### 排查工具
+
+| 工具 | 用途 |
+|------|------|
+| Chrome DevTools → **Memory 面板** | 拍堆快照（Heap Snapshot），对比前后内存增长 |
+| Chrome DevTools → **Performance 面板** | 录制过程中观察 JS Heap 折线是否持续上升不回落 |
+| Chrome DevTools → **Coverage 面板** | 找出未使用的代码 |
+
+> ⚠️ **注意**：SPA 框架（React/Vue）中，切换路由时务必在组件销毁钩子（`onUnmounted` / `useEffect` cleanup）中清除定时器、取消事件监听和中断异步请求。

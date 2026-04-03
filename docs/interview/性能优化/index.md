@@ -218,3 +218,116 @@ const buryObserver = new IntersectionObserver((entries) => {
 
 ---
 
+## Q: 前端性能优化有哪些体系化的手段？
+
+**A:**
+
+前端性能优化是一个系统性工程，可从**加载、渲染、执行**三个层面展开。
+
+### 一、加载性能优化
+
+**减少请求数 / 体积**
+
+| 手段 | 说明 |
+|------|------|
+| 代码压缩 | Terser（JS）、CSSNano（CSS），去注释/空白/缩短变量名 |
+| Gzip / Brotli | 服务器开启传输压缩，体积可减少 60%~80% |
+| 图片优化 | WebP/AVIF 替代 JPEG/PNG；响应式图片 `srcset`；工具压缩 |
+| 代码分割 | Webpack/Vite 按路由/组件懒加载，减少首屏 JS 体积 |
+| Tree-shaking | 打包时移除未使用代码（ES Module 静态分析） |
+
+**利用缓存**
+
+```
+强缓存（Cache-Control: max-age=31536000）→ 直接读本地，不发请求
+协商缓存（ETag / Last-Modified）→ 询问服务器是否过期，未过期返回 304
+```
+
+文件名加 hash（`app.3f8a2c.js`）实现**长期缓存**，变更后自动失效。
+
+**资源加载策略**
+
+```html
+<!-- CSS 放 <head>，防止 FOUC -->
+<link rel="stylesheet" href="main.css">
+
+<!-- JS 用 defer，不阻塞解析，按序执行 -->
+<script defer src="app.js"></script>
+
+<!-- 预加载关键资源 -->
+<link rel="preload" href="hero.jpg" as="image">
+<link rel="preconnect" href="https://api.example.com">
+<link rel="dns-prefetch" href="https://cdn.example.com">
+```
+
+**使用 CDN**：将静态资源分发至全球节点，用户从最近节点获取，降低延迟。
+
+---
+
+### 二、渲染性能优化
+
+**减少重排（Reflow）和重绘（Repaint）**
+
+```js
+// ❌ 强制刷新布局队列（每次读都导致重排）
+for (let i = 0; i < 100; i++) {
+  el.style.width = el.offsetWidth + 1 + 'px'
+}
+
+// ✅ 先统一读，再统一写
+const width = el.offsetWidth
+for (let i = 0; i < 100; i++) {
+  el.style.width = width + i + 'px'
+}
+```
+
+| 触发重排的操作 | 只触发重绘 | 只触发合成（最优）|
+|-------------|-----------|----------------|
+| 改变宽高、位置 | 改变颜色、背景 | `transform`、`opacity` |
+
+**硬件加速动画**
+
+```css
+.animated {
+  will-change: transform;      /* 提示浏览器提升为独立合成层 */
+  transform: translateZ(0);    /* GPU 渲染，不触发重排重绘 */
+}
+```
+
+**长任务拆分**
+
+```js
+// ❌ 一次执行 10000 次，阻塞主线程
+processAll(bigList)
+
+// ✅ 分片执行，每片让出主线程
+function processChunk(list, index = 0) {
+  const end = Math.min(index + 100, list.length)
+  for (let i = index; i < end; i++) process(list[i])
+  if (end < list.length) setTimeout(() => processChunk(list, end), 0)
+}
+```
+
+---
+
+### 三、核心 Web 指标（Core Web Vitals）
+
+| 指标 | 全称 | 衡量 | 优化方向 |
+|------|------|------|---------|
+| **LCP** | Largest Contentful Paint | 加载速度 | 优化首屏大图、服务器响应、预加载 |
+| **INP** | Interaction to Next Paint | 交互响应 | 拆分长任务、减少主线程阻塞 |
+| **CLS** | Cumulative Layout Shift | 视觉稳定性 | 给图片/视频设定宽高，避免动态插入内容 |
+
+---
+
+### 四、架构级优化
+
+| 方案 | 说明 |
+|------|------|
+| **SSR**（服务端渲染） | 服务器生成 HTML 直接返回，提升首屏速度和 SEO |
+| **SSG**（静态站点生成） | 构建时预生成 HTML，适合内容不频繁变化的场景 |
+| **PWA** | Service Worker 缓存资源 + 离线能力，二次访问极快 |
+| **HTTP/2** | 多路复用，单连接并发多请求，消除队头阻塞 |
+
+> ⚠️ **注意**：性能优化要**先测量再优化**，使用 Chrome DevTools Lighthouse / Performance 面板找到真正瓶颈，不要盲目优化。
+

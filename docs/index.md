@@ -7,7 +7,6 @@
 ## 📝 必刷特辑
 
 - [手撕代码系列](./interview/自测系列.md) — 高频手写实现汇总
-- [必问面试题系列](./interview/必问面试题系列/index.md) — 各方向必考题精选
 - [算法练习：面试经典 150 题](https://leetcode.cn/studyplan/top-interview-150/) ↗
 
 ---

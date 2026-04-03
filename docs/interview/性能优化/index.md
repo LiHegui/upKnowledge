@@ -125,3 +125,96 @@ function throttle(fn, delay) {
 
 当列表数据超过 **1000+** 条时，应考虑使用虚拟列表。
 
+---
+
+## Q: IntersectionObserver 是什么？如何使用？
+
+**A:**
+
+`IntersectionObserver` 是浏览器提供的**异步 API**，用于监测目标元素与视口（或指定根元素）的交叉状态，无需监听 `scroll` 事件，性能更优。
+
+**基础用法：**
+
+```js
+const observer = new IntersectionObserver(callback, options)
+
+observer.observe(targetEl)    // 开始观察
+observer.unobserve(targetEl)  // 停止观察某元素
+observer.disconnect()         // 停止全部观察
+```
+
+**回调参数（entries）：**
+
+```js
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    console.log(entry.target)           // 被观察的 DOM 元素
+    console.log(entry.isIntersecting)   // 是否进入视口（true/false）
+    console.log(entry.intersectionRatio) // 交叉比例 0~1
+    console.log(entry.boundingClientRect) // 元素的位置信息
+  })
+})
+```
+
+**配置项（options）：**
+
+| 配置项 | 说明 | 默认值 |
+|--------|------|--------|
+| `root` | 作为视口的根元素，null 表示浏览器视口 | `null` |
+| `rootMargin` | 根元素的扩展边距，类似 CSS margin | `"0px"` |
+| `threshold` | 触发回调的交叉比例阈值，可为数组 | `0` |
+
+```js
+const observer = new IntersectionObserver(callback, {
+  root: null,              // 使用视口作为根
+  rootMargin: '0px 0px -100px 0px', // 视口底部收缩 100px（提前触发）
+  threshold: [0, 0.5, 1]  // 进入 0%、50%、100% 时分别触发
+})
+```
+
+**典型应用场景：**
+
+```js
+// 1. 图片懒加载
+const imgObserver = new IntersectionObserver((entries) => {
+  entries.forEach(({ isIntersecting, target }) => {
+    if (isIntersecting) {
+      target.src = target.dataset.src
+      imgObserver.unobserve(target)  // 加载后取消观察
+    }
+  })
+})
+document.querySelectorAll('img[data-src]').forEach(img => imgObserver.observe(img))
+
+// 2. 无限滚动加载
+const sentinel = document.querySelector('#load-more')
+const listObserver = new IntersectionObserver(([entry]) => {
+  if (entry.isIntersecting) fetchNextPage()
+})
+listObserver.observe(sentinel)
+
+// 3. 元素曝光埋点
+const buryObserver = new IntersectionObserver((entries) => {
+  entries.forEach(({ isIntersecting, target }) => {
+    if (isIntersecting) {
+      reportExposure(target.dataset.id)
+      buryObserver.unobserve(target)
+    }
+  })
+}, { threshold: 0.5 })  // 50% 可见才算曝光
+```
+
+**IntersectionObserver vs scroll 事件：**
+
+| 对比维度 | IntersectionObserver | scroll 事件监听 |
+|---------|----------------------|----------------|
+| 性能 | ✅ 异步，不阻塞主线程 | ❌ 同步，频繁触发 |
+| 代码复杂度 | ✅ 简洁，原生支持 | ❌ 需手动计算位置 |
+| 精度控制 | ✅ 支持 threshold 阈值 | ❌ 需自行实现 |
+| 兼容性 | ✅ 现代浏览器全支持 | ✅ 全部支持 |
+| 适用场景 | 懒加载、曝光、无限滚动 | 特殊滚动交互逻辑 |
+
+> ⚠️ **注意**：`IntersectionObserver` 的回调在浏览器空闲时异步执行，不保证实时触发；若需精确实时响应，仍需结合 `scroll` 事件。
+
+---
+

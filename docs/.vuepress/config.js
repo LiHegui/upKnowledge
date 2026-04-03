@@ -41,10 +41,9 @@ export default defineUserConfig({
       // ────────── 面试题模块 ──────────
       '/interview/': [
         {
-          text: '🎯 导航',
+          text: '📝 必刷特辑',
           collapsible: false,
           children: [
-            '/interview/index.md',
             '/interview/自测系列.md',
             '/interview/必问面试题系列/index.md',
           ],
@@ -95,17 +94,6 @@ export default defineUserConfig({
           collapsible: true,
           children: [
             '/interview/React/index.md',
-            '/interview/React/虚拟DOM/index.md',
-            '/interview/React/DIff/index.md',
-            '/interview/React/Redux/index.md',
-            '/interview/React/知识库/Hooks/index.md',
-            '/interview/React/知识库/React高阶组件/PureComponent.md',
-            '/interview/React/Memo.md',
-            '/interview/React/useEffect.md',
-            '/interview/React/内置类型.md',
-            '/interview/React/useContext.md',
-            '/interview/React/useReducer.md',
-            '/interview/React/unstated-next.md',
           ],
         },
         {
@@ -119,7 +107,6 @@ export default defineUserConfig({
             '/interview/Webpack/模块化/进阶-搭建组件库.md',
             '/interview/Vite/index.md',
             '/interview/git/index.md',
-            '/interview/git/知识库/git.md',
           ],
         },
         {

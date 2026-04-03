@@ -1,0 +1,1 @@
+import{_ as a,o as i,c as r,ag as t}from"./chunks/framework.ppPvAPr9.js";const c=JSON.parse('{"title":"升级打怪 🎯","description":"","frontmatter":{},"headers":[],"relativePath":"README.md","filePath":"README.md"}'),l={name:"README.md"};function h(n,e,o,s,u,f){return i(),r("div",null,[...e[0]||(e[0]=[t("",47)])])}const m=a(l,[["render",h]]);export{c as __pageData,m as default};

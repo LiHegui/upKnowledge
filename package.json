@@ -1,17 +1,13 @@
 {
+  "type": "module",
   "scripts": {
     "dev": "npm run docs:dev",
-    "docs:dev": "vuepress dev docs",
-    "docs:build": "vuepress build docs",
-    "deploy": "node docs/deploy.js"
+    "docs:dev": "vitepress dev docs",
+    "docs:build": "vitepress build docs",
+    "docs:preview": "vitepress preview docs",
+    "deploy": "node docs/deploy.cjs"
   },
   "devDependencies": {
-    "@vuepress/bundler-vite": "^2.0.0-rc.19",
-    "@vuepress/theme-default": "^2.0.0-rc.74",
-    "sass-embedded": "^1.83.4",
-    "vuepress": "^2.0.0-rc.19"
-  },
-  "dependencies": {
-    "vuepress-plugin-md-enhance": "^2.0.0-rc.71"
+    "vitepress": "^1.6.3"
   }
 }

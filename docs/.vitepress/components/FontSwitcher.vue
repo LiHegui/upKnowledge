@@ -110,8 +110,8 @@ onBeforeUnmount(() => {
 }
 
 .font-switcher__trigger:hover {
-  border-color: var(--vp-c-accent, #3eaf7c);
-  color: var(--vp-c-accent, #3eaf7c);
+  border-color: var(--vp-c-brand-1, #3eaf7c);
+  color: var(--vp-c-brand-1, #3eaf7c);
 }
 
 .font-switcher__icon {
@@ -160,7 +160,7 @@ onBeforeUnmount(() => {
 }
 
 .font-switcher__item.active {
-  color: var(--vp-c-accent, #3eaf7c);
+  color: var(--vp-c-brand-1, #3eaf7c);
   font-weight: bold;
 }
 

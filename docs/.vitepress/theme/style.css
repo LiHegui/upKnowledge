@@ -19,3 +19,16 @@ body,
   color: var(--vp-c-brand-1);
   font-weight: 900;
 }
+
+/* ── 右侧目录：≥960px 时始终固定显示，不折叠为顶部按钮 ── */
+@media (min-width: 960px) {
+  /* 强制显示右侧大纲面板 */
+  .VPDocAside {
+    display: flex !important;
+  }
+
+  /* 隐藏顶部那个「点击展开」的下拉目录按钮 */
+  .VPLocalNavOutlineDropdown {
+    display: none !important;
+  }
+}

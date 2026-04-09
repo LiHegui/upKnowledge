@@ -381,9 +381,35 @@ function MyComponent() {
 
 **为什么不生效？**
 
-`handleClick` 是一个**闭包**——它只能看到函数定义时存在的变量值。换句话说，这些状态变量是**时间快照**。
+根本原因不是"闭包"，而是 **每次渲染 `counter` 都是一个全新的 `const` 常量**。
 
-`handleClick` 在最近一次渲染时被定义，因此它只能看到该次渲染时 `counter` 的值。调用 `setCounter()` 排队了未来的渲染，那次未来的渲染会有新的 `counter` 变量和新的 `handleClick` 函数……但当前这个 `handleClick` 永远无法看到新值。
+普通 JS 闭包是可以捕获"最新值"的：
+
+```js
+// 普通 JS：闭包捕获的是变量引用，能看到最新值
+let counter = 0
+const handleClick = () => {
+  counter++
+  console.log(counter) // ✅ 打印 1
+}
+```
+
+但 React 里的情况完全不同：
+
+```js
+function MyComponent() {
+  const counter = 0  // ← 每次渲染都是一个全新的 const！
+
+  const handleClick = () => {
+    setCounter(counter + 1)  // 只是排队"下次渲染时 counter = 1"
+    console.log(counter)     // 当前渲染的 const，永远是 0，不会变
+  }
+}
+```
+
+`setCounter` **不修改当前的 `counter`**，它只是告诉 React "下次渲染时用新值重新执行组件函数"。两次渲染的 `counter` 是完全独立的两个 const，互不影响。
+
+> **更准确的理解**：每次渲染，React 组件函数都重新执行，`counter` 是本次渲染作用域里的 const 常量。`setCounter` 不修改它，只触发下次渲染时创建新的 `counter`。"闭包"是次要原因，**"每次渲染 const 化"才是根本原因**。
 
 > 新 React 文档在 [State as a Snapshot](https://react.dev/learn/adding-interactivity#state-as-a-snapshot) 一节中详细介绍了这个概念。
 
@@ -439,6 +465,34 @@ React 提供了三个主要 API，允许我们潜在地跳过渲染：
 **1. `React.memo()`**
 
 内置的高阶组件，接受你的组件类型作为参数，返回一个包装组件。默认行为是检查 props 是否改变，如未改变则阻止重渲染。函数组件和类组件都可以用 `React.memo()` 包装。
+
+**❓ 为什么有 diff 算法还需要 memo？**
+
+这是一个常见误解：React 的 diff 是在**组件函数执行之后**比较新旧输出，而 `React.memo` 是在**函数执行之前**拦截。
+
+```
+// 没有 memo 的流程：
+父组件渲染 → 无条件调用子组件函数（产生 JS 开销）→ diff 输出 → DOM 没变
+
+// 有 memo 的流程：
+父组件渲染 → 检查 props 变了吗？→ 没变 → 直接跳过，函数根本不调用 ✅
+```
+
+对于计算量大的组件，`memo` 节省的是**组件函数的 JS 执行时间**，而不是 DOM 操作：
+
+```jsx
+function ExpensiveList({ data }) {
+  // 每次父组件渲染，这里都会执行 10000 次 heavyCompute——即使 data 没变
+  const filtered = data.filter(item => heavyCompute(item))
+  return <ul>{filtered.map(...)}</ul>
+}
+
+// 用 memo 包裹后，data 不变时函数根本不运行
+const ExpensiveList = React.memo(function ExpensiveList({ data }) {
+  const filtered = data.filter(item => heavyCompute(item))
+  return <ul>{filtered.map(...)}</ul>
+})
+```
 
 **2. `React.Component.shouldComponentUpdate`**
 
@@ -499,10 +553,12 @@ function OptimizedParent() {
 
 ### 新 Props 引用如何影响渲染优化
 
-默认情况下，React 会重渲染所有嵌套组件，即使它们的 props 没有改变。这意味着传递新引用作为 props 无关紧要——子组件无论如何都会渲染。
+默认情况下，React 会**调用**所有嵌套组件的函数，即使它们的 props 没有改变。传递新引用作为 props 无关紧要——子组件函数无论如何都会执行。diff 之后如果输出没变，DOM 不会更新——但**函数已经跑了一遍**。
+
+> ⚠️ **注意**："渲染"在 React 语境中有歧义：有时指"调用组件函数"，有时指"更新 DOM"。这里说的是前者——函数执行本身，而非 DOM 操作。
 
 ```jsx
-// 这完全没问题——NormalChildComponent 无论如何都会渲染
+// 这完全没问题——NormalChildComponent 的函数无论如何都会被调用
 function ParentComponent() {
   const onClick = () => { console.log('Button clicked'); };
   const data = { a: 1, b: 2 };
@@ -535,6 +591,77 @@ React 提供了两个 hook 来帮助复用相同引用：
 - **`useMemo`**：用于任何类型的通用数据，如创建对象或进行复杂计算
 - **`useCallback`**：专门用于创建回调函数
 
+**问题根源：每次渲染都是新引用**
+
+```jsx
+function ParentComponent() {
+  // 每次父组件渲染，这两个都是全新的引用
+  const onClick = () => {}        // 新函数，引用变了
+  const data = { a: 1, b: 2 }    // 新对象，引用变了
+
+  return <MemoizedChild onClick={onClick} data={data} />
+}
+```
+
+虽然函数体和对象内容完全一样，但 `===` 比较的是引用地址：
+
+```js
+(() => {}) === (() => {})   // false，两个不同的函数对象
+({ a: 1 }) === ({ a: 1 })  // false，两个不同的对象
+```
+
+`React.memo` 用 `===` 比较 props，所以每次 props 都是"变了"，memo 完全失效。
+
+**`useCallback`：稳定函数引用**
+
+```jsx
+// ❌ 每次渲染都创建新函数，memo 失效
+const onClick = () => { console.log('clicked') }
+
+// ✅ 依赖不变时复用同一个函数引用
+const onClick = useCallback(() => {
+  console.log('clicked')
+}, [])  // 空数组 = 组件挂载后永远用同一个函数
+```
+
+`useCallback(fn, deps)` 本质上是 `useMemo(() => fn, deps)` 的语法糖，专门为函数提供，更语义化。
+
+**`useMemo`：稳定对象/计算结果引用**
+
+```jsx
+// ❌ 每次渲染都创建新对象，memo 失效
+const data = { a: 1, b: 2 }
+
+// ✅ 依赖不变时复用同一个对象引用
+const data = useMemo(() => ({ a: 1, b: 2 }), [])
+
+// 还可以缓存复杂计算，避免每次渲染都重算
+const filteredList = useMemo(() => {
+  return bigList.filter(item => item.active)
+}, [bigList])  // 只有 bigList 变了才重新计算
+```
+
+**三者配合才有完整意义：**
+
+```
+React.memo  ──→ 让子组件"可以"被跳过（根据 props 引用比较）
+useCallback ──→ 稳定函数引用，让 memo 的比较能通过
+useMemo     ──→ 稳定对象引用，让 memo 的比较能通过
+```
+
+缺少任意一环，优化就会失效：
+
+```jsx
+// memo 有了，但 onClick 每次是新引用 → memo 永远失效
+const MemoChild = React.memo(Child)
+function Parent() {
+  const onClick = () => {}  // ❌ 没用 useCallback
+  return <MemoChild onClick={onClick} />
+}
+```
+
+**完整示例：**
+
 ```jsx
 const MemoizedChildComponent = React.memo(ChildComponent);
 
@@ -548,6 +675,16 @@ function ParentComponent() {
   return <MemoizedChildComponent onClick={onClick} data={data} />;
 }
 ```
+
+**依赖数组是关键：**
+
+```jsx
+const onClick = useCallback(() => {
+  console.log(count)  // 用到了 count
+}, [count])  // ← count 必须写进依赖，否则读到的是旧值（闭包陷阱）
+```
+
+依赖数组不是"永远不更新"，而是"只有这些依赖变了才更新"。漏写依赖会导致闭包陷阱，读到过期的值。
 
 ---
 

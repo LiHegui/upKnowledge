@@ -1,6 +1,7 @@
 import DefaultTheme from 'vitepress/theme'
 import Layout from './Layout.vue'
 import FontSwitcher from '../components/FontSwitcher.vue'
+import '@catppuccin/vitepress/theme/mocha/green.css'
 import './style.css'
 
 export default {

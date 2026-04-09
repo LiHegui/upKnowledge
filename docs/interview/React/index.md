@@ -576,6 +576,39 @@ useEffect(() => {
 }, [count])
 ```
 
+**cleanup 执行时机（不只是组件销毁）：**
+
+每次依赖项变化重新执行 effect 之前，React 都会**先执行上一次的 cleanup**，再执行新的 effect：
+
+```
+初次渲染：
+  → 执行 effect
+
+count 变化，触发更新：
+  → 先执行上一次的 cleanup  ← 这里先跑
+  → 再执行新的 effect
+
+组件销毁：
+  → 执行最后一次 cleanup
+```
+
+| 触发时机 | 是否执行 cleanup |
+|---------|----------------|
+| 依赖项变化（重新执行 effect 前） | ✅ 执行上一次的 cleanup |
+| 组件卸载 | ✅ 执行最后一次的 cleanup |
+| 首次挂载 | ❌ 没有上一次，不执行 |
+
+**为什么需要这样设计？** 以订阅为例：
+
+```js
+useEffect(() => {
+  const sub = subscribe(userId)
+  return () => sub.unsubscribe()  // userId 变化前先取消旧订阅
+}, [userId])
+```
+
+如果 `userId` 从 `1` 变成 `2`，不先 cleanup 的话，旧订阅和新订阅会同时存在，导致 bug。cleanup 的本质是"**在下一次 effect 跑之前，把上一次的副作用清干净**"。
+
 **执行顺序（父子嵌套）：**
 
 ```
@@ -1302,6 +1335,37 @@ function workLoop(deadline) {
 Vue 是基于 **template + watcher** 的组件级更新，每次只更新变化的组件，任务颗粒度本身就足够小，不需要 Fiber 的任务切片机制。
 
 React 的 `setState` 无论在哪里调用都从根节点开始更新，任务量大，需要 Fiber 来分片调度。
+
+**Fiber 和 Vue 的 VNode 是一回事吗？**
+
+可以粗略类比，但 Fiber 承担的职责远比 VNode 多：
+
+| | React Fiber | Vue VNode |
+|--|--|--|
+| 本质 | JS 对象，描述组件信息 | JS 对象，描述节点信息 |
+| 用于 diff | ✅ | ✅ |
+| 存储组件运行时状态（hooks、state） | ✅ | ❌ |
+| 存储调度信息（优先级、过期时间） | ✅ | ❌ |
+| 数据结构 | **链表**（可中断遍历） | **树**（递归遍历） |
+
+VNode 是纯粹的"描述快照"，只记录节点长什么样；Fiber 除此之外还把组件的所有 hooks 作为链表挂在节点上，并记录调度状态：
+
+```js
+// Vue VNode —— 只描述长什么样
+{ type: 'div', props: { class: 'foo' }, children: [...] }
+
+// React Fiber —— 描述 + 运行时状态 + 调度信息
+{
+  type: MyComponent,
+  memoizedState,    // hooks 链表挂在这（useState/useEffect 都在这）
+  memoizedProps,
+  child / sibling / return,  // 链表指针
+  flags,            // 标记需要做什么操作（插入/更新/删除）
+  lanes,            // 优先级
+}
+```
+
+> 一句话：**Fiber ≈ VNode 的功能 + 组件运行时状态（hooks）+ 调度信息 + 可中断的链表结构**。
 
 ---
 

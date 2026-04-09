@@ -1,10 +1,5 @@
-/* 品牌色 — 对应原 --vp-c-accent */
+/* 品牌色由 @catppuccin/vitepress 接管，无需手动设置 */
 :root {
-  --vp-c-brand-1: #299764;
-  --vp-c-brand-2: #3eaf7c;
-  --vp-c-brand-3: #4abf8a;
-  --vp-c-brand-soft: rgb(16 185 129 / 14%);
-
   /* 自定义字体变量，由 FontSwitcher 组件通过 JS 动态设置 */
   --custom-font-family: FangSong, STFangSong, 仿宋, FangSong_GB2312, fangsong, serif;
 }
@@ -18,6 +13,19 @@ body,
 .vp-doc h2 {
   color: var(--vp-c-brand-1);
   font-weight: 900;
+}
+
+/* ── 扩大内容区，减少两侧留白 ── */
+/* 覆盖 VitePress 默认的 688px 限制（当有右侧 TOC 时） */
+.VPDoc.has-aside .content-container {
+  max-width: 960px !important;
+}
+
+/* 只在超宽屏（>1920px）下扩大布局最大宽，避免普通屏幕 padding 变负 */
+@media (min-width: 1920px) {
+  :root {
+    --vp-layout-max-width: 1920px;
+  }
 }
 
 /* ── 右侧目录：≥960px 时始终固定显示，不折叠为顶部按钮 ── */

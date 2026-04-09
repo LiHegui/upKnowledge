@@ -7,6 +7,13 @@ export default defineConfig({
   base: '/upKnowledge/',
   ignoreDeadLinks: true,
 
+  markdown: {
+    theme: {
+      light: 'catppuccin-latte',
+      dark: 'catppuccin-mocha',
+    },
+  },
+
   themeConfig: {
     nav: [
       { text: '面试题', link: '/interview/' },
@@ -80,6 +87,7 @@ export default defineConfig({
           collapsed: true,
           items: [
             { text: 'React', link: '/interview/React/' },
+            { text: 'React 渲染行为完全指南', link: '/interview/React/react-rendering-behavior' },
           ],
         },
         {

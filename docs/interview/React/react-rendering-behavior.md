@@ -46,6 +46,88 @@
 
 ---
 
+<style>
+.rr{font-family:'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;font-size:13px;line-height:1.6;color:#e0e4f0}
+.rr-card{background:#1a1d27;border:1px solid #2e3347;border-radius:10px;padding:18px 20px;margin:14px 0}
+.rr-title{font-size:11px;font-weight:700;color:#a8b0cc;text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid #2e3347}
+.rr-phase-row{display:flex;gap:0;border-radius:8px;overflow:hidden;border:1px solid #2e3347}
+.rr-ph{flex:1;padding:14px}
+.rr-ph h4{font-size:.95rem;font-weight:700;margin-bottom:8px}
+.rr-ph ul{list-style:none;padding:0}
+.rr-ph li{padding:3px 0 3px 16px;position:relative;font-size:12px;color:#aab0c8}
+.rr-ph li::before{content:'▸';position:absolute;left:0;color:#555}
+.rr-blue{background:#1b2540}.rr-blue h4{color:#7eb3ff}
+.rr-green{background:#1b2a1f}.rr-green h4{color:#6ef5a8}
+.rr-tl{position:relative;padding-left:28px}
+.rr-tl::before{content:'';position:absolute;left:10px;top:0;bottom:0;width:2px;background:#2e3347}
+.rr-ti{position:relative;margin-bottom:12px}
+.rr-ti::before{content:'';position:absolute;left:-22px;top:7px;width:10px;height:10px;border-radius:50%;border:2px solid}
+.rr-ti.b::before{border-color:#4f8ef7;background:#4f8ef7}
+.rr-ti.g::before{border-color:#3ddc84;background:#3ddc84}
+.rr-ti.p::before{border-color:#b57bee;background:#b57bee}
+.rr-ti.y::before{border-color:#ffd166;background:#ffd166}
+.rr-ti.c::before{border-color:#48cae4;background:#48cae4}
+.rr-tl-lb{font-size:12px;font-weight:700;margin-bottom:2px}
+.rr-tl-d{color:#8b90a8;font-size:11px}
+.rr-note{padding:9px 13px;border-radius:7px;font-size:12px;margin-top:10px}
+.rr-nb{background:rgba(79,142,247,.1);border-left:3px solid #4f8ef7;color:#7eb3ff}
+.rr-ng{background:rgba(61,220,132,.08);border-left:3px solid #3ddc84;color:#6ef5a8}
+.rr-nr{background:rgba(255,92,92,.08);border-left:3px solid #ff5c5c;color:#ff8f8f}
+.rr-ny{background:rgba(255,209,102,.08);border-left:3px solid #ffd166;color:#ffe599}
+.rr-np{background:rgba(181,123,238,.08);border-left:3px solid #b57bee;color:#d4a8ff}
+.rr-tree{font-family:'Cascadia Code','Fira Code',Consolas,monospace;line-height:2;font-size:12px}
+.rr-nd{display:inline-flex;align-items:center;gap:5px;padding:1px 9px;border-radius:5px;font-weight:600}
+.rr-nd-r{background:rgba(79,142,247,.18);color:#7eb3ff;border:1px solid rgba(79,142,247,.35)}
+.rr-nd-s{background:rgba(61,220,132,.12);color:#6ef5a8;border:1px solid rgba(61,220,132,.25)}
+.rr-nd-m{background:rgba(181,123,238,.15);color:#d4a8ff;border:1px solid rgba(181,123,238,.3)}
+.rr-nd-c{background:rgba(255,209,102,.12);color:#ffe599;border:1px solid rgba(255,209,102,.3)}
+.rr-tag{font-size:10px;font-weight:700;padding:1px 5px;border-radius:3px}
+.rr-tg-r{background:#4f8ef7;color:#fff}.rr-tg-s{background:#3ddc84;color:#000}
+.rr-tg-m{background:#b57bee;color:#fff}.rr-tg-c{background:#ffd166;color:#000}
+.rr-row{display:flex;gap:10px;flex-wrap:wrap}
+.rr-box{flex:1;min-width:180px;border-radius:9px;padding:13px;border:1px solid #2e3347}
+.rr-box h5{font-size:12px;font-weight:700;margin-bottom:8px}
+.rr-evt-block{display:flex;flex-direction:column;gap:3px}
+.rr-evt{display:flex;align-items:center;gap:7px;padding:4px 8px;border-radius:4px;font-size:11px;font-family:monospace}
+.rr-e-c{background:rgba(79,142,247,.15);color:#7eb3ff}
+.rr-e-b{background:rgba(61,220,132,.12);color:#6ef5a8}
+.rr-e-s{background:rgba(255,255,255,.04);color:#8b90a8;font-family:sans-serif;font-style:italic}
+.rr-e-rr{background:rgba(181,123,238,.15);color:#d4a8ff;font-weight:700}
+.rr-snap-row{display:flex;gap:10px}
+.rr-snap{flex:1;border-radius:9px;padding:13px;border:1px solid #2e3347;font-family:monospace;font-size:11px}
+.rr-snap-h{font-size:10px;font-weight:700;color:#8b90a8;margin-bottom:7px;text-transform:uppercase}
+.rr-flow-row{display:flex;align-items:center;gap:0;flex-wrap:wrap}
+.rr-fs{flex:1;padding:11px 13px;text-align:center;font-size:11px;font-weight:600;border-radius:7px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:3px;min-width:100px}
+.rr-fa{color:#555;font-size:16px;padding:0 5px;flex-shrink:0}
+.rr-fs-b{background:rgba(79,142,247,.12);border:1px solid rgba(79,142,247,.3)}
+.rr-fs-g{background:rgba(61,220,132,.10);border:1px solid rgba(61,220,132,.25)}
+.rr-fs-r{background:rgba(255,92,92,.10);border:1px solid rgba(255,92,92,.25)}
+.rr-fs-p{background:rgba(181,123,238,.10);border:1px solid rgba(181,123,238,.3)}
+.rr-fs-y{background:rgba(255,209,102,.10);border:1px solid rgba(255,209,102,.25)}
+.rr-tbl{width:100%;border-collapse:collapse;font-size:12px}
+.rr-tbl th{padding:8px 12px;background:#222636;color:#8b90a8;text-align:left;border:1px solid #2e3347}
+.rr-tbl td{padding:8px 12px;border:1px solid #2e3347;vertical-align:top}
+.rr-tbl tr:nth-child(even) td{background:rgba(255,255,255,.02)}
+.rr-lanes{display:flex;flex-direction:column;gap:5px}
+.rr-lane{display:flex;align-items:center;gap:0;border-radius:5px;overflow:hidden;height:30px}
+.rr-ll{min-width:110px;font-size:11px;color:#8b90a8;padding-right:8px;text-align:right;flex-shrink:0}
+.rr-lb{display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;padding:0 7px;height:100%}
+.rr-lw{background:rgba(79,142,247,.35);color:#7eb3ff}
+.rr-ld{background:rgba(255,92,92,.2);color:#ff8f8f}
+.rr-lc{background:rgba(61,220,132,.25);color:#6ef5a8}
+.rr-le{background:rgba(255,255,255,.03);color:#555;border:1px dashed #2e3347}
+.rr-rdx-row{display:flex;gap:12px;flex-wrap:wrap}
+.rr-rdx{flex:1;min-width:140px;border-radius:9px;padding:13px;border:1px solid}
+.rr-rdx-o{border-color:#ff9f43;background:rgba(255,159,67,.07)}
+.rr-rdx-b{border-color:#4f8ef7;background:rgba(79,142,247,.07)}
+.rr-rdx-g{border-color:#3ddc84;background:rgba(61,220,132,.07)}
+.rr-rdx h5{font-size:12px;font-weight:700;margin-bottom:7px}
+.rr-rdx p{font-size:11px;color:#8b90a8;line-height:1.6}
+.rr-sec-hd{font-size:.85rem;font-weight:700;color:#e0e4f0;background:#222636;padding:8px 14px;border-radius:7px;margin:18px 0 10px;border-left:3px solid #4f8ef7}
+</style>
+
+---
+
 ## 什么是"渲染"？
 
 **渲染**是 React 根据当前 props 和 state 的组合，询问组件"你希望你的这部分 UI 现在看起来是什么样子"的过程。
@@ -140,6 +222,59 @@ React 会在渲染阶段暂停/丢弃"过时"的渲染工作，只有**最终确
 
 > 💡 "渲染" = React **执行组件函数、计算输出**这个过程；"更新 DOM" = 把计算结果**真正写入页面**。这也是为什么**渲染函数里不能有副作用**——它可能被执行多次，甚至结果被丢弃。
 
+<div class="rr">
+
+<div class="rr-card">
+<div class="rr-title">📊 图解：渲染完整时序（setState → Render → Commit → Effect）</div>
+<div class="rr-tl">
+  <div class="rr-ti b"><div class="rr-tl-lb" style="color:#7eb3ff">① setState() / dispatch() — 触发渲染</div><div class="rr-tl-d">将该组件标记为"需要重新渲染"，放入调度队列</div></div>
+  <div class="rr-ti b"><div class="rr-tl-lb" style="color:#7eb3ff">② Render 阶段（纯计算，不碰 DOM）</div><div class="rr-tl-d">从根部向下递归调用所有被标记组件的函数；生成新 Element 树；Reconciliation（diff）在此阶段内部完成</div></div>
+  <div class="rr-ti g"><div class="rr-tl-lb" style="color:#6ef5a8">③ Commit 阶段（同步，不可中断）</div><div class="rr-tl-d">依据 diff 结果一次性操作 DOM；更新所有 refs</div></div>
+  <div class="rr-ti p"><div class="rr-tl-lb" style="color:#d4a8ff">④ useLayoutEffect / componentDidMount / componentDidUpdate</div><div class="rr-tl-d">DOM 已更新、浏览器绘制前同步执行（阻塞绘制）</div></div>
+  <div class="rr-ti y"><div class="rr-tl-lb" style="color:#ffe599">⑤ 浏览器绘制（Paint）— 用户看到新画面</div></div>
+  <div class="rr-ti c"><div class="rr-tl-lb" style="color:#48cae4">⑥ useEffect（Passive Effects）— 异步执行</div><div class="rr-tl-d">绘制完成后异步运行；先执行上次的 cleanup，再执行本次 setup</div></div>
+</div>
+</div>
+
+<div class="rr-card">
+<div class="rr-title">📊 图解：Render 阶段 vs Commit 阶段</div>
+<div class="rr-phase-row">
+  <div class="rr-ph rr-blue" style="border-right:1px solid #2e3347">
+    <h4>🔵 Render 阶段</h4>
+    <ul>
+      <li>调用组件函数，生成新 Element 树</li>
+      <li>内部执行 Reconciliation（diff）</li>
+      <li><strong>不修改任何真实 DOM</strong></li>
+      <li>可被中断、暂停、丢弃（并发模式）</li>
+      <li>渲染函数必须是纯函数</li>
+    </ul>
+  </div>
+  <div class="rr-ph rr-green">
+    <h4>🟢 Commit 阶段</h4>
+    <ul>
+      <li>拿到变更列表，一次性写入真实 DOM</li>
+      <li><strong>始终同步执行，不可中断</strong></li>
+      <li>只执行一次（已有确定结果）</li>
+      <li>更新 refs</li>
+      <li>触发 useLayoutEffect / 生命周期</li>
+    </ul>
+  </div>
+</div>
+<div class="rr-note rr-nr">⚠️ 常见误区：diff（Reconciliation）不是在两阶段"之间"，而是 Render 阶段内部的一部分！</div>
+</div>
+
+<div class="rr-card">
+<div class="rr-title">📊 图解：并发渲染 — 过期渲染被丢弃</div>
+<div class="rr-lanes">
+  <div style="display:flex;align-items:center;gap:0;margin-bottom:2px"><div style="min-width:110px;font-size:10px;color:#555;text-align:right;padding-right:8px">时间轴 →</div><div style="flex:1;height:1px;background:#2e3347"></div></div>
+  <div class="rr-lane"><div class="rr-ll">输入 "r"</div><div class="rr-lb rr-lw" style="flex:2">渲染 "r" ...</div><div class="rr-lb rr-ld" style="flex:1">✗ 丢弃</div><div class="rr-lb rr-le" style="flex:3"></div></div>
+  <div class="rr-lane"><div class="rr-ll">输入 "re"</div><div class="rr-lb rr-le" style="flex:2"></div><div class="rr-lb rr-lw" style="flex:2">渲染 "re" ...</div><div class="rr-lb rr-ld" style="flex:1">✗ 丢弃</div><div class="rr-lb rr-le" style="flex:1"></div></div>
+  <div class="rr-lane"><div class="rr-ll">输入 "rea"</div><div class="rr-lb rr-le" style="flex:4"></div><div class="rr-lb rr-lw" style="flex:2">渲染 "rea"</div><div class="rr-lb rr-lc" style="flex:1">✓ Commit</div></div>
+</div>
+</div>
+
+</div>
+
 ---
 
 ### React 与 Vue 渲染流程对比
@@ -224,6 +359,19 @@ Commit 阶段
 调用根组件 `<App>` 的 `setState()` 会导致 React 重渲染**整个组件树**的每个组件。大多数组件可能返回与上次完全相同的输出，所以 React 不需要修改 DOM——但 React 仍然要完成询问组件渲染自身、对比输出的工作。
 
 > **记住：渲染本身不是坏事——这正是 React 判断是否需要修改 DOM 的方式！**
+
+<div class="rr">
+<div class="rr-card">
+<div class="rr-title">📊 图解：默认渲染行为 — B 组件 setState() 触发，子树全部递归渲染</div>
+<div class="rr-tree">
+<div>&nbsp;&nbsp;<span class="rr-nd rr-nd-s">A</span> <span class="rr-tag rr-tg-s">SKIP — 未被标记</span></div>
+<div style="padding-left:22px">└─ <span class="rr-nd rr-nd-r">B</span> <span class="rr-tag rr-tg-r">RENDER — setState() 触发</span></div>
+<div style="padding-left:44px">└─ <span class="rr-nd rr-nd-r">C</span> <span class="rr-tag rr-tg-r">RENDER — 父级 B 渲染了</span></div>
+<div style="padding-left:66px">└─ <span class="rr-nd rr-nd-r">D</span> <span class="rr-tag rr-tg-r">RENDER — 父级 C 渲染了</span></div>
+</div>
+<div class="rr-note rr-ny">🔑 React 不关心 props 是否改变——只要父组件渲染，子组件就被无条件调用！<br>渲染 ≠ 更新 DOM：函数跑了但 diff 后输出没变，DOM 不会改变。</div>
+</div>
+</div>
 
 ---
 
@@ -361,6 +509,31 @@ const onClick = async () => {
 
 React 18 提供了 `flushSync()` API 来强制立即渲染，退出自动批处理。
 
+<div class="rr">
+<div class="rr-card">
+<div class="rr-title">📊 图解：渲染批处理 — React 17 vs React 18</div>
+<div class="rr-phase-row">
+  <div class="rr-ph rr-blue" style="border-right:1px solid #2e3347">
+    <h4>React 17 — 仅合并事件处理器</h4>
+    <ul>
+      <li>onClick 内的多个 setState → ✅ 合并为 1 次渲染</li>
+      <li>setTimeout / Promise 内的 setState → ❌ 各自触发独立渲染</li>
+    </ul>
+    <div style="margin-top:8px;font-size:11px;color:#7eb3ff">结果：总计 3 次渲染</div>
+  </div>
+  <div class="rr-ph rr-green">
+    <h4>React 18 — 自动批处理（所有场景）</h4>
+    <ul>
+      <li>onClick 内的多个 setState → ✅ 合并 1 次</li>
+      <li>setTimeout / Promise 内的 setState → ✅ 也合并 1 次</li>
+    </ul>
+    <div style="margin-top:8px;font-size:11px;color:#6ef5a8">结果：总计 2 次渲染</div>
+  </div>
+</div>
+<div class="rr-note rr-nb">💡 需要强制立即刷新？使用 <code>flushSync()</code> 退出自动批处理。</div>
+</div>
+</div>
+
 ---
 
 ### 异步渲染、闭包与状态快照
@@ -412,6 +585,41 @@ function MyComponent() {
 > **更准确的理解**：每次渲染，React 组件函数都重新执行，`counter` 是本次渲染作用域里的 const 常量。`setCounter` 不修改它，只触发下次渲染时创建新的 `counter`。"闭包"是次要原因，**"每次渲染 const 化"才是根本原因**。
 
 > 新 React 文档在 [State as a Snapshot](https://react.dev/learn/adding-interactivity#state-as-a-snapshot) 一节中详细介绍了这个概念。
+
+<div class="rr">
+<div class="rr-card">
+<div class="rr-title">📊 图解：每次渲染的状态快照</div>
+<div class="rr-phase-row">
+  <div class="rr-ph rr-blue" style="border-right:1px solid #2e3347;flex:1">
+    <h4>第 1 次渲染</h4>
+    <div style="font-size:12px;color:#7eb3ff">const counter = 0</div>
+    <ul>
+      <li>handleClick 闭包捕获 counter = 0</li>
+      <li>setCounter(0 + 1) → 排队下次渲染</li>
+      <li>console.log(0) ← 始终打印 0</li>
+    </ul>
+  </div>
+  <div class="rr-ph rr-green" style="border-right:1px solid #2e3347;flex:1">
+    <h4>第 2 次渲染</h4>
+    <div style="font-size:12px;color:#6ef5a8">const counter = 1</div>
+    <ul>
+      <li>全新的 const 常量，值为 1</li>
+      <li>这是新的函数作用域</li>
+      <li>上次的 handleClick 已过期</li>
+    </ul>
+  </div>
+  <div class="rr-ph" style="background:#1e2433;flex:1">
+    <h4>函数式更新（正确做法）</h4>
+    <div style="font-size:12px;color:#d4a8ff">setCounter(prev => prev + 1)</div>
+    <ul>
+      <li>prev 是 React 保证的最新值</li>
+      <li>不依赖当前渲染快照</li>
+      <li>多次调用会正确累加</li>
+    </ul>
+  </div>
+</div>
+</div>
+</div>
 
 ---
 
@@ -686,6 +894,33 @@ const onClick = useCallback(() => {
 
 依赖数组不是"永远不更新"，而是"只有这些依赖变了才更新"。漏写依赖会导致闭包陷阱，读到过期的值。
 
+<div class="rr">
+<div class="rr-card">
+<div class="rr-title">📊 图解：无 memo vs 有 memo 的执行路径对比</div>
+<div class="rr-phase-row">
+  <div class="rr-ph rr-blue" style="border-right:1px solid #2e3347">
+    <h4>❌ 无优化</h4>
+    <ul>
+      <li>Parent 重新渲染</li>
+      <li>→ handleClick 重新创建（新引用）</li>
+      <li>→ Child 接收到新 props</li>
+      <li>→ Child 无条件重新渲染</li>
+    </ul>
+  </div>
+  <div class="rr-ph rr-green">
+    <h4>✅ memo + useCallback</h4>
+    <ul>
+      <li>Parent 重新渲染</li>
+      <li>→ useCallback：deps 不变，引用不变</li>
+      <li>→ React.memo：props 不变，跳过</li>
+      <li>→ Child <strong>跳过渲染</strong></li>
+    </ul>
+  </div>
+</div>
+<div class="rr-note rr-ny">💡 三件套记忆口诀：<strong>memo</strong> 包子组件，<strong>useCallback</strong> 稳函数引用，<strong>useMemo</strong> 缓计算结果。</div>
+</div>
+</div>
+
 ---
 
 ### 是否应该到处加 memo？
@@ -861,6 +1096,20 @@ function ParentComponent() {
 
 **注意**：一旦 `GrandchildComponent` 因新 context 值而渲染，React 就会回到默认行为——递归重渲染其内部的所有内容。
 
+<div class="rr">
+<div class="rr-card">
+<div class="rr-title">📊 图解：Context 更新 + memo 防火墙</div>
+<div class="rr-tree">
+<div>&nbsp;&nbsp;<span class="rr-nd rr-nd-r">ParentComponent</span> <span class="rr-tag rr-tg-r">setState → 触发渲染</span></div>
+<div style="padding-left:22px">└─ <span class="rr-nd rr-nd-r">MyContext.Provider</span> <span class="rr-tag rr-tg-r">value 引用变化</span></div>
+<div style="padding-left:44px">└─ <span class="rr-nd rr-nd-s">MemoizedChild</span> <span class="rr-tag rr-tg-s">memo 拦截 — props 无变化，跳过 ✅</span></div>
+<div style="padding-left:66px">└─ <span class="rr-nd rr-nd-r">GrandchildComponent</span> <span class="rr-tag rr-tg-r">useContext → 被 context 强制渲染</span></div>
+<div style="padding-left:88px">└─ <span class="rr-nd rr-nd-r">GreatGrandchild</span> <span class="rr-tag rr-tg-r">父渲染 → 默认跟着渲染</span></div>
+</div>
+<div class="rr-note rr-nb">💡 memo 只能防止 props 更新带来的重渲染；context 变化会穿透 memo 到达订阅者，订阅者以下仍恢复默认行为。</div>
+</div>
+</div>
+
 ---
 
 ### Context 与渲染器边界
@@ -901,6 +1150,32 @@ Redux store 在每次 dispatch action 时都会运行所有订阅者通知回调
 > ⚠️ **关键性能差异**：用 `connect` 时，每个 connect 组件像 `React.memo()` 一样充当防火墙，防止渲染级联。纯用 `useSelector` 时，组件树中较大的部分可能因 Redux store 更新而重渲染——因为没有其他 connect 组件来阻止渲染级联向下传播。
 
 如果这成为性能问题，解决方案是根据需要手动将组件包装在 `React.memo()` 中。
+
+<div class="rr">
+<div class="rr-card">
+<div class="rr-title">📊 图解：connect（HOC 防火墙）vs useSelector（无拦截）</div>
+<div class="rr-phase-row">
+  <div class="rr-ph rr-blue" style="border-right:1px solid #2e3347">
+    <h4>connect（react-redux v6）</h4>
+    <ul>
+      <li>包装组件，相当于 React.memo</li>
+      <li>store 更新 → mapStateToProps → 引用比较</li>
+      <li>props 不变 → <strong>拦截渲染级联 ✅</strong></li>
+      <li>子树受到保护，不因父组件渲染而冗余渲染</li>
+    </ul>
+  </div>
+  <div class="rr-ph rr-green">
+    <h4>useSelector（react-redux v7+）</h4>
+    <ul>
+      <li>Hook 内部订阅 store，无法阻止父渲染</li>
+      <li>store 更新 → selector 比较 → 跳过重渲染 ✅</li>
+      <li>但父组件渲染 → 子组件<strong>默认跟着渲染</strong></li>
+      <li>需配合 React.memo 手动设防</li>
+    </ul>
+  </div>
+</div>
+</div>
+</div>
 
 ---
 

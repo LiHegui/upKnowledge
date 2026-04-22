@@ -88,6 +88,7 @@ export default defineConfig({
           items: [
             { text: 'React', link: '/interview/React/' },
             { text: 'React 渲染行为完全指南', link: '/interview/React/react-rendering-behavior' },
+            { text: 'Fiber 架构与 Diff 算法深度解析', link: '/interview/React/fiber-diff' },
           ],
         },
         {
@@ -143,6 +144,7 @@ export default defineConfig({
             { text: 'JWT 登录方案', link: '/interview/解决方案/JWT登录方案/' },
             { text: '移动端适配', link: '/interview/解决方案/移动端适配/' },
             { text: '前端工程化', link: '/interview/解决方案/前端工程化/' },
+            { text: '实时协同系统', link: '/interview/解决方案/实时协同系统/' },
           ],
         },
         {

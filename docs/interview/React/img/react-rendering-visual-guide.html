@@ -1,0 +1,1375 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>React 渲染行为 — 极详细图解</title>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --surface: #1a1d27;
+      --surface2: #222636;
+      --border: #2e3347;
+      --blue: #4f8ef7;
+      --blue-light: #7eb3ff;
+      --green: #3ddc84;
+      --green-light: #6ef5a8;
+      --red: #ff5c5c;
+      --red-light: #ff8f8f;
+      --yellow: #ffd166;
+      --yellow-light: #ffe599;
+      --purple: #b57bee;
+      --purple-light: #d4a8ff;
+      --orange: #ff9f43;
+      --cyan: #48cae4;
+      --text: #e0e4f0;
+      --text-dim: #8b90a8;
+      --text-bright: #ffffff;
+      --tag-h: 44px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .page {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 40px 24px 80px;
+    }
+
+    h1.hero {
+      text-align: center;
+      font-size: 2rem;
+      color: var(--text-bright);
+      margin-bottom: 6px;
+    }
+
+    .hero-sub {
+      text-align: center;
+      color: var(--text-dim);
+      margin-bottom: 48px;
+    }
+
+    /* ── Section ── */
+    .section {
+      margin-bottom: 56px;
+    }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--text-bright);
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid var(--border);
+    }
+
+    .section-title .badge {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 800;
+      flex-shrink: 0;
+    }
+
+    /* ── Card ── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px 24px;
+      margin-bottom: 16px;
+    }
+
+    .card-title {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 14px;
+    }
+
+    /* ── Phase boxes ── */
+    .phase-row {
+      display: flex;
+      gap: 0;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+
+    .phase-box {
+      flex: 1;
+      padding: 16px;
+    }
+
+    .phase-box h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    .phase-box ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    .phase-box li {
+      padding: 4px 0;
+      padding-left: 18px;
+      position: relative;
+    }
+
+    .phase-box li::before {
+      content: '▸';
+      position: absolute;
+      left: 0;
+      color: var(--text-dim);
+    }
+
+    .phase-render { background: #1b2540; border-right: 1px solid var(--border); }
+    .phase-commit { background: #1b2a1f; }
+    .phase-render h3 { color: var(--blue-light); }
+    .phase-commit h3 { color: var(--green-light); }
+
+    /* ── Arrow ── */
+    .arrow-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+      margin: 8px 0;
+    }
+
+    .arrow-label {
+      font-size: 12px;
+      color: var(--text-dim);
+      padding: 4px 10px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+    }
+
+    .arrow {
+      font-size: 20px;
+      color: var(--text-dim);
+      padding: 0 6px;
+    }
+
+    /* ── Tree diagram ── */
+    .tree {
+      font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+      line-height: 1.9;
+      font-size: 13px;
+    }
+
+    .tree .node {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 2px 10px;
+      border-radius: 6px;
+      font-weight: 600;
+    }
+
+    .node-render { background: rgba(79,142,247,0.18); color: var(--blue-light); border: 1px solid rgba(79,142,247,0.35); }
+    .node-skip   { background: rgba(61,220,132,0.12); color: var(--green-light); border: 1px solid rgba(61,220,132,0.25); }
+    .node-memo   { background: rgba(181,123,238,0.15); color: var(--purple-light); border: 1px solid rgba(181,123,238,0.3); }
+    .node-ctx    { background: rgba(255,209,102,0.12); color: var(--yellow-light); border: 1px solid rgba(255,209,102,0.3); }
+    .node-dom    { background: rgba(72,202,228,0.12); color: var(--cyan); border: 1px solid rgba(72,202,228,0.3); }
+
+    .tag { font-size: 10px; font-weight: 700; padding: 1px 5px; border-radius: 3px; }
+    .tag-render { background: var(--blue); color: #fff; }
+    .tag-skip   { background: var(--green); color: #000; }
+    .tag-memo   { background: var(--purple); color: #fff; }
+    .tag-new    { background: var(--red); color: #fff; }
+    .tag-ctx    { background: var(--yellow); color: #000; }
+
+    /* ── Timeline ── */
+    .timeline {
+      position: relative;
+      padding-left: 32px;
+    }
+
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 12px; top: 0; bottom: 0;
+      width: 2px;
+      background: var(--border);
+    }
+
+    .tl-item {
+      position: relative;
+      margin-bottom: 14px;
+    }
+
+    .tl-item::before {
+      content: '';
+      position: absolute;
+      left: -24px;
+      top: 8px;
+      width: 12px; height: 12px;
+      border-radius: 50%;
+      border: 2px solid;
+    }
+
+    .tl-item.blue::before { border-color: var(--blue); background: var(--blue); }
+    .tl-item.green::before { border-color: var(--green); background: var(--green); }
+    .tl-item.purple::before { border-color: var(--purple); background: var(--purple); }
+    .tl-item.yellow::before { border-color: var(--yellow); background: var(--yellow); }
+    .tl-item.red::before { border-color: var(--red); background: var(--red); }
+    .tl-item.cyan::before { border-color: var(--cyan); background: var(--cyan); }
+
+    .tl-label {
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 2px;
+    }
+
+    .tl-desc {
+      color: var(--text-dim);
+      font-size: 12px;
+    }
+
+    /* ── Compare table ── */
+    .compare-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    .compare-table th {
+      padding: 10px 14px;
+      background: var(--surface2);
+      color: var(--text-dim);
+      text-align: left;
+      font-weight: 700;
+      border: 1px solid var(--border);
+    }
+
+    .compare-table td {
+      padding: 10px 14px;
+      border: 1px solid var(--border);
+      vertical-align: top;
+    }
+
+    .compare-table tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
+
+    /* ── Code block ── */
+    .code-block {
+      background: #0a0d14;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px 16px;
+      font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+      font-size: 12px;
+      line-height: 1.7;
+      overflow-x: auto;
+      white-space: pre;
+    }
+
+    .k { color: #c792ea; }
+    .fn { color: #82aaff; }
+    .str { color: #c3e88d; }
+    .cm { color: #546e7a; font-style: italic; }
+    .v { color: #f78c6c; }
+    .ok { color: var(--green); }
+    .err { color: var(--red); }
+    .hi { color: var(--yellow); font-weight: 700; }
+
+    /* ── Batch boxes ── */
+    .batch-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .batch-card {
+      flex: 1;
+      min-width: 200px;
+      border-radius: 10px;
+      padding: 14px;
+      border: 1px solid var(--border);
+    }
+
+    .batch-card h4 { font-size: 13px; margin-bottom: 10px; font-weight: 700; }
+
+    .evt-block {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .evt {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 5px 8px;
+      border-radius: 5px;
+      font-size: 12px;
+      font-family: monospace;
+    }
+
+    .evt-call { background: rgba(79,142,247,0.15); color: var(--blue-light); }
+    .evt-batch { background: rgba(61,220,132,0.12); color: var(--green-light); }
+    .evt-sep { background: rgba(255,92,92,0.12); color: var(--red-light); font-style: italic; font-family: sans-serif; padding: 3px 8px; }
+    .evt-render { background: rgba(181,123,238,0.15); color: var(--purple-light); font-weight: 700; }
+
+    .evt-merge {
+      text-align: center;
+      padding: 3px;
+      font-size: 11px;
+      color: var(--text-dim);
+    }
+
+    /* ── Fiber node ── */
+    .fiber-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 10px;
+    }
+
+    .fiber-field {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+    }
+
+    .fiber-key {
+      font-size: 11px;
+      color: var(--cyan);
+      font-family: monospace;
+      margin-bottom: 3px;
+    }
+
+    .fiber-val {
+      font-size: 12px;
+      color: var(--text-dim);
+    }
+
+    /* ── Memo flow ── */
+    .flow-row {
+      display: flex;
+      align-items: stretch;
+      gap: 0;
+    }
+
+    .flow-step {
+      flex: 1;
+      padding: 12px 14px;
+      text-align: center;
+      font-size: 12px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .flow-step .emoji { font-size: 20px; }
+    .flow-arrow {
+      display: flex;
+      align-items: center;
+      color: var(--text-dim);
+      font-size: 18px;
+      padding: 0 4px;
+    }
+
+    .step-blue   { background: rgba(79,142,247,0.12);  border: 1px solid rgba(79,142,247,0.3); border-radius: 8px; }
+    .step-green  { background: rgba(61,220,132,0.10);  border: 1px solid rgba(61,220,132,0.25); border-radius: 8px; }
+    .step-red    { background: rgba(255,92,92,0.10);   border: 1px solid rgba(255,92,92,0.25); border-radius: 8px; }
+    .step-purple { background: rgba(181,123,238,0.10); border: 1px solid rgba(181,123,238,0.3); border-radius: 8px; }
+    .step-yellow { background: rgba(255,209,102,0.10); border: 1px solid rgba(255,209,102,0.25); border-radius: 8px; }
+
+    /* ── Context diagram ── */
+    .ctx-box {
+      border-radius: 10px;
+      padding: 14px;
+      border: 2px dashed;
+    }
+
+    .ctx-provider { border-color: var(--yellow); }
+    .ctx-consumer { border-color: var(--purple); }
+    .ctx-memo-consumer { border-color: var(--green); }
+
+    /* ── Redux diagram ── */
+    .redux-row {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+      flex-wrap: wrap;
+    }
+
+    .redux-box {
+      flex: 1;
+      min-width: 160px;
+      border-radius: 10px;
+      padding: 14px;
+      border: 1px solid;
+    }
+
+    .redux-store { border-color: var(--orange); background: rgba(255,159,67,0.07); }
+    .redux-comp  { border-color: var(--blue);   background: rgba(79,142,247,0.07); }
+    .redux-arrow { display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 0 8px; color: var(--text-dim); font-size: 22px; gap: 4px; }
+
+    /* ── Note / callout ── */
+    .note {
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 12px;
+      margin-top: 10px;
+    }
+
+    .note-blue   { background: rgba(79,142,247,0.1);  border-left: 3px solid var(--blue);   color: var(--blue-light); }
+    .note-green  { background: rgba(61,220,132,0.08); border-left: 3px solid var(--green);  color: var(--green-light); }
+    .note-red    { background: rgba(255,92,92,0.08);  border-left: 3px solid var(--red);    color: var(--red-light); }
+    .note-yellow { background: rgba(255,209,102,0.08);border-left: 3px solid var(--yellow); color: var(--yellow-light); }
+    .note-purple { background: rgba(181,123,238,0.08);border-left: 3px solid var(--purple); color: var(--purple-light); }
+
+    /* ── Snapshot row ── */
+    .snapshot-row {
+      display: flex;
+      gap: 12px;
+    }
+
+    .snapshot {
+      flex: 1;
+      border-radius: 10px;
+      padding: 14px;
+      border: 1px solid var(--border);
+      font-family: monospace;
+      font-size: 12px;
+    }
+
+    .snap-header {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-dim);
+      margin-bottom: 8px;
+      text-transform: uppercase;
+    }
+
+    /* ── Legend ── */
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--text-dim);
+    }
+
+    .dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    /* scrollbar */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+    /* ── Divider ── */
+    hr.div { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
+
+    /* concurrent lanes */
+    .lanes { display: flex; flex-direction: column; gap: 6px; }
+    .lane { display: flex; align-items: center; gap: 0; border-radius: 6px; overflow: hidden; height: 32px; }
+    .lane-label { min-width: 120px; font-size: 12px; color: var(--text-dim); padding-right: 10px; text-align: right; }
+    .lane-block { display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; padding: 0 8px; height: 100%; }
+    .lb-work   { background: rgba(79,142,247,0.35); color: var(--blue-light); }
+    .lb-pause  { background: rgba(255,255,255,0.04); color: var(--text-dim); font-weight: 400; border: 1px dashed var(--border); }
+    .lb-discard{ background: rgba(255,92,92,0.2); color: var(--red-light); }
+    .lb-commit { background: rgba(61,220,132,0.25); color: var(--green-light); }
+    .lb-new    { background: rgba(255,209,102,0.2); color: var(--yellow-light); }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <h1 class="hero">⚛️ React 渲染行为 极详细图解</h1>
+  <p class="hero-sub">基于 Mark Erikson《A (Mostly) Complete Guide to React Rendering Behavior》</p>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       § 1  什么是渲染 / 两阶段流程
+  ═══════════════════════════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-title">
+      <span class="badge" style="background:#4f8ef7;color:#fff">1</span>
+      渲染两阶段流程：Render 阶段 → Commit 阶段
+    </div>
+
+    <div class="card">
+      <div class="card-title">完整流程时序</div>
+
+      <div class="timeline">
+        <div class="tl-item blue">
+          <div class="tl-label" style="color:var(--blue-light)">① setState() / dispatch() — 触发渲染</div>
+          <div class="tl-desc">React 将该组件标记为 "需要重新渲染"，放入调度队列</div>
+        </div>
+        <div class="tl-item blue">
+          <div class="tl-label" style="color:var(--blue-light)">② Render 阶段 — 调用组件函数（纯计算，不碰 DOM）</div>
+          <div class="tl-desc">从根部向下，递归调用所有被标记组件的函数/render()；<br>生成新的 React Element 树（即 JSX 对象）；<br>Reconciliation（diff）：新旧 Element 树对比，计算最小变更集</div>
+        </div>
+        <div class="tl-item green">
+          <div class="tl-label" style="color:var(--green-light)">③ Commit 阶段 — 将变更写入真实 DOM（同步执行）</div>
+          <div class="tl-desc">依据 diff 结果一次性操作 DOM；更新所有 refs</div>
+        </div>
+        <div class="tl-item purple">
+          <div class="tl-label" style="color:var(--purple-light)">④ useLayoutEffect / componentDidMount / componentDidUpdate</div>
+          <div class="tl-desc">DOM 已更新、浏览器绘制前同步执行（阻塞绘制）</div>
+        </div>
+        <div class="tl-item yellow">
+          <div class="tl-label" style="color:var(--yellow-light)">⑤ 浏览器绘制（Paint）</div>
+          <div class="tl-desc">用户看到新画面</div>
+        </div>
+        <div class="tl-item cyan">
+          <div class="tl-label" style="color:var(--cyan)">⑥ useEffect（Passive Effects）— 异步执行</div>
+          <div class="tl-desc">绘制完成后异步运行；先执行上次的 cleanup，再执行本次 setup</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Render 阶段 vs Commit 阶段 详细对比</div>
+      <div class="phase-row">
+        <div class="phase-box phase-render">
+          <h3>🔵 Render 阶段</h3>
+          <ul>
+            <li>调用组件函数，生成新 Element 树</li>
+            <li>内部执行 Reconciliation（diff）</li>
+            <li><strong>不修改任何真实 DOM</strong></li>
+            <li>可被中断、暂停、丢弃（并发模式）</li>
+            <li>可多次执行同一组件</li>
+            <li>渲染函数必须是纯函数</li>
+          </ul>
+        </div>
+        <div class="phase-box phase-commit">
+          <h3>🟢 Commit 阶段</h3>
+          <ul>
+            <li>拿到 Render 阶段计算好的变更列表</li>
+            <li>一次性写入真实 DOM</li>
+            <li><strong>始终同步执行，不可中断</strong></li>
+            <li>只执行一次（已有确定结果）</li>
+            <li>更新 refs</li>
+            <li>触发 useLayoutEffect / 生命周期</li>
+          </ul>
+        </div>
+      </div>
+      <div class="note note-red" style="margin-top:12px">
+        ⚠️ 常见误区：diff（Reconciliation）不是在两阶段"之间"，而是 Render 阶段内部的一部分！
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">生命周期执行顺序（首次挂载 vs 更新）</div>
+      <table class="compare-table">
+        <thead>
+          <tr><th>时机</th><th>首次挂载</th><th>后续更新</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Render 阶段</td>
+            <td>调用组件函数 → 生成 Element</td>
+            <td>调用组件函数 → diff 新旧 Element</td>
+          </tr>
+          <tr>
+            <td>Commit — DOM</td>
+            <td>插入 DOM 节点</td>
+            <td>更新 DOM 节点</td>
+          </tr>
+          <tr>
+            <td>Commit — refs</td>
+            <td>绑定 refs</td>
+            <td>更新 refs</td>
+          </tr>
+          <tr>
+            <td>useLayoutEffect</td>
+            <td>setup 运行</td>
+            <td>上次 cleanup → 本次 setup</td>
+          </tr>
+          <tr>
+            <td>浏览器绘制</td>
+            <td colspan="2" style="text-align:center">Paint</td>
+          </tr>
+          <tr>
+            <td>useEffect</td>
+            <td>setup 运行</td>
+            <td>上次 cleanup → 本次 setup</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       § 2  默认渲染行为：父渲染→子全渲染
+  ═══════════════════════════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-title">
+      <span class="badge" style="background:#3ddc84;color:#000">2</span>
+      默认渲染行为：父组件渲染 → 子组件全部递归渲染
+    </div>
+
+    <div class="card">
+      <div class="card-title">场景：B 组件 setState() 触发，组件树 A → B → C → D</div>
+
+      <div class="tree" style="padding:10px 0">
+        <div>&nbsp;&nbsp;<span class="node node-skip">A</span> <span class="tag tag-skip">SKIP — 未被标记</span></div>
+        <div style="padding-left:24px">└─ <span class="node node-render">B</span> <span class="tag tag-render">RENDER — setState() 触发</span></div>
+        <div style="padding-left:48px">└─ <span class="node node-render">C</span> <span class="tag tag-render">RENDER — 父级 B 渲染了</span></div>
+        <div style="padding-left:72px">└─ <span class="node node-render">D</span> <span class="tag tag-render">RENDER — 父级 C 渲染了</span></div>
+      </div>
+
+      <div class="note note-yellow" style="margin-top:14px">
+        🔑 React 不关心 props 是否改变——只要父组件渲染，子组件就被无条件调用！<br>
+        渲染 ≠ 更新 DOM：组件函数跑了，但 diff 后发现输出没变，DOM 不会改变。
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       § 3  React 与 Vue 渲染流程对比
+  ═══════════════════════════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-title">
+      <span class="badge" style="background:#b57bee;color:#fff">3</span>
+      React vs Vue 3 渲染流程对比
+    </div>
+
+    <div class="card">
+      <table class="compare-table">
+        <thead>
+          <tr><th>维度</th><th>React</th><th>Vue 3</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>触发粒度</td>
+            <td>父组件渲染 → 整棵子树都渲染（再 diff 裁剪）</td>
+            <td>Proxy 精确追踪依赖 → 只有用到该数据的组件重渲染</td>
+          </tr>
+          <tr>
+            <td>内部数据结构</td>
+            <td>Fiber 链表（可中断遍历）</td>
+            <td>VNode 树（递归遍历）</td>
+          </tr>
+          <tr>
+            <td>可中断性</td>
+            <td>React 18 并发模式：Render 阶段可暂停/丢弃</td>
+            <td>渲染同步，不可中断（调度异步）</td>
+          </tr>
+          <tr>
+            <td>Diff 发生时机</td>
+            <td>Render 阶段内部（Reconciliation）</td>
+            <td>patch 算法（VNode 树对比）</td>
+          </tr>
+          <tr>
+            <td>DOM 更新</td>
+            <td>Commit 阶段（同步，不可中断）</td>
+            <td>DOM patch 操作（同步）</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       § 4  并发渲染
+  ═══════════════════════════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-title">
+      <span class="badge" style="background:#ff9f43;color:#000">4</span>
+      并发渲染（React 18）— Render 阶段可暂停 / 丢弃
+    </div>
+
+    <div class="card">
+      <div class="card-title">用户快速输入搜索词示例</div>
+      <div class="lanes">
+        <div style="display:flex;align-items:center;gap:0;margin-bottom:2px">
+          <div style="min-width:120px;font-size:11px;color:var(--text-dim);text-align:right;padding-right:10px">时间轴 →</div>
+          <div style="flex:1;height:2px;background:var(--border)"></div>
+        </div>
+        <div class="lane">
+          <div class="lane-label">输入 "r"</div>
+          <div class="lane-block lb-work" style="flex:2">渲染 "r" ...</div>
+          <div class="lane-block lb-discard" style="flex:1">✗ 丢弃</div>
+          <div class="lane-block lb-pause" style="flex:3"></div>
+        </div>
+        <div class="lane">
+          <div class="lane-label">输入 "re"</div>
+          <div class="lane-block lb-pause" style="flex:2"></div>
+          <div class="lane-block lb-work" style="flex:2">渲染 "re" ...</div>
+          <div class="lane-block lb-discard" style="flex:1">✗ 丢弃</div>
+          <div class="lane-block lb-pause" style="flex:1"></div>
+        </div>
+        <div class="lane">
+          <div class="lane-label">输入 "rea"</div>
+          <div class="lane-block lb-pause" style="flex:4"></div>
+          <div class="lane-block lb-work" style="flex:2">渲染 "rea"</div>
+          <div class="lane-block lb-commit" style="flex:1">✓ Commit</div>
+        </div>
+      </div>
+      <div class="note note-blue" style="margin-top:12px">
+        💡 只有最终确认有效的渲染才会进入 Commit 阶段。这就是为什么渲染函数不能有副作用——它可能被执行多次甚至被丢弃。
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       § 5  Fiber 结构
+  ═══════════════════════════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-title">
+      <span class="badge" style="background:#48cae4;color:#000">5</span>
+      Fiber 内部数据结构
+    </div>
+
+    <div class="card">
+      <div class="card-title">Fiber 对象关键字段（简化）</div>
+      <div class="fiber-grid">
+        <div class="fiber-field"><div class="fiber-key">tag</div><div class="fiber-val">标识组件类型（函数/类/宿主元素…）</div></div>
+        <div class="fiber-field"><div class="fiber-key">key</div><div class="fiber-val">列表 key，协调时用于身份识别</div></div>
+        <div class="fiber-field"><div class="fiber-key">type</div><div class="fiber-val">函数/类引用，用 === 比较是否变化</div></div>
+        <div class="fiber-field"><div class="fiber-key">child</div><div class="fiber-val">指向第一个子 Fiber</div></div>
+        <div class="fiber-field"><div class="fiber-key">sibling</div><div class="fiber-val">指向下一个兄弟 Fiber</div></div>
+        <div class="fiber-field"><div class="fiber-key">pendingProps</div><div class="fiber-val">本次渲染传入的 props</div></div>
+        <div class="fiber-field"><div class="fiber-key">memoizedProps</div><div class="fiber-val">上次渲染使用的 props</div></div>
+        <div class="fiber-field"><div class="fiber-key">memoizedState</div><div class="fiber-val">用于生成输出的 state（Hooks 链表）</div></div>
+        <div class="fiber-field"><div class="fiber-key">updateQueue</div><div class="fiber-val">待处理的 state 更新队列</div></div>
+        <div class="fiber-field"><div class="fiber-key">dependencies</div><div class="fiber-val">Context / Event 依赖列表</div></div>
+      </div>
+      <div class="note note-purple" style="margin-top:12px">
+        🔗 React Hooks 本质：所有 hook 以链表形式挂在 <code>memoizedState</code> 字段上，这就是为什么 hook 的调用顺序必须固定不变。
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       § 6  组件类型与 key
+  ═══════════════════════════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-title">
+      <span class="badge" style="background:#ffd166;color:#000">6</span>
+      组件类型（type）、Key 与协调
+    </div>
+
+    <div class="card">
+      <div class="card-title">type 改变 → 销毁重建，type 不变 → 复用更新</div>
+      <div class="batch-row">
+        <div class="batch-card" style="border-color:rgba(255,92,92,0.4)">
+          <h4 style="color:var(--red-light)">❌ type 改变（销毁 + 重建）</h4>
+          <div class="evt-block">
+            <div class="evt evt-call">旧：<code>&lt;div&gt;</code></div>
+            <div class="evt evt-sep">↓ type 从 div 变成 span</div>
+            <div class="evt evt-call" style="color:var(--red-light)">新：<code>&lt;span&gt;</code></div>
+            <div class="evt evt-sep">→ 销毁整棵 div 子树</div>
+            <div class="evt evt-batch">从头重建 span 子树</div>
+          </div>
+        </div>
+        <div class="batch-card" style="border-color:rgba(61,220,132,0.4)">
+          <h4 style="color:var(--green-light)">✅ type 相同（复用 + 更新）</h4>
+          <div class="evt-block">
+            <div class="evt evt-call">旧：<code>&lt;MyComp a=1 /&gt;</code></div>
+            <div class="evt evt-sep">↓ props 变化，type 不变</div>
+            <div class="evt evt-call">新：<code>&lt;MyComp a=2 /&gt;</code></div>
+            <div class="evt evt-sep">→ 复用现有实例</div>
+            <div class="evt evt-batch">仅更新 props，不重建</div>
+          </div>
+        </div>
+        <div class="batch-card" style="border-color:rgba(255,92,92,0.4)">
+          <h4 style="color:var(--red-light)">❌ 渲染中创建新组件类型</h4>
+          <div class="code-block" style="font-size:11px"><span class="err">// 错误示范</span>
+<span class="k">function</span> <span class="fn">Parent</span>() {
+  <span class="err">// 每次渲染都是新引用！</span>
+  <span class="k">function</span> <span class="fn">Child</span>() { ... }
+  <span class="k">return</span> &lt;<span class="fn">Child</span> /&gt;;
+}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Key 的作用：身份标识 + 强制重建</div>
+      <div class="batch-row">
+        <div class="batch-card" style="border-color:rgba(255,92,92,0.3)">
+          <h4 style="color:var(--red-light)">❌ key=index（下标）— 问题多</h4>
+          <div class="evt-block">
+            <div class="evt evt-call">初始：[A(0), B(1), C(2)]</div>
+            <div class="evt evt-sep">删除 A，头部插入 X</div>
+            <div class="evt evt-call">[X(0), B(1), C(2)]</div>
+            <div class="evt evt-sep">React 以为 key=0 的还是原来那个</div>
+            <div class="evt evt-call" style="color:var(--red-light)">错误复用 → 状态错位 🐛</div>
+          </div>
+        </div>
+        <div class="batch-card" style="border-color:rgba(61,220,132,0.3)">
+          <h4 style="color:var(--green-light)">✅ key=id（唯一ID）— 正确</h4>
+          <div class="evt-block">
+            <div class="evt evt-call">初始：[A(id:1), B(id:2), C(id:3)]</div>
+            <div class="evt evt-sep">删除 A，头部插入 X(id:4)</div>
+            <div class="evt evt-call">[X(id:4), B(id:2), C(id:3)]</div>
+            <div class="evt evt-sep">React 精确识别：销毁 id:1，新建 id:4</div>
+            <div class="evt evt-batch">✅ 状态正确，效率最优</div>
+          </div>
+        </div>
+        <div class="batch-card" style="border-color:rgba(181,123,238,0.3)">
+          <h4 style="color:var(--purple-light)">💡 key 强制重置实例状态</h4>
+          <div class="code-block" style="font-size:11px"><span class="cm">// 选中项变化时彻底重置表单</span>
+&lt;<span class="fn">DetailForm</span>
+  <span class="ok">key={selectedItem.id}</span>
+/&gt;
+
+<span class="cm">// key 变 → 旧实例销毁
+// → 新实例创建 → state 清空</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       § 7  批处理
+  ═══════════════════════════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-title">
+      <span class="badge" style="background:#ff5c5c;color:#fff">7</span>
+      渲染批处理：React 17 vs React 18
+    </div>
+
+    <div class="card">
+      <div class="card-title">同一事件处理器中多次 setState</div>
+      <div class="code-block"><span class="k">const</span> onClick = <span class="k">async</span> () =&gt; {
+  setCounter(<span class="v">0</span>);
+  setCounter(<span class="v">1</span>);        <span class="cm">// ← 与上一行合并</span>
+
+  <span class="k">const</span> data = <span class="k">await</span> fetchSomeData();  <span class="cm">// ← await 分割</span>
+
+  setCounter(<span class="v">2</span>);
+  setCounter(<span class="v">3</span>);        <span class="cm">// ← React 17: 两次独立渲染，React 18: 合并</span>
+};</div>
+    </div>
+
+    <div class="batch-row">
+      <div class="batch-card" style="border-color:rgba(255,92,92,0.3)">
+        <h4 style="color:var(--red-light)">React 17 — 3 次渲染</h4>
+        <div class="evt-block">
+          <div class="evt evt-call">setCounter(0)</div>
+          <div class="evt evt-batch">setCounter(1) ← 合并</div>
+          <div class="evt evt-render">→ Render #1</div>
+          <div class="evt evt-sep">await 之后，批处理失效</div>
+          <div class="evt evt-call">setCounter(2)</div>
+          <div class="evt evt-render">→ Render #2</div>
+          <div class="evt evt-call">setCounter(3)</div>
+          <div class="evt evt-render">→ Render #3</div>
+        </div>
+      </div>
+      <div class="batch-card" style="border-color:rgba(61,220,132,0.3)">
+        <h4 style="color:var(--green-light)">React 18 — 2 次渲染（自动批处理）</h4>
+        <div class="evt-block">
+          <div class="evt evt-call">setCounter(0)</div>
+          <div class="evt evt-batch">setCounter(1) ← 合并</div>
+          <div class="evt evt-render">→ Render #1</div>
+          <div class="evt evt-sep">await 之后，React 18 仍自动批处理</div>
+          <div class="evt evt-call">setCounter(2)</div>
+          <div class="evt evt-batch">setCounter(3) ← 合并</div>
+          <div class="evt evt-render">→ Render #2</div>
+        </div>
+      </div>
+      <div class="batch-card" style="border-color:rgba(255,209,102,0.3)">
+        <h4 style="color:var(--yellow-light)">React 18 flushSync — 强制立即渲染</h4>
+        <div class="code-block" style="font-size:11px"><span class="k">import</span> { flushSync } <span class="k">from</span> <span class="str">'react-dom'</span>;
+
+<span class="fn">flushSync</span>(() =&gt; {
+  setCounter(<span class="v">0</span>);  <span class="cm">// 立即渲染</span>
+});
+<span class="cm">// DOM 已更新</span>
+<span class="fn">flushSync</span>(() =&gt; {
+  setCounter(<span class="v">1</span>);  <span class="cm">// 再次立即渲染</span>
+});</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       § 8  状态快照 / 闭包陷阱
+  ═══════════════════════════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-title">
+      <span class="badge" style="background:#3ddc84;color:#000">8</span>
+      状态快照：每次渲染的 state 是独立常量
+    </div>
+
+    <div class="card">
+      <div class="card-title">为什么 setCounter 后立即读取还是旧值？</div>
+      <div class="snapshot-row">
+        <div class="snapshot" style="border-color:rgba(255,92,92,0.3)">
+          <div class="snap-header" style="color:var(--red-light)">❌ 误解：JS 闭包？</div>
+<span style="color:var(--text-dim)">// 普通 JS 闭包可以看到最新值
+</span><span style="color:var(--text)">let counter = 0
+const fn = () => {
+  counter++
+  console.log(counter) </span><span style="color:var(--green)">// ✅ 1</span><span style="color:var(--text)">
+}</span>
+        </div>
+        <div style="display:flex;align-items:center;padding:0 10px;color:var(--text-dim);font-size:24px">≠</div>
+        <div class="snapshot" style="border-color:rgba(61,220,132,0.3)">
+          <div class="snap-header" style="color:var(--green-light)">✅ 真相：每次渲染是独立 const</div>
+<span style="color:var(--text-dim)">// React 每次渲染重新执行函数
+</span><span style="color:var(--text)">function MyComp() {
+  </span><span style="color:var(--blue-light)">const counter = 0</span><span style="color:var(--text)">  </span><span style="color:var(--text-dim)">// 本次渲染的常量！
+  const handleClick = () => {
+    setCounter(counter + 1)  </span><span style="color:var(--text-dim)">// 告诉 React 下次用 1
+    console.log(counter)     </span><span style="color:var(--red)">// 仍是 0，不会变</span><span style="color:var(--text)">
+  }
+}</span>
+        </div>
+      </div>
+      <div class="note note-yellow" style="margin-top:14px">
+        🔑 <strong>setCounter 不修改当前的 counter</strong>，它只是告诉 React "下次渲染时用新值重新执行组件函数"。<br>
+        两次渲染的 counter 是完全独立的两个 const，互不影响。
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">渲染快照模型（每次渲染 = 一帧独立的宇宙）</div>
+      <div class="batch-row">
+        <div class="snapshot" style="border-color:var(--border);flex:1">
+          <div class="snap-header">渲染 #1（counter = 0）</div>
+          <div style="color:var(--text-dim);font-size:12px">const counter = 0<br>return &lt;div&gt;{counter}&lt;/div&gt; → "0"<br>handleClick 捕获的 counter = 0</div>
+        </div>
+        <div style="display:flex;align-items:center;padding:0 8px;color:var(--text-dim);font-size:20px">→<br><span style="font-size:11px">点击</span></div>
+        <div class="snapshot" style="border-color:var(--border);flex:1">
+          <div class="snap-header">渲染 #2（counter = 1）</div>
+          <div style="color:var(--text-dim);font-size:12px">const counter = 1<br>return &lt;div&gt;{counter}&lt;/div&gt; → "1"<br>handleClick 捕获的 counter = 1</div>
+        </div>
+        <div style="display:flex;align-items:center;padding:0 8px;color:var(--text-dim);font-size:20px">→<br><span style="font-size:11px">点击</span></div>
+        <div class="snapshot" style="border-color:var(--border);flex:1">
+          <div class="snap-header">渲染 #3（counter = 2）</div>
+          <div style="color:var(--text-dim);font-size:12px">const counter = 2<br>return &lt;div&gt;{counter}&lt;/div&gt; → "2"<br>handleClick 捕获的 counter = 2</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       § 9  渲染优化三剑客
+  ═══════════════════════════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-title">
+      <span class="badge" style="background:#b57bee;color:#fff">9</span>
+      渲染优化三剑客：React.memo + useMemo + useCallback
+    </div>
+
+    <div class="card">
+      <div class="card-title">没有 memo vs 有 memo 的渲染流程</div>
+      <div class="batch-row">
+        <div class="batch-card" style="border-color:rgba(255,92,92,0.3)">
+          <h4 style="color:var(--red-light)">❌ 无 memo</h4>
+          <div class="flow-row" style="flex-direction:column;gap:4px">
+            <div class="flow-step step-blue"><span class="emoji">👆</span>父组件渲染</div>
+            <div class="flow-arrow">↓</div>
+            <div class="flow-step step-red"><span class="emoji">🏃</span>调用子组件函数（JS 开销）</div>
+            <div class="flow-arrow">↓</div>
+            <div class="flow-step step-purple"><span class="emoji">🔍</span>diff 新旧输出</div>
+            <div class="flow-arrow">↓</div>
+            <div class="flow-step step-yellow"><span class="emoji">😐</span>输出没变 → DOM 不动（函数白跑了）</div>
+          </div>
+        </div>
+        <div class="batch-card" style="border-color:rgba(61,220,132,0.3)">
+          <h4 style="color:var(--green-light)">✅ 有 memo（props 未变）</h4>
+          <div class="flow-row" style="flex-direction:column;gap:4px">
+            <div class="flow-step step-blue"><span class="emoji">👆</span>父组件渲染</div>
+            <div class="flow-arrow">↓</div>
+            <div class="flow-step step-green"><span class="emoji">🔎</span>shallowEqual(newProps, prevProps)</div>
+            <div class="flow-arrow">↓</div>
+            <div class="flow-step step-green"><span class="emoji">✅</span>props 没变 → 直接跳过，函数不调用</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">三者关系：缺一不可</div>
+      <div class="flow-row" style="align-items:center;flex-wrap:wrap;gap:6px">
+        <div class="flow-step step-purple" style="flex:1;min-width:120px">
+          <span class="emoji">🛡️</span>
+          <strong>React.memo</strong>
+          <span style="font-size:11px;color:var(--text-dim)">让子组件"可以"被跳过</span>
+        </div>
+        <div class="flow-arrow">+</div>
+        <div class="flow-step step-blue" style="flex:1;min-width:120px">
+          <span class="emoji">🔗</span>
+          <strong>useCallback</strong>
+          <span style="font-size:11px;color:var(--text-dim)">稳定函数引用</span>
+        </div>
+        <div class="flow-arrow">+</div>
+        <div class="flow-step step-yellow" style="flex:1;min-width:120px">
+          <span class="emoji">📦</span>
+          <strong>useMemo</strong>
+          <span style="font-size:11px;color:var(--text-dim)">稳定对象/计算引用</span>
+        </div>
+        <div class="flow-arrow">=</div>
+        <div class="flow-step step-green" style="flex:1;min-width:120px">
+          <span class="emoji">🚀</span>
+          <strong>有效跳过渲染</strong>
+          <span style="font-size:11px;color:var(--text-dim)">节省 JS 执行时间</span>
+        </div>
+      </div>
+      <div class="note note-red" style="margin-top:12px">
+        ⚠️ 缺少任意一环优化就失效！memo 有了但 props 每次是新引用 → memo 永远无法跳过。
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">完整示例：三者配合</div>
+      <div class="code-block"><span class="k">const</span> <span class="fn">MemoizedChild</span> = <span class="fn">React.memo</span>(ChildComponent);  <span class="cm">// 1. 包裹子组件</span>
+
+<span class="k">function</span> <span class="fn">ParentComponent</span>() {
+  <span class="cm">// 2. 稳定函数引用（依赖为空 = 挂载后永不重建）</span>
+  <span class="k">const</span> onClick = <span class="fn">useCallback</span>(() =&gt; {
+    console.<span class="fn">log</span>(<span class="str">'clicked'</span>);
+  }, []);
+
+  <span class="cm">// 3. 稳定对象引用</span>
+  <span class="k">const</span> data = <span class="fn">useMemo</span>(() =&gt; ({ a: <span class="v">1</span>, b: <span class="v">2</span> }), []);
+
+  <span class="k">return</span> &lt;<span class="fn">MemoizedChild</span> onClick={onClick} data={data} /&gt;;
+}
+
+<span class="cm">// 效果：父组件重渲染时，onClick 和 data 引用不变
+// → React.memo 的 shallowEqual 通过 → 子组件跳过渲染 ✅</span></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">引用相等性：为什么每次都是"新"引用？</div>
+      <div class="code-block"><span class="cm">// JavaScript 引用比较（=== 比的是内存地址）</span>
+(() =&gt; {}) === (() =&gt; {})   <span class="cm">// false — 两个不同的函数对象</span>
+({ a: <span class="v">1</span> }) === ({ a: <span class="v">1</span> })  <span class="cm">// false — 两个不同的对象</span>
+<span class="v">42</span> === <span class="v">42</span>                    <span class="ok">// true  — 原始值比较值</span>
+<span class="str">"hi"</span> === <span class="str">"hi"</span>               <span class="ok">// true  — 原始值比较值</span>
+
+<span class="cm">// 每次函数组件执行，都会重新创建函数和对象
+// 所以不用 useMemo/useCallback，memo 的 props 比较永远是 false</span></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">还有一种优化：相同元素引用（父组件控制）</div>
+      <div class="batch-row">
+        <div class="batch-card" style="border-color:rgba(181,123,238,0.3)">
+          <h4 style="color:var(--purple-light)">方式一：props.children 透传</h4>
+          <div class="code-block" style="font-size:11px"><span class="k">function</span> <span class="fn">Provider</span>({ children }) {
+  <span class="k">const</span> [count, setCount] = <span class="fn">useState</span>(<span class="v">0</span>);
+  <span class="k">return</span> (
+    &lt;div&gt;
+      &lt;button&gt;{count}&lt;/button&gt;
+      <span class="ok">{children}</span>  <span class="cm">// 父组件渲染时</span>
+    &lt;/div&gt;   <span class="cm">// children 引用不变</span>
+  );        <span class="cm">// → 子组件不重渲染</span>
+}</div>
+        </div>
+        <div class="batch-card" style="border-color:rgba(255,209,102,0.3)">
+          <h4 style="color:var(--yellow-light)">方式二：useMemo 缓存 JSX</h4>
+          <div class="code-block" style="font-size:11px"><span class="k">const</span> child = <span class="fn">useMemo</span>(() =&gt; (
+  &lt;<span class="fn">ExpensiveChild</span> /&gt;
+), [counter1]);  <span class="cm">// 只有 counter1
+</span>                <span class="cm">// 变化才重新渲染
+</span>
+<span class="k">return</span> (
+  &lt;div&gt;
+    &lt;button onClick={() =&gt;
+      setCounter2(c+1)}&gt;C2&lt;/button&gt;
+    {child}  <span class="cm">// counter2 变时不重渲染</span>
+  &lt;/div&gt;
+);</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       § 10  不可变性
+  ═══════════════════════════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-title">
+      <span class="badge" style="background:#ff9f43;color:#000">10</span>
+      不可变性与重渲染
+    </div>
+
+    <div class="card">
+      <div class="batch-row">
+        <div class="batch-card" style="border-color:rgba(255,92,92,0.3)">
+          <h4 style="color:var(--red-light)">❌ 直接 mutation（错误）</h4>
+          <div class="code-block" style="font-size:11px"><span class="k">const</span> onClick = () =&gt; {
+  todos[<span class="v">3</span>].completed = <span class="v">true</span>;
+  <span class="fn">setTodos</span>(todos);  <span class="cm">// 同一引用！</span>
+  <span class="cm">// useState 发现引用没变</span>
+  <span class="cm">// → 不触发重渲染 🐛</span>
+};</div>
+        </div>
+        <div class="batch-card" style="border-color:rgba(61,220,132,0.3)">
+          <h4 style="color:var(--green-light)">✅ 创建新引用（正确）</h4>
+          <div class="code-block" style="font-size:11px"><span class="k">const</span> onClick = () =&gt; {
+  <span class="k">const</span> newTodos = todos.<span class="fn">slice</span>();
+  newTodos[<span class="v">3</span>].completed = <span class="v">true</span>;
+  <span class="fn">setTodos</span>(newTodos); <span class="cm">// 新引用 ✅</span>
+  <span class="cm">// useState 发现引用变了</span>
+  <span class="cm">// → 触发重渲染 ✅</span>
+};</div>
+        </div>
+      </div>
+      <div class="note note-red" style="margin-top:10px">
+        ⚠️ <code>useState / useReducer</code> 需要新引用才会触发更新。<code>this.setState()</code> 不在乎，但 memo 等优化仍会因 mutation 而出现 bug。
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       § 11  Context 渲染行为
+  ═══════════════════════════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-title">
+      <span class="badge" style="background:#ffd166;color:#000">11</span>
+      Context 与渲染行为
+    </div>
+
+    <div class="card">
+      <div class="card-title">Context 更新流程</div>
+      <div class="timeline">
+        <div class="tl-item yellow">
+          <div class="tl-label" style="color:var(--yellow-light)">① ParentComponent setState → 重渲染</div>
+          <div class="tl-desc">生成新的 contextValue 对象（每次渲染都是新引用！）</div>
+        </div>
+        <div class="tl-item yellow">
+          <div class="tl-label" style="color:var(--yellow-light)">② React 检查 MyContext.Provider 的 value prop</div>
+          <div class="tl-desc">新引用 ≠ 旧引用 → 标记所有消费该 context 的组件需要更新</div>
+        </div>
+        <div class="tl-item purple">
+          <div class="tl-label" style="color:var(--purple-light)">③ 所有 useContext(MyContext) 的组件强制重渲染</div>
+          <div class="tl-desc">即使它们只关心 context 值的一部分，也会全部重渲染</div>
+        </div>
+        <div class="tl-item red">
+          <div class="tl-label" style="color:var(--red-light)">④ 被重渲染的消费者，其子组件也递归渲染（默认行为）</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">React.memo + Context Provider 组合优化</div>
+      <div class="tree" style="padding:10px 0">
+        <div><span class="node node-ctx">ParentComponent</span> <span class="tag tag-ctx">setA(42) 触发</span></div>
+        <div style="padding-left:24px">└─ <span class="node node-ctx">MyContext.Provider value=新引用</span> <span class="tag tag-ctx">Context 更新</span></div>
+        <div style="padding-left:48px">└─ <span class="node node-memo">MemoizedChildComponent</span> <span class="tag tag-memo">MEMO — no props changed → SKIP</span></div>
+        <div style="padding-left:72px">└─ <span class="node node-render">GrandchildComponent</span> <span class="tag tag-ctx">useContext → 强制渲染</span></div>
+        <div style="padding-left:96px">└─ <span class="node node-render">GreatGrandchildComponent</span> <span class="tag tag-render">父级渲染 → 跟着渲染</span></div>
+      </div>
+      <div class="note note-purple" style="margin-top:12px">
+        💡 Sophie Alpert："Context Provider 正下方的组件应该用 React.memo 包裹"，这样父级状态更新不会影响不依赖 context 的子树。
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Context 对象传入 Provider 的陷阱</div>
+      <div class="code-block"><span class="cm">// ❌ 每次 ParentComponent 渲染，contextValue 都是新对象</span>
+<span class="k">function</span> <span class="fn">ParentComponent</span>() {
+  <span class="k">const</span> [a, setA] = <span class="fn">useState</span>(<span class="v">0</span>);
+  <span class="k">const</span> contextValue = { a, b: <span class="str">'text'</span> }; <span class="err">// 每次新对象！</span>
+  <span class="k">return</span> &lt;MyContext.Provider value={contextValue}&gt;...&lt;/MyContext.Provider&gt;;
+}
+
+<span class="cm">// ✅ 用 useMemo 稳定引用，只有 a 变时才创建新对象</span>
+<span class="k">function</span> <span class="fn">ParentComponent</span>() {
+  <span class="k">const</span> [a, setA] = <span class="fn">useState</span>(<span class="v">0</span>);
+  <span class="k">const</span> contextValue = <span class="fn">useMemo</span>(() =&gt; ({ a, b: <span class="str">'text'</span> }), [a]);
+  <span class="k">return</span> &lt;MyContext.Provider value={contextValue}&gt;...&lt;/MyContext.Provider&gt;;
+}</div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       § 12  React-Redux
+  ═══════════════════════════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-title">
+      <span class="badge" style="background:#ff5c5c;color:#fff">12</span>
+      React-Redux 订阅机制 vs Context
+    </div>
+
+    <div class="card">
+      <div class="card-title">Redux 订阅模型（不通过 Context 传 state）</div>
+      <div class="redux-row">
+        <div class="redux-box redux-store">
+          <div style="font-size:12px;font-weight:700;color:var(--orange);margin-bottom:8px">Redux Store</div>
+          <div style="font-size:12px;color:var(--text-dim)">
+            保存所有 state<br><br>
+            dispatch(action)<br>
+            → reducer 计算新 state<br>
+            → 通知所有订阅者
+          </div>
+        </div>
+        <div class="redux-arrow">
+          <span>⇄</span>
+          <span style="font-size:11px">订阅</span>
+        </div>
+        <div class="redux-box redux-comp">
+          <div style="font-size:12px;font-weight:700;color:var(--blue-light);margin-bottom:8px">useSelector 组件</div>
+          <div style="font-size:12px;color:var(--text-dim)">
+            store 更新 → 运行 selector<br>
+            selector 结果变化 → 强制重渲染<br><br>
+            ⚠️ 无法阻止父组件引起的渲染<br>
+            需手动加 React.memo
+          </div>
+        </div>
+        <div class="redux-arrow">vs</div>
+        <div class="redux-box redux-comp" style="border-color:var(--green)">
+          <div style="font-size:12px;font-weight:700;color:var(--green-light);margin-bottom:8px">connect() 组件</div>
+          <div style="font-size:12px;color:var(--text-dim)">
+            等价于 React.memo<br>
+            自动充当防火墙<br>
+            阻止渲染级联向下传播<br><br>
+            ✅ 大量 connect → 渲染局限于小范围
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">connect vs useSelector 渲染级联对比</div>
+      <div class="batch-row">
+        <div class="batch-card" style="border-color:rgba(61,220,132,0.3)">
+          <h4 style="color:var(--green-light)">connect（防火墙效果）</h4>
+          <div class="tree" style="font-size:12px;padding:8px 0">
+            <div><span style="color:var(--text-dim)">App</span></div>
+            <div style="padding-left:16px">└─ <span class="node node-memo" style="font-size:12px">ConnectedA</span> <span class="tag tag-skip">SKIP</span></div>
+            <div style="padding-left:32px">└─ <span class="node node-render" style="font-size:12px">ConnectedB</span> <span class="tag tag-render">只更新B</span></div>
+            <div style="padding-left:48px">└─ <span class="node node-memo" style="font-size:12px">ConnectedC</span> <span class="tag tag-skip">SKIP</span></div>
+          </div>
+          <div style="font-size:12px;color:var(--text-dim)">只有 selector 数据变化的组件重渲染，其子树默认被防火墙隔断</div>
+        </div>
+        <div class="batch-card" style="border-color:rgba(255,92,92,0.3)">
+          <h4 style="color:var(--red-light)">纯 useSelector（无防火墙）</h4>
+          <div class="tree" style="font-size:12px;padding:8px 0">
+            <div><span style="color:var(--text-dim)">App</span></div>
+            <div style="padding-left:16px">└─ <span class="node node-render" style="font-size:12px">CompA</span> <span class="tag tag-render">selector 变</span></div>
+            <div style="padding-left:32px">└─ <span class="node node-render" style="font-size:12px">CompB</span> <span class="tag tag-render">父级渲染</span></div>
+            <div style="padding-left:48px">└─ <span class="node node-render" style="font-size:12px">CompC</span> <span class="tag tag-render">父级渲染</span></div>
+          </div>
+          <div style="font-size:12px;color:var(--text-dim)">整棵子树跟着渲染，需手动加 React.memo 阻断</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       § 13  React Compiler
+  ═══════════════════════════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-title">
+      <span class="badge" style="background:#48cae4;color:#000">13</span>
+      React Compiler — 自动 memoization（2024 正式发布）
+    </div>
+
+    <div class="card">
+      <div class="flow-row" style="align-items:center;flex-wrap:wrap;gap:6px">
+        <div class="flow-step step-blue" style="flex:1;min-width:140px">
+          <span class="emoji">📝</span>
+          <strong>你写的代码</strong>
+          <span style="font-size:11px;color:var(--text-dim)">普通函数组件，无任何 memo/useCallback/useMemo</span>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step step-purple" style="flex:1;min-width:140px">
+          <span class="emoji">🤖</span>
+          <strong>Compiler 静态分析</strong>
+          <span style="font-size:11px;color:var(--text-dim)">分析函数组件体，识别稳定依赖</span>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step step-yellow" style="flex:1;min-width:140px">
+          <span class="emoji">⚙️</span>
+          <strong>自动插入 memoization</strong>
+          <span style="font-size:11px;color:var(--text-dim)">hooks 依赖 + JSX 返回值都被缓存</span>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step step-green" style="flex:1;min-width:140px">
+          <span class="emoji">🚀</span>
+          <strong>自动消除不必要渲染</strong>
+          <span style="font-size:11px;color:var(--text-dim)">整棵组件树无需手动优化</span>
+        </div>
+      </div>
+      <div class="note note-cyan" style="margin-top:12px;background:rgba(72,202,228,0.08);border-left:3px solid var(--cyan);color:var(--cyan)">
+        💡 React Compiler 可以让你不再需要手动写 React.memo / useCallback / useMemo，编译器会自动处理。
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       § 总结速查表
+  ═══════════════════════════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-title">
+      <span class="badge" style="background:#ffffff;color:#000">✓</span>
+      核心结论速查表
+    </div>
+
+    <div class="card">
+      <table class="compare-table">
+        <thead>
+          <tr><th>问题</th><th>结论</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>父组件渲染，子组件会渲染吗？</td>
+            <td>✅ 默认会，无论 props 是否变化</td>
+          </tr>
+          <tr>
+            <td>渲染 = 更新 DOM？</td>
+            <td>❌ 渲染 = 调用组件函数；更新 DOM = Commit 阶段（可能不发生）</td>
+          </tr>
+          <tr>
+            <td>diff 在哪个阶段？</td>
+            <td>Render 阶段内部（Reconciliation），不是两阶段之间</td>
+          </tr>
+          <tr>
+            <td>setState 后立即读取 state 是新值吗？</td>
+            <td>❌ 不是，每次渲染的 state 是独立常量，setX 只触发下次渲染</td>
+          </tr>
+          <tr>
+            <td>React.memo 能保证不渲染？</td>
+            <td>需要配合 useMemo / useCallback 稳定 props 引用才有效</td>
+          </tr>
+          <tr>
+            <td>Context 更新会影响所有消费者吗？</td>
+            <td>✅ 全部强制重渲染，目前无法按 selector 订阅</td>
+          </tr>
+          <tr>
+            <td>connect vs useSelector 哪个性能更好？</td>
+            <td>connect 自带防火墙效果；useSelector 需手动加 React.memo</td>
+          </tr>
+          <tr>
+            <td>到处加 memo 好吗？</td>
+            <td>❌ memo 有比较开销，只在组件频繁以相同 props 渲染且开销大时才加</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

@@ -1412,6 +1412,83 @@ const deferredValue = useDeferredValue(inputValue)
 
 ---
 
+## Q: React 并发模式下，高优先级更新如何打断低优先级渲染？
+
+**A:**
+
+这是 React 18 并发渲染的核心机制：高优先级任务（如用户输入）会**打断**当前正在进行的低优先级渲染，等高优先级任务完成后，低优先级任务**从头重做**，而不是从断点续上。
+
+**核心机制拆解：**
+
+**1. Lanes 优先级模型**
+
+React 为不同来源的更新分配不同"车道"，优先级从高到低：
+
+| Lane | 场景 | 优先级 |
+| :--- | :--- | :--- |
+| `SyncLane` | 用户输入、受控组件 | 最高，同步执行 |
+| `InputContinuousLane` | 连续输入（拖拽、滚动） | 高 |
+| `DefaultLane` | 普通 setState | 中 |
+| `TransitionLane` | `startTransition` 包裹的更新 | 低，可被打断 |
+
+**2. 可中断的工作循环**
+
+```js
+// 并发模式工作循环（简化）
+function workLoopConcurrent() {
+  while (workInProgress !== null && !shouldYield()) {
+    performUnitOfWork(workInProgress) // 每处理一个 Fiber 节点都检查
+  }
+}
+```
+
+每处理完一个 Fiber 节点，`shouldYield()` 都会检查是否有更高优先级任务或帧时间已用尽。一旦返回 `true`，循环立即退出。
+
+**3. 中断 → 重做，而不是续上**
+
+```
+时间轴 ─────────────────────────────────────────────►
+
+低优先级渲染（TransitionLane）：
+  [A✓][B✓][C...] ← shouldYield() = true，停！
+               ↓
+       ✗ 旧 WIP 树作废（B 是用旧 state 算的，不能用）
+
+高优先级渲染（SyncLane，用户输入）：
+               [A'][B'][C'][D'] ← 基于最新 state 完整跑一遍
+                              ↓ Commit → DOM 更新
+
+低优先级任务重新调度：
+                              [从头开始，合并最新 state 重跑]
+```
+
+**为什么不能从断点续上？**
+
+被打断时，已处理完的节点（如 B）是基于**旧 state** 计算的。新的高优先级更新改变了 state，如果继续跑剩余节点，就会出现树中有的节点用新 state、有的用旧 state 的**新旧混用**问题，导致 UI 不一致。唯一安全的做法是丢弃旧 WIP 树，从头重算。
+
+**这也是为什么渲染函数必须是纯函数：**
+
+> ⚠️ **注意**：并发模式下，组件函数**可能被多次执行，结果也可能被丢弃**。如果渲染函数有副作用（直接写 DOM、发请求），就会因重复执行产生 bug。这不是最佳实践，而是并发模式的**硬性约束**。
+
+**`startTransition` 的本质：**
+
+`startTransition` 就是把更新标记为 `TransitionLane`（低优先级），让用户输入随时可以打断它。被打断的渲染会被丢弃并重来，这正是"不阻塞输入"效果的底层实现。
+
+```js
+const [isPending, startTransition] = useTransition()
+
+startTransition(() => {
+  // 标记为低优先级，可被用户输入打断
+  setFilteredList(heavyFilter(input))
+})
+```
+
+**4. 状态跳变现象**
+
+由于低优先级任务会被完全重做，你可能观察到状态从 `0` 直接跳到 `2`，而不是经过 `1`——因为将状态置为 `1` 的那次低优先级渲染已被作废，最终渲染时合并了所有挂起的更新。
+
+---
+
 ## Q: React diff 算法的原理是什么？
 
 **A:**

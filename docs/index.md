@@ -43,6 +43,7 @@
 
 - [React 面试题](./interview/React/index.md) — 含 Hooks、Fiber、Redux、性能优化、ErrorBoundary 等全方向
 - [React 渲染行为完全指南](./interview/React/react-rendering-behavior.md) — Render/Commit 阶段、默认渲染行为、批处理、Context 与渲染、React-Redux 订阅机制
+- [Fiber 架构与 Diff 算法深度解析](./interview/React/fiber-diff.md) — Fiber 核心字段、双缓冲树、单节点/多节点 Diff 策略、key 的本质、Mount vs Update 全对比
 
 ---
 

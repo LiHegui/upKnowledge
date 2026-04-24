@@ -17,8 +17,6 @@ export default defineConfig({
   themeConfig: {
     nav: [
       { text: '面试题', link: '/interview/' },
-      { text: '知识库', link: '/interview/AnTd/' },
-      { text: '工具合集', link: '/tools/routed' },
       { text: '更新日志', link: '/changelog' },
       {
         text: '外部资源',
@@ -145,6 +143,7 @@ export default defineConfig({
             { text: '移动端适配', link: '/interview/解决方案/移动端适配/' },
             { text: '前端工程化', link: '/interview/解决方案/前端工程化/' },
             { text: '实时协同系统', link: '/interview/解决方案/实时协同系统/' },
+            { text: 'CRDT 协同编辑方案', link: '/interview/解决方案/CRDT/' },
           ],
         },
         {

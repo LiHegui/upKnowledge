@@ -402,3 +402,219 @@ function getSequence(arr) {
 }
 
 ```
+
+---
+
+## Vue3 高频补充篇
+
+## Q: `setup()` 的执行时机是什么？为什么不能使用 `this`？
+
+**A:**
+
+`setup()` 会在组件 `beforeCreate` 之前执行，而且只执行一次。此时组件实例还没有创建完成，因此拿不到组件实例上的 `this`。
+
+```ts
+import { ref, onMounted } from 'vue'
+
+export default {
+    setup(props, { emit, attrs, slots, expose }) {
+        const count = ref(0)
+        onMounted(() => {
+            console.log('mounted')
+        })
+        return { count }
+    }
+}
+```
+
+| 可用能力 | `setup` 中是否可用 |
+|------|------|
+| `props` | ✅ |
+| `emit` | ✅ |
+| `attrs/slots/expose` | ✅ |
+| `this` | ❌ |
+
+---
+
+## Q: `watch` 和 `watchEffect` 有什么区别？
+
+**A:**
+
+| 对比维度 | `watch` | `watchEffect` |
+|------|------|------|
+| 依赖收集 | 显式指定监听源 | 自动收集回调中依赖 |
+| 是否拿到新旧值 | ✅ 可拿 `newVal/oldVal` | ❌ 默认拿不到 |
+| 是否立即执行 | 默认不立即（可 `immediate`） | ✅ 默认立即执行 |
+| 适用场景 | 精准监听某个源并对比变化 | 副作用逻辑、快速联动 |
+
+```ts
+const keyword = ref('')
+const page = ref(1)
+
+watch([keyword, page], ([k, p], [oldK, oldP]) => {
+    console.log('search changed', k, p, oldK, oldP)
+})
+
+watchEffect(() => {
+    console.log('auto track', keyword.value, page.value)
+})
+```
+
+> ⚠️ **注意**：异步回调里，`watchEffect` 只会收集同步阶段访问到的依赖。
+
+---
+
+## Q: `computed` 和 `watch` 如何选择？
+
+**A:**
+
+`computed` 适合“基于已有状态推导新状态”；`watch` 适合“状态变化后执行副作用”。
+
+| 场景 | 推荐 |
+|------|------|
+| 派生数据（过滤列表、格式化展示） | `computed` ✅ |
+| 请求接口、写本地缓存、手动操作 DOM | `watch` ✅ |
+
+```ts
+const list = ref([1, 2, 3])
+const doubleList = computed(() => list.value.map(i => i * 2))
+
+watch(doubleList, () => {
+    localStorage.setItem('doubleList', JSON.stringify(doubleList.value))
+})
+```
+
+---
+
+## Q: `nextTick` 的作用是什么？什么时候必须用？
+
+**A:**
+
+Vue 的 DOM 更新是异步批量执行的。`nextTick` 用于等待本轮 DOM 更新完成后再执行回调。
+
+```ts
+const show = ref(false)
+
+async function open() {
+    show.value = true
+    await nextTick()
+    // 此时 DOM 已更新，可安全获取元素尺寸/聚焦
+    document.querySelector('#input')?.focus()
+}
+```
+
+常见使用场景：
+
+1. 更新状态后立即读取最新 DOM
+2. 列表变更后计算滚动高度
+3. 弹窗打开后自动聚焦输入框
+
+---
+
+## Q: Vue3 的 `v-model` 相比 Vue2 有哪些变化？
+
+**A:**
+
+Vue3 支持多个 `v-model`，默认绑定从 `value/input` 改为 `modelValue/update:modelValue`。
+
+```vue
+<!-- 父组件 -->
+<UserForm v-model:name="name" v-model:age="age" />
+
+<!-- 子组件 -->
+<script setup lang="ts">
+const props = defineProps<{ name: string; age: number }>()
+const emit = defineEmits<{
+    (e: 'update:name', v: string): void
+    (e: 'update:age', v: number): void
+}>()
+</script>
+```
+
+| 对比 | Vue2 | Vue3 |
+|------|------|------|
+| 默认 prop | `value` | `modelValue` |
+| 默认事件 | `input` | `update:modelValue` |
+| 多个 v-model | ❌ | ✅ `v-model:xxx` |
+
+---
+
+## Q: Vue3 Diff 做了哪些优化？
+
+**A:**
+
+Vue3 编译器 + 运行时协同优化，核心包括：
+
+1. **静态提升（hoistStatic）**：静态节点提升到 render 外，只创建一次
+2. **PatchFlags**：为动态节点打标，更新时只比对必要部分
+3. **Block Tree**：把模板切成动态区块，减少无关遍历
+4. **最长递增子序列（LIS）**：减少 keyed diff 的 DOM 移动次数
+
+```ts
+// 概念示意：仅带动态标记的节点参与精准 patch
+// patchFlag: TEXT / CLASS / STYLE / PROPS ...
+```
+
+> ⚠️ **注意**：列表渲染务必使用稳定且唯一的 `key`，否则会导致复用错误和额外重排。
+
+---
+
+## Q: `script setup` 为什么性能和开发体验更好？
+
+**A:**
+
+`script setup` 是编译时语法糖，核心优势：
+
+1. 模板可直接访问顶层变量，无需手动 `return`
+2. 更少样板代码，逻辑更聚合
+3. 更好的 TypeScript 推断（`defineProps/defineEmits`）
+4. 编译后更轻量，运行时开销更低
+
+```vue
+<script setup lang="ts">
+import { ref } from 'vue'
+
+const count = ref(0)
+const props = defineProps<{ title: string }>()
+
+const inc = () => count.value++
+</script>
+
+<template>
+    <h3>{{ props.title }}: {{ count }}</h3>
+    <button @click="inc">+1</button>
+</template>
+```
+
+---
+
+## Q: Vue3 为什么推荐 Pinia？与 Vuex 有什么区别？
+
+**A:**
+
+Pinia 是 Vue 官方推荐状态管理方案（Vuex 5 方向），与 Composition API 更契合。
+
+| 对比维度 | Vuex | Pinia |
+|------|------|------|
+| API 设计 | `state/mutations/actions` 较重 | `state/getters/actions` 更简洁 |
+| TS 支持 | 一般 | ✅ 更好，类型推导更自然 |
+| 模块化 | 复杂命名空间 | 天然 store 拆分 |
+| 修改状态 | 必须 mutation | 可直接改 state（仍可跟踪） |
+
+```ts
+import { defineStore } from 'pinia'
+
+export const useUserStore = defineStore('user', {
+    state: () => ({ token: '', profile: null as null | { name: string } }),
+    getters: {
+        isLogin: (s) => !!s.token
+    },
+    actions: {
+        setToken(token: string) {
+            this.token = token
+        }
+    }
+})
+```
+
+---

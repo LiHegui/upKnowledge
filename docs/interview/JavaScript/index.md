@@ -364,24 +364,25 @@ var getName                             // var 重复声明，忽略
 getName = function () { console.log(4) } // 覆盖掉 5
 ```
 
-| 调用 | 结果 | 原因 |
-|------|------|------|
-| `Foo.getName()` | **2** | Foo 的静态方法 |
-| `getName()` | **4** | `var getName = fn4` 执行后覆盖了函数声明 fn5 |
-| `Foo().getName()` | **1** | 非 `new` 调用，`this = window`；构造函数内 `getName = fn1` 污染全局；`return this` 返回 `window`，调用全局 `getName` |
-| `getName()` | **1** | 上一步全局 `getName` 已被污染为 fn1 |
-| `new Foo.getName()` | **2** | `.` 优先级 > 无参 `new`；等价于 `new (Foo.getName)()`，构造调用静态方法 |
-| `new Foo().getName()` | **3** | 有参 `new` 优先级最高；`new Foo()` 创建实例 `{}`，实例无 `getName`，沿原型链找到 `Foo.prototype.getName` |
+| 调用                    | 结果        | 原因                                                                                                                             |
+| ----------------------- | ----------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| `Foo.getName()`       | **2** | Foo 的静态方法                                                                                                                   |
+| `getName()`           | **4** | `var getName = fn4` 执行后覆盖了函数声明 fn5                                                                                   |
+| `Foo().getName()`     | **1** | 非 `new` 调用，`this = window`；构造函数内 `getName = fn1` 污染全局；`return this` 返回 `window`，调用全局 `getName` |
+| `getName()`           | **1** | 上一步全局 `getName` 已被污染为 fn1                                                                                            |
+| `new Foo.getName()`   | **2** | `.` 优先级 > 无参 `new`；等价于 `new (Foo.getName)()`，构造调用静态方法                                                    |
+| `new Foo().getName()` | **3** | 有参 `new` 优先级最高；`new Foo()` 创建实例 `{}`，实例无 `getName`，沿原型链找到 `Foo.prototype.getName`               |
 
 **② `new` 运算符优先级说明**
 
-| 写法 | 优先级 | 等价于 |
-|------|--------|--------|
-| `new Foo()` 带括号 | 19 | 先 new 再访问成员 |
-| `new Foo` 不带括号 | 18 | 先访问成员再 new |
-| 成员访问 `.` | 19 | — |
+| 写法                 | 优先级 | 等价于            |
+| -------------------- | ------ | ----------------- |
+| `new Foo()` 带括号 | 19     | 先 new 再访问成员 |
+| `new Foo` 不带括号 | 18     | 先访问成员再 new  |
+| 成员访问 `.`       | 19     | —                |
 
 所以：
+
 - `new Foo.getName()` → `new (Foo.getName)()` → 输出 **2**
 - `new Foo().getName()` → `(new Foo()).getName()` → 输出 **3**
 
@@ -625,14 +626,14 @@ console.log(target.age); // 30
 
 **与原生 `Proxy` 的差异：**
 
-| 特性 | 原生 `Proxy` | 手写实现 |
-|------|------------|---------|
-| 拦截不存在的属性 | ✅ 支持 | ❌ 直接返回 `undefined` |
-| 拦截数组索引/长度变化 | ✅ 支持 | ❌ 动态新增属性无法预先定义 |
-| 拦截 `delete` 操作 | ✅ 支持 | ❌ 无法拦截 |
-| 拦截 `in` 操作符 | ✅ 支持 | ❌ 需要 `has` trap |
-| 拦截 `Object.keys()` | ✅ 支持 | ❌ 只返回预定义属性 |
-| 性能 | 引擎级优化 | 较慢，需遍历定义每个属性 |
+| 特性                   | 原生 `Proxy` | 手写实现                    |
+| ---------------------- | -------------- | --------------------------- |
+| 拦截不存在的属性       | ✅ 支持        | ❌ 直接返回 `undefined`   |
+| 拦截数组索引/长度变化  | ✅ 支持        | ❌ 动态新增属性无法预先定义 |
+| 拦截 `delete` 操作   | ✅ 支持        | ❌ 无法拦截                 |
+| 拦截 `in` 操作符     | ✅ 支持        | ❌ 需要 `has` trap        |
+| 拦截 `Object.keys()` | ✅ 支持        | ❌ 只返回预定义属性         |
+| 性能                   | 引擎级优化     | 较慢，需遍历定义每个属性    |
 
 > ⚠️ **注意**：手写实现本质上是对**已有属性**的拦截，`Object.defineProperty` 无法感知属性的新增与删除，这也是 Vue 2 响应式系统的同款局限——Vue 3 正是为此改用了原生 `Proxy`。
 
@@ -671,11 +672,11 @@ p.then(
 )
 ```
 
-| 情况 | 走哪个回调 |
-|------|-----------|
+| 情况               | 走哪个回调      |
+| ------------------ | --------------- |
 | `resolve(value)` | `onFulfilled` |
-| `reject(reason)` | `onRejected` |
-| 抛出异常 `throw` | `onRejected` |
+| `reject(reason)` | `onRejected`  |
+| 抛出异常 `throw` | `onRejected`  |
 
 > ⚠️ **与 `.catch()` 的区别**：`.then(onFulfilled, onRejected)` 中的 `onRejected` **捕获不到** `onFulfilled` 内部抛出的错误，而链式 `.catch()` 可以，推荐用后者。
 
@@ -794,12 +795,12 @@ class MyPromise {
 
 **关键点说明：**
 
-| 方法 | 实现要点 |
-|------|---------|
-| `.then` | 返回新 Promise；回调结果作为下一个 Promise 的 resolve 值；回调 throw 则 reject |
-| `.catch` | 等价于 `.then(null, onRejected)`，本质复用 `then` |
-| `.finally` | 无论状态都执行 `fn`，不改变原来的值/原因向后透传 |
-| 参数缺省 | `onFulfilled` 不传默认 `val => val`；`onRejected` 不传默认 `err => { throw err }`，实现值/错误穿透 |
+| 方法         | 实现要点                                                                                                   |
+| ------------ | ---------------------------------------------------------------------------------------------------------- |
+| `.then`    | 返回新 Promise；回调结果作为下一个 Promise 的 resolve 值；回调 throw 则 reject                             |
+| `.catch`   | 等价于 `.then(null, onRejected)`，本质复用 `then`                                                      |
+| `.finally` | 无论状态都执行 `fn`，不改变原来的值/原因向后透传                                                         |
+| 参数缺省     | `onFulfilled` 不传默认 `val => val`；`onRejected` 不传默认 `err => { throw err }`，实现值/错误穿透 |
 
 **手写 Promise.all：**
 
@@ -958,6 +959,7 @@ async function fetchData(params) {
 ```
 
 **关键点：**
+
 - `reqId` 自增表示「作废所有旧请求」
 - `currentId` 快照保存本次请求的版本
 - 响应回来后比对，过期则直接 `return`，不更新任何状态
@@ -989,12 +991,12 @@ async function fetchData(params) {
 
 ### 两种方案对比
 
-| 对比维度 | 请求版本号 | AbortController |
-|---------|-----------|----------------|
-| 实现复杂度 | ✅ 简单，无侵入 | ❌ 需管理 controller 引用 |
+| 对比维度   | 请求版本号            | AbortController               |
+| ---------- | --------------------- | ----------------------------- |
+| 实现复杂度 | ✅ 简单，无侵入       | ❌ 需管理 controller 引用     |
 | 网络层取消 | ❌ 请求仍会发出并完成 | ✅ 真正取消网络请求，节省带宽 |
-| 浏览器缓存 | ✅ 响应可被缓存复用 | ❌ 已取消请求不缓存 |
-| 适用场景 | 选项切换、搜索联想 | 大文件请求、流式传输 |
+| 浏览器缓存 | ✅ 响应可被缓存复用   | ❌ 已取消请求不缓存           |
+| 适用场景   | 选项切换、搜索联想    | 大文件请求、流式传输          |
 
 > ⚠️ **注意**：在 Vue/React 组件销毁时（`onUnmounted` / `useEffect` cleanup），也应将 `reqId` 失效或调用 `controller.abort()`，防止组件卸载后异步回调仍操作已销毁的 DOM/状态。
 
@@ -1082,11 +1084,11 @@ for (const [k, v] of m) {
 
 没错，标准哈希表确实无序。为了实现插入顺序的遍历，JavaScript 引擎底层通常采用 **"哈希表 + 双向链表"** 的复合结构：
 
-| 结构 | 作用 |
-|------|------|
-| **哈希部分** | 实现 O(1) 复杂度的快速查找、去重 |
+| 结构                    | 作用                                                 |
+| ----------------------- | ---------------------------------------------------- |
+| **哈希部分**      | 实现 O(1) 复杂度的快速查找、去重                     |
 | **链表/指针部分** | 每个元素额外记录「前一个」和「后一个」插入的元素是谁 |
-| **遍历过程** | 沿链表从头走到尾，而非扫描整个哈希桶 |
+| **遍历过程**      | 沿链表从头走到尾，而非扫描整个哈希桶                 |
 
 **特殊细节：删除再重插会改变顺序**
 
@@ -1191,15 +1193,15 @@ Vue 3 的响应式系统就是基于 `Proxy` 实现的。
 
 **Proxy 常用拦截器（trap）一览：**
 
-| trap | 触发时机 | 对应 Reflect 方法 |
-|------|---------|-----------------|
-| `get` | 读取属性 | `Reflect.get` |
-| `set` | 设置属性 | `Reflect.set` |
-| `has` | `in` 运算符 | `Reflect.has` |
-| `deleteProperty` | `delete` 操作符 | `Reflect.deleteProperty` |
-| `apply` | 调用函数 | `Reflect.apply` |
-| `construct` | `new` 操作符 | `Reflect.construct` |
-| `ownKeys` | `Object.keys` 等枚举 | `Reflect.ownKeys` |
+| trap               | 触发时机               | 对应 Reflect 方法          |
+| ------------------ | ---------------------- | -------------------------- |
+| `get`            | 读取属性               | `Reflect.get`            |
+| `set`            | 设置属性               | `Reflect.set`            |
+| `has`            | `in` 运算符          | `Reflect.has`            |
+| `deleteProperty` | `delete` 操作符      | `Reflect.deleteProperty` |
+| `apply`          | 调用函数               | `Reflect.apply`          |
+| `construct`      | `new` 操作符         | `Reflect.construct`      |
+| `ownKeys`        | `Object.keys` 等枚举 | `Reflect.ownKeys`        |
 
 **Reflect** 是一个内置对象，提供与 Proxy handler 一一对应的静态方法，将对象操作规范化。
 
@@ -1291,13 +1293,13 @@ state.count++  // 触发 trigger → 重新执行 effect → 打印 count: 1
 
 **Proxy vs Object.defineProperty 实现响应式对比：**
 
-| 对比维度 | `Object.defineProperty` | `Proxy` |
-|---------|------------------------|---------|
-| 数组变化监听 | ❌ 需要重写 push/pop 等方法 | ✅ 原生拦截所有操作 |
-| 新增属性监听 | ❌ 需要手动 `Vue.set` | ✅ 自动拦截 |
-| 删除属性监听 | ❌ 不支持 | ✅ `deleteProperty` trap |
-| 性能 | 初始化时递归遍历所有属性 | 懒代理，访问时才递归 |
-| 浏览器兼容 | ✅ IE9+ | ❌ 不支持 IE |
+| 对比维度     | `Object.defineProperty`   | `Proxy`                 |
+| ------------ | --------------------------- | ------------------------- |
+| 数组变化监听 | ❌ 需要重写 push/pop 等方法 | ✅ 原生拦截所有操作       |
+| 新增属性监听 | ❌ 需要手动 `Vue.set`     | ✅ 自动拦截               |
+| 删除属性监听 | ❌ 不支持                   | ✅`deleteProperty` trap |
+| 性能         | 初始化时递归遍历所有属性    | 懒代理，访问时才递归      |
+| 浏览器兼容   | ✅ IE9+                     | ❌ 不支持 IE              |
 
 > ⚠️ **注意**：`Reflect.set` / `Reflect.get` 中必须传递 `receiver`，确保 `this` 指向正确，避免 getter/setter 继承链中 `this` 错误的 bug。
 
@@ -1698,10 +1700,10 @@ obj2 = null // ✅ 可被 GC
 
 ### 排查工具
 
-| 工具 | 用途 |
-|------|------|
-| Chrome DevTools → **Memory 面板** | 拍堆快照（Heap Snapshot），对比前后内存增长 |
-| Chrome DevTools → **Performance 面板** | 录制过程中观察 JS Heap 折线是否持续上升不回落 |
-| Chrome DevTools → **Coverage 面板** | 找出未使用的代码 |
+| 工具                                         | 用途                                          |
+| -------------------------------------------- | --------------------------------------------- |
+| Chrome DevTools →**Memory 面板**      | 拍堆快照（Heap Snapshot），对比前后内存增长   |
+| Chrome DevTools →**Performance 面板** | 录制过程中观察 JS Heap 折线是否持续上升不回落 |
+| Chrome DevTools →**Coverage 面板**    | 找出未使用的代码                              |
 
 > ⚠️ **注意**：SPA 框架（React/Vue）中，切换路由时务必在组件销毁钩子（`onUnmounted` / `useEffect` cleanup）中清除定时器、取消事件监听和中断异步请求。

@@ -844,6 +844,56 @@ const MyComponent = React.memo(Component, arePropsEqual)
 
 - 组件自身 state 发生变化
 - 组件使用的 Context 发生变化
+- 父组件每次都传入新的对象/函数引用（如内联对象、内联回调）
+
+**真实场景（电商搜索页）**：
+
+搜索页中，输入框内容变化会导致父组件频繁重渲染。若商品卡片组件渲染较重（图片懒加载、价格计算、埋点逻辑），可使用 `React.memo` 避免无意义重渲。
+
+```jsx
+import React, { useCallback, useMemo, useState } from 'react'
+
+const ProductList = React.memo(function ProductList({ products, onBuy }) {
+  console.log('ProductList render')
+  return (
+    <ul>
+      {products.map(item => (
+        <li key={item.id}>
+          {item.name} - {item.price}
+          <button onClick={() => onBuy(item.id)}>购买</button>
+        </li>
+      ))}
+    </ul>
+  )
+})
+
+export default function SearchPage({ allProducts }) {
+  const [keyword, setKeyword] = useState('')
+
+  // 缓存过滤结果，避免每次输入都重新构造数组
+  const visibleProducts = useMemo(() => {
+    return allProducts.filter(item => item.name.includes(keyword))
+  }, [allProducts, keyword])
+
+  // 缓存回调引用，避免 ProductList 因函数引用变化而重渲
+  const handleBuy = useCallback((id) => {
+    console.log('buy:', id)
+  }, [])
+
+  return (
+    <div>
+      <input
+        value={keyword}
+        onChange={(e) => setKeyword(e.target.value)}
+        placeholder='搜索商品'
+      />
+      <ProductList products={visibleProducts} onBuy={handleBuy} />
+    </div>
+  )
+}
+```
+
+> ⚠️ **注意**：`React.memo` 常与 `useMemo`、`useCallback` 配合使用；否则 props 的引用每次都变，`React.memo` 可能失效。
 
 **`React.memo` / `useMemo` / `useCallback` 对比：**
 
@@ -1515,6 +1565,56 @@ React 在组件更新时会产生新的虚拟 DOM，diff 算法负责**计算新
 ```
 新旧虚拟 DOM 对比 → 产生 effect list（变更集合）→ commit 阶段统一更新到真实 DOM
 ```
+
+---
+
+**单节点 Diff（reconcileSingleElement）**
+
+`render` 返回单个元素时，React 在旧子 Fiber 链表中寻找可复用节点，判断逻辑是 **key 优先、type 其次**：
+
+| 情况 | 处理方式 |
+|------|----------|
+| key 不同 | 将该旧节点标记删除，继续遍历兄弟节点 |
+| key 相同 + type 相同 | ✅ **复用**：克隆旧 Fiber，仅更新 props，状态保留 |
+| key 相同 + type 不同 | ❌ **全量重建**：删除旧节点及所有兄弟，创建新节点 |
+
+> ⚠️ **注意**：key 相同而 type 不同时，React 认为是同一位置的节点被替换，会连同所有兄弟一并删除，代价比 key 不同更大。
+
+---
+
+**多节点 Diff（reconcileChildrenArray）两轮遍历**
+
+`render` 返回数组时，React 不使用 LCS（最长公共子序列）算法，而是针对"大多数更新是顺序不变的小改动"这一实际场景做了贪心优化：
+
+**第一轮（顺序遍历，处理可预测的变化）**
+
+从左往右按索引位置同时遍历新旧列表。key 和 type 都匹配则复用，遇到 key 不一致立即终止，进入第二轮。
+
+**第二轮（处理移动、新增、删除）**
+
+1. 把旧链表**剩余节点**存入 `Map<key, Fiber>`（查找复杂度 O(1)）
+2. 遍历新列表剩余项：Map 中能找到且 type 相同 → 复用；找不到 → 新建（Placement 标记）
+3. 遍历结束后 Map 中剩余的旧节点 → 全部打上 Deletion 标记
+
+**移动判断：`lastPlacedIndex` 算法**
+
+React 维护一个 `lastPlacedIndex`，记录"最后一个可以不移动的旧节点索引"。遍历新列表时，若找到的旧节点原索引 < `lastPlacedIndex`，说明它在旧位置"靠前"但在新位置"靠后"，需要打 Placement（移动）标记；否则保持不动并更新 `lastPlacedIndex`。
+
+**场景示例：**
+
+```
+旧：A(0) B(1) C(2) D(3)
+新：D    A    B    C
+
+第二轮遍历：
+- 遇到 D，旧 index=3，lastPlacedIndex=0，3≥0，D 不动，lastPlacedIndex 更新为 3
+- 遇到 A，旧 index=0，0 < 3，标记 A 需要移动
+- 遇到 B，旧 index=1，1 < 3，标记 B 需要移动
+- 遇到 C，旧 index=2，2 < 3，标记 C 需要移动
+结果：A、B、C 被移动，D 保持原位
+```
+
+> ⚠️ **注意**：将尾部元素移动到头部，会导致其余所有元素都被标记为移动，性能最差。优先考虑在尾部追加，而非头部插入。
 
 ---
 

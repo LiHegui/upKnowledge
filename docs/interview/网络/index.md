@@ -466,3 +466,49 @@ HTTP/1.1 304 Not Modified
 - 实际开发中，通常结合两者使用：优先强缓存，失效后使用协商缓存。
 
 ## fetch请求, 设计一个不会超时的fetch请求
+
+## Q: WebRTC 的核心原理是什么？完整建连流程是怎样的？
+
+**A:**
+
+**WebRTC** 是浏览器端实时音视频/数据通信标准，核心目标是在端到端（P2P）场景下实现低延迟通信。
+
+核心组成：
+
+1. **媒体采集**：`getUserMedia` 获取摄像头/麦克风流。
+2. **连接对象**：`RTCPeerConnection` 负责音视频与 DataChannel 传输。
+3. **信令通道**：交换 SDP/ICE 信息（通常用 WebSocket 实现，WebRTC 本身不规定信令协议）。
+4. **NAT 穿透**：通过 STUN 获取公网映射地址，必要时通过 TURN 中继转发。
+
+标准建连流程：
+
+1. A 端创建 `offer`（SDP），通过信令发送给 B。
+2. B 端设置远端描述并创建 `answer`，再回传给 A。
+3. 双方持续交换 ICE Candidate（候选网络路径）。
+4. ICE 选出最优链路后，媒体流与数据通道建立。
+5. 若直连失败，自动回退到 TURN 中继。
+
+```ts
+// 简化示意：A 端创建 offer
+const pc = new RTCPeerConnection({
+  iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
+})
+
+const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true })
+stream.getTracks().forEach(track => pc.addTrack(track, stream))
+
+const offer = await pc.createOffer()
+await pc.setLocalDescription(offer)
+// 通过信令服务器把 offer 发给对端
+```
+
+| 对比维度 | WebSocket | WebRTC |
+|------|------|------|
+| 连接形态 | 客户端-服务器 | 端到端（优先 P2P） |
+| 典型场景 | 即时消息、推送 | 音视频通话、实时互动、点对点数据传输 |
+| 延迟表现 | 取决于服务端链路 | 直连时通常更低 |
+| 是否需要信令 | 不需要（自身即通信通道） | ✅ 需要（交换 SDP/ICE） |
+
+> ⚠️ **注意**：WebRTC 并不“去服务器化”，生产环境至少需要信令服务；复杂网络下还通常需要 TURN 服务保障连通率。
+
+---

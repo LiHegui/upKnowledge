@@ -6,7 +6,7 @@
 
 ## 基础概念篇
 
-## Q: 说说 Git 中 HEAD、工作树和索引（暂存区）的区别？
+## Q: HEAD、工作树、索引
 
 **A:**
 
@@ -22,7 +22,7 @@
 
 ---
 
-## Q: 什么是「分离的 HEAD」（Detached HEAD）？
+## Q: 分离的 HEAD
 
 **A:**
 
@@ -50,7 +50,7 @@ git branch -f <branch> <hash>    # 强制将分支指向指定 commit
 
 ## 版本回退篇
 
-## Q: 说说你对 git reset 和 git revert 的理解？区别？
+## Q: git reset vs revert
 
 **A:**
 
@@ -89,7 +89,7 @@ git revert HEAD    # 撤销最新一次提交，生成新提交
 
 ---
 
-## Q: 错误提交后又有几次新提交，如何回退错误提交又不影响后续提交？
+## Q: 错误提交回退策略
 
 **A:**
 
@@ -117,7 +117,7 @@ git cherry-pick <hash1> <hash2> ...         # 将后续提交逐个重新应用
 
 ## 分支管理篇
 
-## Q: 说说你对 git rebase 和 git merge 的理解？区别？
+## Q: git rebase vs merge
 
 **A:**
 
@@ -152,7 +152,7 @@ git rebase main    # 将当前分支"嫁接"到 main 分支最新提交之后
 
 ---
 
-## Q: 什么是 cherry-pick？使用场景？
+## Q: git cherry-pick 选择应用
 
 **A:**
 
@@ -171,7 +171,7 @@ git cherry-pick <hash1>..<hash2>    # 复制一个范围内的提交
 
 ---
 
-## Q: 什么是交互式 rebase（git rebase -i）？
+## Q: 交互式 rebase
 
 **A:**
 
@@ -202,7 +202,7 @@ git rebase -i HEAD~4    # 对最近 4 次提交进行交互式整理
 
 ## 远程同步篇
 
-## Q: 说说 git pull 和 git fetch 的理解？有什么区别？
+## Q: git pull vs fetch
 
 **A:**
 
@@ -237,7 +237,7 @@ git pull --rebase origin master      # 拉取后用 rebase 代替 merge 合并
 
 ## 暂存管理篇
 
-## Q: 说说你对 git stash 的理解？应用场景？
+## Q: git stash 暂存管理
 
 **A:**
 
@@ -277,7 +277,7 @@ git stash pop
 
 ## 其他工具篇
 
-## Q: git tag 是什么？如何使用？
+## Q: git tag 标签管理
 
 **A:**
 
@@ -295,7 +295,7 @@ git tag -d v1.0.0                               # 删除本地 tag
 
 ---
 
-## Q: 说说 git describe 的作用？
+## Q: git describe 版本描述
 
 **A:**
 
@@ -315,7 +315,7 @@ git describe <ref>
 
 ---
 
-## Q: 请列出常见的 git 命令？
+## Q: Git 常见命令速查
 
 **A:**
 

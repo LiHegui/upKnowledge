@@ -54,7 +54,7 @@ export default {
 
 ## 响应式与副作用篇
 
-## Q: `ref` 和 `reactive` 如何选择？
+## Q: ref vs reactive
 
 **A:**
 
@@ -89,7 +89,7 @@ watchEffect(() => {
 
 ---
 
-## Q: `computed` 和 `watch` 应该怎么选？
+## Q: computed vs watch
 
 **A:**
 
@@ -180,7 +180,7 @@ inputRef.value?.focus()
 
 ## 工程实践篇
 
-## Q: Vue3 为什么推荐 Pinia？和 Vuex 的区别是什么？
+## Q: Pinia vs Vuex和 Vuex 的区别是什么？
 
 **A:**
 

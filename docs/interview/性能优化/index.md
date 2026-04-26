@@ -127,7 +127,7 @@ function throttle(fn, delay) {
 
 ---
 
-## Q: IntersectionObserver 是什么？如何使用？
+## Q: IntersectionObserver API如何使用？
 
 **A:**
 

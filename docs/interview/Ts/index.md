@@ -6,7 +6,7 @@
 
 ## 基础认知篇
 
-## Q: TypeScript 是什么？与 JavaScript 有何区别？
+## Q: TypeScript 是什么
 
 **A:**
 
@@ -45,7 +45,7 @@ add(1, '2') // ❌ Argument of type 'string' is not assignable to parameter of t
 
 ---
 
-## Q: TypeScript 有哪些数据类型？
+## Q: TS 数据类型汇总
 
 **A:**
 
@@ -81,7 +81,7 @@ function check(s: Shape) {
 
 ---
 
-## Q: any、unknown、never、void 有什么区别？
+## Q: any/unknown/never/void
 
 **A:**
 
@@ -116,7 +116,7 @@ function fail(msg: string): never {
 
 ## 类型系统篇
 
-## Q: interface 和 type 有什么区别？如何选择？
+## Q: interface vs type如何选择？
 
 **A:**
 
@@ -153,7 +153,7 @@ type C = B & { extra: string }      // type 交叉实现继承
 
 ---
 
-## Q: 联合类型和交叉类型的区别？
+## Q: 联合 vs 交叉类型
 
 **A:**
 
@@ -179,7 +179,7 @@ cd.bark()   // ✅
 
 ---
 
-## Q: 类型守卫有哪些方式？
+## Q: 类型守卫方式
 
 **A:**
 
@@ -229,7 +229,7 @@ if (isString(input)) {
 
 ---
 
-## Q: keyof、typeof、in、infer 分别怎么用？
+## Q: 类型操作符
 
 **A:**
 
@@ -281,7 +281,7 @@ type A = Awaited<Promise<number>>  // number
 
 ---
 
-## Q: 什么是条件类型？
+## Q: 条件类型
 
 **A:**
 
@@ -308,7 +308,7 @@ type D = NonNullable<string | null | undefined>  // string
 
 ## 泛型篇
 
-## Q: 泛型是什么？有哪些常见用法？
+## Q: 泛型原理有哪些常见用法？
 
 **A:**
 
@@ -360,7 +360,7 @@ getLength(42)        // ❌ number 没有 length
 
 ---
 
-## Q: TypeScript 内置工具类型有哪些？
+## Q: TS 工具类型
 
 **A:**
 
@@ -417,7 +417,7 @@ type NonAdmin = Exclude<Roles, 'admin'>                  // 'editor' | 'viewer'
 
 ## 类与接口篇
 
-## Q: TypeScript 中接口（interface）的作用和应用场景？
+## Q: interface 接口
 
 **A:**
 
@@ -466,7 +466,7 @@ class User implements Serializable {
 
 ---
 
-## Q: TypeScript 中类的访问修饰符有哪些？
+## Q: 访问修饰符
 
 **A:**
 
@@ -522,7 +522,7 @@ class User {
 
 ---
 
-## Q: abstract 抽象类和 interface 接口有什么区别？
+## Q: 抽象类 vs 接口
 
 **A:**
 
@@ -557,7 +557,7 @@ class Circle extends Shape {
 
 ## 枚举与装饰器篇
 
-## Q: TypeScript 枚举类型的理解和应用场景？
+## Q: 枚举 Enum
 
 **A:**
 
@@ -620,7 +620,7 @@ function checkPermission(userPerm: number, required: Permission) {
 
 ---
 
-## Q: TypeScript 装饰器是什么？有哪些类型？
+## Q: 装饰器特性有哪些类型？
 
 **A:**
 
@@ -687,7 +687,7 @@ class UserService {
 
 ## 工程实践篇
 
-## Q: tsconfig.json 有哪些重要配置项？
+## Q: tsconfig 配置
 
 **A:**
 
@@ -726,7 +726,7 @@ class UserService {
 
 ---
 
-## Q: 声明文件（.d.ts）是什么？如何使用？
+## Q: 声明文件用途如何使用？
 
 **A:**
 
@@ -766,7 +766,7 @@ declare class EventBus { on(event: string, fn: Function): void }
 
 ---
 
-## Q: 命名空间（namespace）是什么？和 ES 模块有何区别？
+## Q: 命名空间概念和 ES 模块有何区别？
 
 **A:**
 
@@ -801,7 +801,7 @@ const validator = new Validation.LettersOnlyValidator()
 
 ## 高频补充篇
 
-## Q: TypeScript 中函数重载怎么写？和联合类型参数有什么区别？
+## Q: 函数重载语法和联合类型参数有什么区别？
 
 **A:**
 
@@ -838,7 +838,7 @@ format(12.3)    // string
 
 ---
 
-## Q: 类型断言 `as`、非空断言 `!`、类型守卫分别有什么区别？
+## Q: 类型断言对比
 
 **A:**
 
@@ -879,7 +879,7 @@ if (node) {
 
 ---
 
-## Q: `as const` 和 `satisfies` 有什么用？
+## Q: as const vs satisfies
 
 **A:**
 
@@ -926,7 +926,7 @@ const route = {
 
 ---
 
-## Q: TS 项目中 ES Module 与 CommonJS 如何选择？`import type` 有什么作用？
+## Q: 模块化选择`import type` 有什么作用？
 
 **A:**
 

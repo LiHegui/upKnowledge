@@ -6,7 +6,7 @@
 
 ## 📝 必刷特辑
 
-- [手撕代码系列](./interview/自测系列.md) — 高频手写实现汇总
+- [笔试系列](./interview/笔试系列.md) — 手撕实现 + 算法必会
 - [算法练习：面试经典 150 题](https://leetcode.cn/studyplan/top-interview-150/) ↗
 
 ---
@@ -76,7 +76,6 @@
 
 - [性能优化](./interview/性能优化/index.md)
 - [设计模式](./interview/设计模式/index.md)
-- [算法手写](./interview/算法Code/index.md)
 - [前端登录方案](./interview/前端登录/登录的实现.md)
 
 ---

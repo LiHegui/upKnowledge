@@ -36,7 +36,7 @@ export default defineConfig({
           text: '📝 必刷特辑',
           collapsed: false,
           items: [
-            { text: '手撕代码系列', link: '/interview/自测系列' },
+            { text: '笔试系列', link: '/interview/笔试系列' },
           ],
         },
         {
@@ -130,7 +130,6 @@ export default defineConfig({
           items: [
             { text: '性能优化', link: '/interview/性能优化/' },
             { text: '设计模式', link: '/interview/设计模式/' },
-            { text: '算法 Code', link: '/interview/算法Code/' },
             { text: '前端登录', link: '/interview/前端登录/登录的实现' },
           ],
         },
@@ -143,7 +142,6 @@ export default defineConfig({
             { text: '移动端适配', link: '/interview/解决方案/移动端适配/' },
             { text: '前端工程化', link: '/interview/解决方案/前端工程化/' },
             { text: '实时协同系统', link: '/interview/解决方案/实时协同系统/' },
-            { text: 'CRDT 协同编辑方案', link: '/interview/解决方案/CRDT/' },
           ],
         },
         {

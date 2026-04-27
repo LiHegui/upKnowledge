@@ -124,6 +124,56 @@ export function useCounter(initial = 0) {
 const { count, increment } = useCounter(10)
 ```
 
+## Q: Vue3 项目中如何更好地结合 TypeScript？
+
+**A:**
+
+核心思路是先约束组件边界，再约束工程链路：组件层保证 Props、Emits、v-model、Store 都有明确类型；工程层用严格配置和持续类型检查兜底。
+
+**推荐落地顺序：**
+
+1. 统一使用 `<script setup lang="ts">`，减少 `this` 推断问题。
+2. 先定义组件边界类型：`defineProps`、`defineEmits`、`defineModel`、`defineExpose`。
+3. 组合式函数使用泛型（如 `useRequest<T>()`），让复用逻辑天然类型安全。
+4. 状态管理（Pinia）显式声明 `state/getters/actions` 类型，避免隐式 `any`。
+5. 构建链路中强制执行 `vue-tsc`，把类型检查纳入 CI。
+
+**组件类型示例：**
+
+```vue
+<script setup lang="ts">
+interface User {
+    id: number
+    name: string
+}
+
+const props = withDefaults(defineProps<{
+    list: User[]
+    pageSize?: number
+}>(), {
+    pageSize: 10
+})
+
+const emit = defineEmits<{
+    change: [id: number]
+    remove: [user: User]
+}>()
+
+const onSelect = (id: number) => emit('change', id)
+</script>
+```
+
+| 维度 | 不推荐 | 推荐 |
+|------|--------|------|
+| Props 定义 | 运行时对象 + 弱约束 | `defineProps<T>()` + `withDefaults` |
+| 事件定义 | 字符串随意触发 | `defineEmits` 元组类型 |
+| 复用逻辑 | 返回 `any` | 泛型 `useXxx<T>()` |
+| 类型检查 | 仅依赖 IDE | `vue-tsc --build` + CI |
+
+> ⚠️ **注意**：TypeScript 只能保证编译期安全，服务端返回数据仍可能不可信；接口边界建议配合运行时校验（如 Zod）。
+
+---
+
 ## Vue3 有哪些新特性？
 
 1. **Composition API** — `setup()`、`ref`、`reactive`、`computed`、`watch`

@@ -15,6 +15,29 @@ body,
   font-weight: 900;
 }
 
+/* ── 本页目录：允许题目标题换行，避免被省略号截断 ── */
+.VPDocOutlineItem .outline-link,
+.VPLocalNavOutlineDropdown .outline-link {
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: unset !important;
+  line-height: 1.35;
+  word-break: break-word;
+  font-size: 12px;
+}
+
+.VPDocOutlineItem li {
+  margin: 4px 0;
+}
+
+.VPDocAsideOutline .content {
+  padding-left: 14px;
+}
+
+.VPDocAsideOutline .outline-title {
+  font-size: 13px;
+}
+
 /* ── 扩大内容区，减少两侧留白 ── */
 /* 覆盖 VitePress 默认的 688px 限制（当有右侧 TOC 时） */
 .VPDoc.has-aside .content-container {
@@ -28,14 +51,64 @@ body,
   }
 }
 
-/* ── 右侧目录：≥960px 时始终固定显示，不折叠为顶部按钮 ── */
-@media (min-width: 960px) {
-  /* 强制显示右侧大纲面板 */
+/* ── 平板布局：让右侧目录在有左侧导航时也能显示 ── */
+@media (min-width: 960px) and (max-width: 1279px) {
+  :root {
+    --vp-sidebar-width: 220px;
+  }
+
+  .VPDoc .container {
+    display: flex;
+    justify-content: center;
+  }
+
+  .VPDoc .aside {
+    display: block !important;
+    max-width: 228px;
+    padding-left: 24px;
+  }
+
+  .VPDoc .aside-container {
+    width: 204px;
+  }
+
+  .VPDoc .aside-curtain {
+    width: 204px;
+  }
+
+  .VPDoc .content {
+    padding: 0 16px 96px;
+    min-width: 0;
+  }
+
+  .VPDoc.has-aside .content-container {
+    max-width: 600px !important;
+  }
+
+  .VPLocalNavOutlineDropdown {
+    display: none !important;
+  }
+}
+
+/* ── 桌面及以上：保持右侧目录固定显示 ── */
+@media (min-width: 1280px) {
+  .VPDoc .aside {
+    max-width: 272px;
+  }
+
+  .VPDoc .aside-container,
+  .VPDoc .aside-curtain {
+    width: 240px;
+  }
+
+  .VPDoc.has-aside .content-container {
+    max-width: 920px !important;
+  }
+
   .VPDocAside {
     display: flex !important;
   }
 
-  /* 隐藏顶部那个「点击展开」的下拉目录按钮 */
   .VPLocalNavOutlineDropdown {
     display: none !important;
   }

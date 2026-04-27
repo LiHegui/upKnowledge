@@ -6,7 +6,7 @@
 
 ## 基础认知篇
 
-## Q: TypeScript 是什么？与 JavaScript 有何区别？
+## Q: TypeScript 是什么
 
 **A:**
 
@@ -45,7 +45,7 @@ add(1, '2') // ❌ Argument of type 'string' is not assignable to parameter of t
 
 ---
 
-## Q: TypeScript 有哪些数据类型？
+## Q: TS 数据类型汇总
 
 **A:**
 
@@ -81,7 +81,7 @@ function check(s: Shape) {
 
 ---
 
-## Q: any、unknown、never、void 有什么区别？
+## Q: any/unknown/never/void
 
 **A:**
 
@@ -116,7 +116,7 @@ function fail(msg: string): never {
 
 ## 类型系统篇
 
-## Q: interface 和 type 有什么区别？如何选择？
+## Q: interface vs type如何选择？
 
 **A:**
 
@@ -153,7 +153,7 @@ type C = B & { extra: string }      // type 交叉实现继承
 
 ---
 
-## Q: 联合类型和交叉类型的区别？
+## Q: 联合 vs 交叉类型
 
 **A:**
 
@@ -179,7 +179,7 @@ cd.bark()   // ✅
 
 ---
 
-## Q: 类型守卫有哪些方式？
+## Q: 类型守卫方式
 
 **A:**
 
@@ -229,7 +229,7 @@ if (isString(input)) {
 
 ---
 
-## Q: keyof、typeof、in、infer 分别怎么用？
+## Q: 类型操作符
 
 **A:**
 
@@ -281,7 +281,7 @@ type A = Awaited<Promise<number>>  // number
 
 ---
 
-## Q: 什么是条件类型？
+## Q: 条件类型
 
 **A:**
 
@@ -308,7 +308,7 @@ type D = NonNullable<string | null | undefined>  // string
 
 ## 泛型篇
 
-## Q: 泛型是什么？有哪些常见用法？
+## Q: 泛型原理有哪些常见用法？
 
 **A:**
 
@@ -360,7 +360,7 @@ getLength(42)        // ❌ number 没有 length
 
 ---
 
-## Q: TypeScript 内置工具类型有哪些？
+## Q: TS 工具类型
 
 **A:**
 
@@ -417,7 +417,7 @@ type NonAdmin = Exclude<Roles, 'admin'>                  // 'editor' | 'viewer'
 
 ## 类与接口篇
 
-## Q: TypeScript 中接口（interface）的作用和应用场景？
+## Q: interface 接口
 
 **A:**
 
@@ -466,7 +466,7 @@ class User implements Serializable {
 
 ---
 
-## Q: TypeScript 中类的访问修饰符有哪些？
+## Q: 访问修饰符
 
 **A:**
 
@@ -522,7 +522,7 @@ class User {
 
 ---
 
-## Q: abstract 抽象类和 interface 接口有什么区别？
+## Q: 抽象类 vs 接口
 
 **A:**
 
@@ -557,7 +557,7 @@ class Circle extends Shape {
 
 ## 枚举与装饰器篇
 
-## Q: TypeScript 枚举类型的理解和应用场景？
+## Q: 枚举 Enum
 
 **A:**
 
@@ -620,7 +620,7 @@ function checkPermission(userPerm: number, required: Permission) {
 
 ---
 
-## Q: TypeScript 装饰器是什么？有哪些类型？
+## Q: 装饰器特性有哪些类型？
 
 **A:**
 
@@ -687,7 +687,7 @@ class UserService {
 
 ## 工程实践篇
 
-## Q: tsconfig.json 有哪些重要配置项？
+## Q: tsconfig 配置
 
 **A:**
 
@@ -726,7 +726,7 @@ class UserService {
 
 ---
 
-## Q: 声明文件（.d.ts）是什么？如何使用？
+## Q: 声明文件用途如何使用？
 
 **A:**
 
@@ -766,7 +766,7 @@ declare class EventBus { on(event: string, fn: Function): void }
 
 ---
 
-## Q: 命名空间（namespace）是什么？和 ES 模块有何区别？
+## Q: 命名空间概念和 ES 模块有何区别？
 
 **A:**
 
@@ -796,3 +796,171 @@ const validator = new Validation.LettersOnlyValidator()
 | Tree-shaking | ❌ 不支持 | ✅ 支持 |
 
 > ⚠️ **注意**：在现代 TS 项目中，**应使用 ES Module（`import/export`）替代命名空间**。命名空间目前主要用于全局声明文件（如 `@types` 包）中。
+
+---
+
+## 高频补充篇
+
+## Q: 函数重载语法和联合类型参数有什么区别？
+
+**A:**
+
+函数重载的核心是：
+
+1. 写多个重载签名（只声明，不实现）
+2. 最后写一个实现签名（参数通常用联合或 unknown）
+3. 实现体里做类型收窄
+
+```ts
+// 重载签名
+function format(input: string): string
+function format(input: number): string
+
+// 实现签名
+function format(input: string | number): string {
+  if (typeof input === 'number') return input.toFixed(2)
+  return input.trim()
+}
+
+format('  hi  ') // string
+format(12.3)    // string
+```
+
+### 与联合参数的区别
+
+| 对比维度 | 函数重载 | 联合类型参数 |
+|------|------|------|
+| 调用提示 | ✅ 可为不同入参给出不同签名 | ❌ 只有一个统一签名 |
+| 返回类型表达 | ✅ 可按入参精确区分返回类型 | ⚠️ 往往需要联合返回 |
+| 可读性 | ✅ 对外 API 更清晰 | 简单场景更轻量 |
+
+> ⚠️ **注意**：重载签名必须放在实现函数之前；调用方只看到重载签名，看不到实现签名。
+
+---
+
+## Q: 类型断言对比
+
+**A:**
+
+### `as` 类型断言
+
+告诉编译器“我比你更清楚当前类型”，只影响编译期，不会做运行时检查。
+
+```ts
+const el = document.getElementById('app') as HTMLDivElement
+el.innerText = 'hello'
+```
+
+### 非空断言 `!`
+
+用于去掉 `null | undefined`，表示“这里一定不为空”。
+
+```ts
+const btn = document.getElementById('btn')!
+btn.addEventListener('click', () => {})
+```
+
+### 类型守卫（推荐）
+
+通过 `typeof` / `instanceof` / `in` / 自定义谓词做真实分支收窄，最安全。
+
+```ts
+const node = document.getElementById('app')
+if (node) {
+  node.innerHTML = 'ok' // ✅
+}
+```
+
+| 方式 | 是否安全 | 是否有运行时校验 | 适用场景 |
+|------|---------|------------------|---------|
+| `as` | ⚠️ 依赖开发者保证 | ❌ 无 | 明确知道类型时 |
+| `!` | ⚠️ 风险更高 | ❌ 无 | 生命周期可控、明确非空时 |
+| 类型守卫 | ✅ 最安全 | ✅ 有分支判断 | 大多数业务代码 |
+
+---
+
+## Q: as const vs satisfies
+
+**A:**
+
+### `as const`（常量断言）
+
+作用：
+
+1. 字面量不再被拓宽（`'GET'` 不会变成 `string`）
+2. 对象属性变为 `readonly`
+3. 数组推断为只读元组
+
+```ts
+const req = {
+  method: 'GET',
+  path: '/users'
+} as const
+
+// req.method 类型是 'GET'，不是 string
+```
+
+### `satisfies`（TS 4.9+）
+
+用于“校验是否满足某类型”，但不改变表达式自身推断结果。
+
+```ts
+type Route = {
+  path: string
+  method: 'GET' | 'POST'
+}
+
+const route = {
+  path: '/users',
+  method: 'GET'
+} satisfies Route
+
+// route.method 仍保持字面量 'GET'，同时受 Route 约束
+```
+
+| 对比维度 | `as const` | `satisfies` |
+|------|------|------|
+| 主要目标 | 锁定字面量并只读化 | 校验结构兼容性 |
+| 是否改变推断结果 | ✅ 会（更窄） | ❌ 不会（保留原推断） |
+| 常见用途 | 配置常量、路由表、状态机 | 配置对象类型校验 |
+
+---
+
+## Q: 模块化选择`import type` 有什么作用？
+
+**A:**
+
+### ES Module vs CommonJS
+
+| 维度 | ES Module | CommonJS |
+|------|-----------|----------|
+| 语法 | `import/export` | `require/module.exports` |
+| 加载时机 | 静态分析（编译期） | 运行时加载 |
+| Tree-shaking | ✅ 支持 | ❌ 较弱 |
+| 现代前端工程 | ✅ 主流推荐 | 多见于 Node 历史项目 |
+
+现代 TS 前端项目通常配置：
+
+```json
+{
+  "compilerOptions": {
+    "module": "ESNext",
+    "moduleResolution": "bundler"
+  }
+}
+```
+
+### `import type` / `export type`
+
+只导入/导出类型，不引入运行时代码，能避免打包无效引用与循环依赖问题。
+
+```ts
+import type { User } from './types'
+export type { User }
+
+const getUserName = (u: User) => u.name
+```
+
+> ⚠️ **注意**：在开启 `isolatedModules`、使用 Babel/SWC 单文件转译时，优先使用 `import type` 区分类型导入与值导入。
+
+---

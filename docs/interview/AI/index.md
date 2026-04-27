@@ -1019,6 +1019,116 @@ src/components/AIChat/
 
 ---
 
+## Q: 如何从 0 到 1 搭建一个智能体（Agent）？
+
+**A:**
+
+可以按「**单 Agent MVP -> 可观测 -> 多 Agent 协同**」三阶段推进，先跑通再增强，不要一上来就做复杂编排。
+
+**阶段 1：单 Agent MVP（1-3 天可落地）**
+
+| 步骤 | 要做什么 | 产出 |
+|------|---------|------|
+| 1. 定义目标 | 明确输入、输出、成功标准 | `任务定义文档` |
+| 2. 选模型 | 先选工具调用稳定的模型 | `model + 参数` |
+| 3. 定义工具 | 3-5 个高价值工具（搜索、查库、发请求） | `tools schema` |
+| 4. 构建循环 | ReAct/Function Calling 循环 | `agent loop` |
+| 5. 加最小记忆 | 保存最近 N 轮对话 + 用户偏好 | `session memory` |
+
+**最小代码骨架（TypeScript）**
+
+```ts
+type ChatMessage = { role: 'system' | 'user' | 'assistant' | 'tool'; content: string; tool_call_id?: string }
+
+async function runAgent(userInput: string, sessionId: string) {
+  const messages: ChatMessage[] = await loadSessionMessages(sessionId)
+  messages.push({ role: 'user', content: userInput })
+
+  for (let i = 0; i < 6; i++) {
+    const llmResp = await callLLM({
+      model: 'gpt-4o',
+      messages,
+      tools: toolSchemas,
+      tool_choice: 'auto',
+      temperature: 0.2,
+    })
+
+    const msg = llmResp.choices[0].message
+    messages.push({ role: 'assistant', content: msg.content || '' })
+
+    if (!msg.tool_calls || msg.tool_calls.length === 0) {
+      await saveSessionMessages(sessionId, messages)
+      return msg.content
+    }
+
+    for (const call of msg.tool_calls) {
+      const args = JSON.parse(call.function.arguments || '{}')
+      const result = await executeTool(call.function.name, args)
+      messages.push({
+        role: 'tool',
+        tool_call_id: call.id,
+        content: JSON.stringify(result),
+      })
+    }
+  }
+
+  return '任务较复杂，已达到本轮最大执行步数，请重试或缩小问题范围。'
+}
+```
+
+**阶段 2：工程化增强（上线前必须做）**
+
+| 能力 | 建议方案 | 价值 |
+|------|---------|------|
+| 可观测性 | 记录每步 Thought/Tool/Latency/Token/Cost | 可排障、可优化 |
+| 安全防护 | 入参校验（Zod/Ajv）+ Prompt 注入过滤 + 权限校验 | 防误调用、保安全 |
+| 失败兜底 | 超时重试、降级模型、工具熔断、人工接管 | 保证可用性 |
+| 评测体系 | 构建 20-50 条任务集做离线回归 | 防止迭代退化 |
+
+**阶段 3：多 Agent 协同（可选）**
+
+- 拆分为 `Planner（规划）`、`Executor（执行）`、`Reviewer（复核）`
+- 仅当单 Agent 在复杂任务上稳定性不足时再引入，避免过度设计
+
+> ⚠️ **注意**：搭建 Agent 的关键不是「模型多强」，而是「工具定义清晰 + 调用链可观测 + 失败可兜底」。生产环境优先保证确定性与可维护性。
+
+---
+
+## Q: 智能体（Agent）和工作流（Workflow）有什么区别？项目里该怎么选？
+
+**A:**
+
+两者不是对立关系，而是**确定性执行**与**自主决策执行**的分工。
+
+| 维度 | Workflow（工作流） | Agent（智能体） |
+|------|--------------------|-----------------|
+| 核心机制 | 预先编排好的固定步骤 | 模型动态规划与调用工具 |
+| 可预测性 | ✅ 高，可重复 | ❌ 相对低，路径可能变化 |
+| 灵活性 | ❌ 中低，遇到新情况需改流程 | ✅ 高，可自适应长尾问题 |
+| 调试成本 | ✅ 低，节点可追踪 | ❌ 高，需要观察推理与工具链 |
+| 典型场景 | 审批流、ETL、固定报表、固定问答 | 多步问题求解、开放式任务、研究分析 |
+| 失败处理 | 明确分支和重试规则 | 需要兜底策略（限步、熔断、人工接管） |
+
+**选型建议（面试可直接说）**
+
+1. 需求稳定、步骤固定、合规要求高：优先 Workflow。
+2. 需求开放、变化快、依赖外部工具探索：优先 Agent。
+3. 生产实践推荐「**Workflow + Agent**」混合架构：
+   Workflow 负责主流程编排，Agent 只放在不确定节点做智能决策。
+
+**一个常见混合落地例子**
+
+```txt
+工单处理主流程（Workflow）
+  -> 分类节点（Agent 判断复杂意图）
+  -> 固定执行节点（查询订单/退款规则）
+  -> 异常兜底（人工坐席）
+```
+
+> ⚠️ **注意**：不要把所有问题都 Agent 化。工程上先用 Workflow 保证稳定性，再在关键不确定节点引入 Agent，通常性价比最高。
+
+---
+
 ## Q: 为什么要引入工具？单纯的大模型不行吗？
 
 **A:**

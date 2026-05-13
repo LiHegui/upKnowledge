@@ -1,19 +1,19 @@
-# 升级打怪 🎯
+﻿# 升级打怪 🎯
 
-> 前端工程师面试题库 & 知识库，涵盖从基础到进阶的全方向考点。
+> 前端工程师知识题库 & 知识库，涵盖从基础到进阶的全方向考点。
 
 ---
 
 ## 📝 必刷特辑
 
 - [笔试系列](./interview/笔试系列.md) — 手撕实现 + 算法必会
-- [算法练习：面试经典 150 题](https://leetcode.cn/studyplan/top-interview-150/) ↗
+- [算法练习：经典 150 题](https://leetcode.cn/studyplan/top-interview-150/) ↗
 
 ---
 
 ## 🤖 AI × 前端
 
-- [AI × 前端面试题](./interview/AI/index.md) — LLM、Prompt 工程、AI 工具链与前端结合
+- [AI × 前端技术要点](./interview/AI/index.md) — LLM、Prompt 工程、AI 工具链与前端结合
 
 ---
 
@@ -41,7 +41,7 @@
 
 ## React 生态
 
-- [React 面试题](./interview/React/index.md) — 含 Hooks、Fiber、Redux、性能优化、ErrorBoundary 等全方向
+- [React 技术要点](./interview/React/index.md) — 含 Hooks、Fiber、Redux、性能优化、ErrorBoundary 等全方向
 - [React 渲染行为完全指南](./interview/React/react-rendering-behavior.md) — Render/Commit 阶段、默认渲染行为、批处理、Context 与渲染、React-Redux 订阅机制
 - [Fiber 架构与 Diff 算法深度解析](./interview/React/fiber-diff.md) — Fiber 核心字段、双缓冲树、单节点/多节点 Diff 策略、key 的本质、Mount vs Update 全对比
 

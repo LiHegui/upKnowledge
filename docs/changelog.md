@@ -1,9 +1,14 @@
-# 更新日志
+﻿# 更新日志
 
 > 本页由部署脚本根据 git 提交记录自动生成。
 
+## 2026-05-13
+
+- fix: update markdown headers in interview documents and add virtual list guide `61169a4`
+
 ## 2026-04-27
 
+- 更新更新日志，添加2026-04-27的提交记录；在AI技术要点文档中新增智能体搭建的详细步骤和建议 `73d7317`
 - Merge branch 'master' of github.com:LiHegui/upKnowledge `ab88e6c`
 - 内容整改 `b96f7dd`
 
@@ -78,7 +83,7 @@
 
 - 修改脚本文件 `5fbb047`
 - 修改格式 `23fd9ee`
-- 更新常见面试题 `4777141`
+- 更新常见技术要点 `4777141`
 
 ## 2025-05-27
 

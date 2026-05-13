@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>虚拟列表完整 Demo — 固定高度 + 动态高度 + 性能监控</title>
+<style>
+  /* ============================================================
+   * 1. 全局样式
+   * ============================================================ */
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #f0f2f5;
+    color: #333;
+    padding: 20px;
+  }
+
+  h1 {
+    text-align: center;
+    margin-bottom: 8px;
+    font-size: 22px;
+    color: #1a1a1a;
+  }
+
+  .subtitle {
+    text-align: center;
+    color: #888;
+    font-size: 14px;
+    margin-bottom: 24px;
+  }
+
+  /* ============================================================
+   * 2. 布局：左右双栏
+   * ============================================================ */
+  .layout {
+    display: flex;
+    gap: 24px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .panel {
+    flex: 1;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .panel-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .panel-header h2 {
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .badge {
+    font-size: 11px;
+    background: #e6f7ff;
+    color: #1890ff;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-weight: normal;
+  }
+
+  /* ============================================================
+   * 3. 工具栏：搜索 + 操作按钮
+   * ============================================================ */
+  .toolbar {
+    padding: 12px 20px;
+    border-bottom: 1px solid #f0f0f0;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .toolbar input[type="text"] {
+    flex: 1;
+    min-width: 120px;
+    padding: 6px 12px;
+    border: 1px solid #d9d9d9;
+    border-radius: 6px;
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .toolbar input[type="text"]:focus {
+    border-color: #1890ff;
+    box-shadow: 0 0 0 2px rgba(24,144,255,0.1);
+  }
+
+  .toolbar button {
+    padding: 6px 14px;
+    border: 1px solid #d9d9d9;
+    border-radius: 6px;
+    background: #fff;
+    cursor: pointer;
+    font-size: 13px;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+
+  .toolbar button:hover {
+    color: #1890ff;
+    border-color: #1890ff;
+  }
+
+  .toolbar button.primary {
+    background: #1890ff;
+    color: #fff;
+    border-color: #1890ff;
+  }
+
+  .toolbar button.primary:hover {
+    background: #40a9ff;
+  }
+
+  /* ============================================================
+   * 4. 虚拟列表容器（核心样式）
+   *
+   *  结构：
+   *  .virtual-list-container       ← 固定高度 + overflow: auto（产生滚动条）
+   *    ├── .virtual-list-phantom    ← 绝对定位，高度 = 总条数 × 行高，撑开滚动区域
+   *    └── .virtual-list-content    ← 绝对定位，通过 transform 偏移到正确位置
+   *         ├── .list-item          ← 只渲染可见范围的真实 DOM
+   *         ├── .list-item
+   *         └── ...
+   * ============================================================ */
+  .virtual-list-container {
+    height: 520px;
+    overflow-y: auto;
+    position: relative;           /* 为内部绝对定位元素提供定位上下文 */
+  }
+
+  .virtual-list-phantom {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    /* height 由 JS 动态设置 = totalCount × itemHeight */
+  }
+
+  .virtual-list-content {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    will-change: transform;       /* 提示浏览器该元素会频繁变换，提前创建合成层 */
+  }
+
+  /* ============================================================
+   * 5. 列表项样式
+   * ============================================================ */
+  .list-item {
+    padding: 0 20px;
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid #f5f5f5;
+    transition: background 0.15s;
+    contain: layout style paint;  /* 告诉浏览器此元素的布局/样式/绘制独立，优化重排 */
+  }
+
+  .list-item:hover {
+    background: #fafafa;
+  }
+
+  .list-item.selected {
+    background: #e6f7ff;
+    border-left: 3px solid #1890ff;
+  }
+
+  .list-item .index {
+    width: 60px;
+    color: #999;
+    font-size: 12px;
+    font-family: 'Courier New', monospace;
+    flex-shrink: 0;
+  }
+
+  .list-item .content {
+    flex: 1;
+    font-size: 14px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .list-item .tag {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    margin-left: 8px;
+    flex-shrink: 0;
+  }
+
+  .list-item mark {
+    background: #ffe58f;
+    padding: 0 2px;
+    border-radius: 2px;
+  }
+
+  /* 动态高度列表项 —— 内容自由换行，高度不固定 */
+  .list-item.dynamic {
+    padding: 12px 20px;
+    align-items: flex-start;
+  }
+
+  .list-item.dynamic .content {
+    white-space: normal;
+    line-height: 1.6;
+  }
+
+  /* ============================================================
+   * 6. 性能监控面板
+   * ============================================================ */
+  .monitor {
+    padding: 12px 20px;
+    background: #fafafa;
+    border-top: 1px solid #f0f0f0;
+    font-size: 12px;
+    color: #666;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 4px 16px;
+  }
+
+  .monitor span {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .monitor .label { color: #999; }
+  .monitor .value { color: #333; font-weight: 600; font-family: monospace; }
+  .monitor .value.warn { color: #fa8c16; }
+  .monitor .value.good { color: #52c41a; }
+
+  /* ============================================================
+   * 7. 响应式
+   * ============================================================ */
+  @media (max-width: 768px) {
+    .layout { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+
+<h1>🚀 虚拟列表完整 Demo</h1>
+<p class="subtitle">左：固定高度（10万条） | 右：动态高度（1万条） | 含搜索高亮、选中、跳转、性能监控</p>
+
+<div class="layout">
+
+  <!-- ==================== 左侧：固定高度虚拟列表 ==================== -->
+  <div class="panel">
+    <div class="panel-header">
+      <h2>📋 固定高度 <span class="badge">100,000 条</span></h2>
+      <span id="fixed-dom-count" style="font-size:12px;color:#999;"></span>
+    </div>
+
+    <div class="toolbar">
+      <input type="text" id="fixed-search" placeholder="搜索关键词…">
+      <button onclick="fixedList.search(document.getElementById('fixed-search').value)">搜索</button>
+      <button onclick="fixedList.clearSearch()">清除</button>
+      <button onclick="fixedList.scrollToIndex(0)">回顶部</button>
+      <button onclick="fixedList.scrollToIndex(49999)" class="primary">跳到第5万条</button>
+    </div>
+
+    <div class="virtual-list-container" id="fixed-container"></div>
+
+    <div class="monitor" id="fixed-monitor"></div>
+  </div>
+
+  <!-- ==================== 右侧：动态高度虚拟列表 ==================== -->
+  <div class="panel">
+    <div class="panel-header">
+      <h2>📝 动态高度 <span class="badge">10,000 条</span></h2>
+      <span id="dynamic-dom-count" style="font-size:12px;color:#999;"></span>
+    </div>
+
+    <div class="toolbar">
+      <input type="text" id="dynamic-search" placeholder="搜索关键词…">
+      <button onclick="dynamicList.search(document.getElementById('dynamic-search').value)">搜索</button>
+      <button onclick="dynamicList.clearSearch()">清除</button>
+      <button onclick="dynamicList.scrollToIndex(0)">回顶部</button>
+      <button onclick="dynamicList.scrollToIndex(4999)" class="primary">跳到第5千条</button>
+    </div>
+
+    <div class="virtual-list-container" id="dynamic-container"></div>
+
+    <div class="monitor" id="dynamic-monitor"></div>
+  </div>
+
+</div>
+
+<script>
+/* ================================================================
+ *  第一部分：固定高度虚拟列表（FixedVirtualList）
+ *
+ *  核心思路：
+ *    1. 用一个 phantom 层撑开总高度，让浏览器产生原生滚动条
+ *    2. 用一个 content 层通过 translateY 偏移到正确位置
+ *    3. content 层只放「可见条数 + 上下缓冲」个真实 DOM
+ *    4. 监听 scroll，根据 scrollTop 计算 startIndex / endIndex
+ *
+ *  关键公式（固定行高场景非常简单）：
+ *    startIndex = Math.floor(scrollTop / itemHeight)
+ *    endIndex   = startIndex + visibleCount
+ *    offsetY    = startIndex * itemHeight
+ * ================================================================ */
+class FixedVirtualList {
+  /**
+   * @param {Object}   options
+   * @param {Element}  options.el          - 容器 DOM
+   * @param {number}   options.itemHeight  - 每项固定高度（px）
+   * @param {Array}    options.data        - 数据源
+   * @param {Function} options.renderItem  - (item, index) => HTMLElement
+   * @param {number}   [options.bufferSize=5] - 上下缓冲条数
+   * @param {Element}  [options.monitorEl] - 性能监控输出容器
+   */
+  constructor({ el, itemHeight, data, renderItem, bufferSize = 5, monitorEl }) {
+    this.el = el
+    this.itemHeight = itemHeight
+    this.allData = data             // 原始全量数据
+    this.data = data                // 当前展示数据（搜索后可能是子集）
+    this.renderItem = renderItem
+    this.bufferSize = bufferSize
+    this.monitorEl = monitorEl
+
+    this.keyword = ''               // 当前搜索关键词
+    this.selectedId = null          // 选中项 id（状态存数据层）
+    this.renderCount = 0            // 累计渲染次数（性能统计）
+
+    this.viewportHeight = el.clientHeight
+    this.visibleCount = Math.ceil(this.viewportHeight / itemHeight)
+
+    this._initDOM()
+    this._bindEvents()
+    this._render()
+  }
+
+  /* ------ DOM 初始化 ------
+   * 创建两层结构：
+   *   phantom: 高度 = 总条数 × 行高，撑开滚动容器
+   *   content: 放真实可见 DOM，通过 transform 定位
+   */
+  _initDOM() {
+    this.phantom = document.createElement('div')
+    this.phantom.className = 'virtual-list-phantom'
+    this.phantom.style.height = this.data.length * this.itemHeight + 'px'
+
+    this.content = document.createElement('div')
+    this.content.className = 'virtual-list-content'
+
+    this.el.appendChild(this.phantom)
+    this.el.appendChild(this.content)
+  }
+
+  /* ------ 事件绑定 ------
+   * 使用 requestAnimationFrame 节流 scroll 回调：
+   *   - 保证每帧最多触发一次渲染
+   *   - 比 throttle(16ms) 更精确，与屏幕刷新率同步
+   */
+  _bindEvents() {
+    let ticking = false
+    this.el.addEventListener('scroll', () => {
+      if (!ticking) {
+        requestAnimationFrame(() => {
+          this._render()
+          ticking = false
+        })
+        ticking = true
+      }
+    })
+  }
+
+  /* ------ 核心渲染逻辑 ------
+   * 每次 scroll 触发时调用，步骤：
+   *   1. 根据 scrollTop 算出 startIndex（减去 buffer）
+   *   2. 算出 endIndex（加上 buffer）
+   *   3. 用 translateY 把 content 层偏移到正确位置
+   *   4. 清空旧 DOM，用 DocumentFragment 批量插入新 DOM
+   */
+  _render() {
+    const t0 = performance.now()
+    const scrollTop = this.el.scrollTop
+
+    // ① 计算渲染范围（含上下缓冲区）
+    let startIndex = Math.floor(scrollTop / this.itemHeight) - this.bufferSize
+    startIndex = Math.max(0, startIndex)
+
+    let endIndex = startIndex + this.visibleCount + this.bufferSize * 2
+    endIndex = Math.min(endIndex, this.data.length)
+
+    // ② 偏移 content 层到 startIndex 对应的位置
+    const offsetY = startIndex * this.itemHeight
+    this.content.style.transform = `translateY(${offsetY}px)`
+
+    // ③ 使用 DocumentFragment 批量创建 DOM（减少重排）
+    this.content.innerHTML = ''
+    const fragment = document.createDocumentFragment()
+    for (let i = startIndex; i < endIndex; i++) {
+      fragment.appendChild(this.renderItem(this.data[i], i))
+    }
+    this.content.appendChild(fragment)
+
+    // ④ 性能统计
+    this.renderCount++
+    const renderTime = (performance.now() - t0).toFixed(2)
+    this._updateMonitor({ startIndex, endIndex, renderTime, scrollTop })
+  }
+
+  /* ------ 搜索 + 高亮 ------ */
+  search(keyword) {
+    this.keyword = keyword.trim()
+    if (!this.keyword) return this.clearSearch()
+
+    // 过滤数据源
+    this.data = this.allData.filter(item =>
+      item.text.toLowerCase().includes(this.keyword.toLowerCase())
+    )
+    // 更新 phantom 总高度
+    this.phantom.style.height = this.data.length * this.itemHeight + 'px'
+    this.el.scrollTop = 0
+    this._render()
+  }
+
+  clearSearch() {
+    this.keyword = ''
+    this.data = this.allData
+    this.phantom.style.height = this.data.length * this.itemHeight + 'px'
+    this.el.scrollTop = 0
+    this._render()
+  }
+
+  /* ------ 跳转到指定索引 ------ */
+  scrollToIndex(index) {
+    const clampedIndex = Math.max(0, Math.min(index, this.data.length - 1))
+    this.el.scrollTop = clampedIndex * this.itemHeight
+  }
+
+  /* ------ 选中项 ------ */
+  selectItem(id) {
+    this.selectedId = id
+    this._render()
+  }
+
+  /* ------ 性能监控面板更新 ------ */
+  _updateMonitor({ startIndex, endIndex, renderTime, scrollTop }) {
+    if (!this.monitorEl) return
+    const domCount = endIndex - startIndex
+    this.monitorEl.innerHTML = `
+      <span><span class="label">数据总量</span><span class="value">${this.data.length.toLocaleString()}</span></span>
+      <span><span class="label">渲染 DOM</span><span class="value ${domCount < 30 ? 'good' : 'warn'}">${domCount}</span></span>
+      <span><span class="label">可见范围</span><span class="value">${startIndex} ~ ${endIndex - 1}</span></span>
+      <span><span class="label">scrollTop</span><span class="value">${Math.round(scrollTop)}px</span></span>
+      <span><span class="label">渲染耗时</span><span class="value ${parseFloat(renderTime) < 2 ? 'good' : 'warn'}">${renderTime}ms</span></span>
+      <span><span class="label">累计渲染</span><span class="value">${this.renderCount} 次</span></span>
+    `
+  }
+}
+
+
+/* ================================================================
+ *  第二部分：动态高度虚拟列表（DynamicVirtualList）
+ *
+ *  与固定高度的关键区别：
+ *    1. 不能用 index × itemHeight 算偏移，需要维护「位置缓存」
+ *    2. 初始时用「预估高度」填充缓存
+ *    3. 渲染后用 getBoundingClientRect() 获取实际高度并修正缓存
+ *    4. 用「二分查找」代替除法来定位 startIndex
+ *    5. 总高度会随着修正而动态变化
+ * ================================================================ */
+class DynamicVirtualList {
+  /**
+   * @param {Object}   options
+   * @param {Element}  options.el              - 容器 DOM
+   * @param {Array}    options.data            - 数据源
+   * @param {number}   options.estimatedHeight - 预估行高
+   * @param {Function} options.renderItem      - (item, index) => HTMLElement
+   * @param {number}   [options.bufferSize=3]  - 缓冲条数
+   * @param {Element}  [options.monitorEl]     - 性能监控
+   */
+  constructor({ el, data, estimatedHeight = 80, renderItem, bufferSize = 3, monitorEl }) {
+    this.el = el
+    this.allData = data
+    this.data = data
+    this.estimatedHeight = estimatedHeight
+    this.renderItem = renderItem
+    this.bufferSize = bufferSize
+    this.monitorEl = monitorEl
+
+    this.keyword = ''
+    this.selectedId = null
+    this.renderCount = 0
+    this.correctedCount = 0       // 高度修正次数
+
+    this.viewportHeight = el.clientHeight
+
+    // ★ 核心：位置缓存数组
+    // 初始化时，用预估高度填充每项的 top / bottom
+    this._initPositions()
+    this._initDOM()
+    this._bindEvents()
+    this._render()
+  }
+
+  /* ------ 初始化位置缓存 ------
+   * 每项记录 { index, height, top, bottom }
+   * 初始值全部基于 estimatedHeight 计算
+   * 渲染后会被实际高度修正
+   */
+  _initPositions() {
+    this.positions = this.data.map((_, index) => ({
+      index,
+      height: this.estimatedHeight,
+      top: index * this.estimatedHeight,
+      bottom: (index + 1) * this.estimatedHeight,
+    }))
+  }
+
+  // 总高度 = 最后一项的 bottom
+  get totalHeight() {
+    if (this.positions.length === 0) return 0
+    return this.positions[this.positions.length - 1].bottom
+  }
+
+  _initDOM() {
+    this.phantom = document.createElement('div')
+    this.phantom.className = 'virtual-list-phantom'
+    this.phantom.style.height = this.totalHeight + 'px'
+
+    this.content = document.createElement('div')
+    this.content.className = 'virtual-list-content'
+
+    this.el.appendChild(this.phantom)
+    this.el.appendChild(this.content)
+  }
+
+  _bindEvents() {
+    let ticking = false
+    this.el.addEventListener('scroll', () => {
+      if (!ticking) {
+        requestAnimationFrame(() => {
+          this._render()
+          ticking = false
+        })
+        ticking = true
+      }
+    })
+  }
+
+  /* ------ 二分查找 startIndex ------
+   * 固定高度可以用除法 O(1) 定位
+   * 动态高度必须用二分查找 O(log n)
+   *
+   * 目标：找到第一个 bottom > scrollTop 的项
+   */
+  _findStartIndex(scrollTop) {
+    let low = 0
+    let high = this.positions.length - 1
+
+    while (low <= high) {
+      const mid = Math.floor((low + high) / 2)
+      const midBottom = this.positions[mid].bottom
+
+      if (midBottom === scrollTop) {
+        return mid + 1       // 刚好滚过该项，下一项是起始
+      } else if (midBottom < scrollTop) {
+        low = mid + 1        // 该项完全在视口上方
+      } else {
+        // midBottom > scrollTop，该项可能可见
+        if (mid === 0 || this.positions[mid - 1].bottom <= scrollTop) {
+          return mid           // 找到了第一个 bottom > scrollTop 的项
+        }
+        high = mid - 1
+      }
+    }
+    return low
+  }
+
+  /* ------ 核心渲染 ------ */
+  _render() {
+    const t0 = performance.now()
+    const scrollTop = this.el.scrollTop
+
+    if (this.positions.length === 0) return
+
+    // ① 二分查找定位 startIndex
+    let startIndex = this._findStartIndex(scrollTop) - this.bufferSize
+    startIndex = Math.max(0, startIndex)
+
+    // ② 向下遍历找到 endIndex（bottom 超出可视区底部的第一项）
+    let endIndex = startIndex
+    const bottomEdge = scrollTop + this.viewportHeight
+    while (endIndex < this.data.length && this.positions[endIndex].top < bottomEdge) {
+      endIndex++
+    }
+    endIndex = Math.min(endIndex + this.bufferSize, this.data.length)
+
+    // ③ 渲染可见 DOM
+    this.content.innerHTML = ''
+    const fragment = document.createDocumentFragment()
+    for (let i = startIndex; i < endIndex; i++) {
+      const node = this.renderItem(this.data[i], i)
+      node.dataset.index = i          // 标记索引，用于后续高度修正
+      fragment.appendChild(node)
+    }
+    this.content.appendChild(fragment)
+
+    // ④ 偏移到 startIndex 对应的 top 位置
+    this.content.style.transform = `translateY(${this.positions[startIndex].top}px)`
+
+    // ⑤ 渲染后修正实际高度
+    this._updatePositions()
+
+    // ⑥ 性能统计
+    this.renderCount++
+    const renderTime = (performance.now() - t0).toFixed(2)
+    this._updateMonitor({ startIndex, endIndex, renderTime, scrollTop })
+  }
+
+  /* ------ 渲染后修正位置缓存 ------
+   * 遍历 content 层所有已渲染的 DOM 节点：
+   *   1. 用 getBoundingClientRect() 获取实际高度
+   *   2. 与缓存中的 height 比较，有差异则修正
+   *   3. 从修正点开始，向后逐个修正所有后续项的 top / bottom
+   *   4. 更新 phantom 总高度
+   */
+  _updatePositions() {
+    const nodes = this.content.children
+    let needUpdate = false
+
+    for (const node of nodes) {
+      const index = Number(node.dataset.index)
+      if (index >= this.positions.length) continue
+
+      const rect = node.getBoundingClientRect()
+      const oldHeight = this.positions[index].height
+      const newHeight = rect.height
+
+      // 高度差异超过 0.5px 才修正（避免浮点误差）
+      if (Math.abs(oldHeight - newHeight) > 0.5) {
+        const diff = newHeight - oldHeight
+        this.positions[index].height = newHeight
+        this.positions[index].bottom += diff
+
+        // ★ 关键：后续所有项的位置都要跟着修正
+        for (let j = index + 1; j < this.positions.length; j++) {
+          this.positions[j].top = this.positions[j - 1].bottom
+          this.positions[j].bottom = this.positions[j].top + this.positions[j].height
+        }
+
+        needUpdate = true
+        this.correctedCount++
+      }
+    }
+
+    // 总高度变了就更新 phantom
+    if (needUpdate) {
+      this.phantom.style.height = this.totalHeight + 'px'
+    }
+  }
+
+  /* ------ 搜索 ------ */
+  search(keyword) {
+    this.keyword = keyword.trim()
+    if (!this.keyword) return this.clearSearch()
+
+    this.data = this.allData.filter(item =>
+      item.text.toLowerCase().includes(this.keyword.toLowerCase())
+    )
+    this._initPositions()
+    this.phantom.style.height = this.totalHeight + 'px'
+    this.el.scrollTop = 0
+    this._render()
+  }
+
+  clearSearch() {
+    this.keyword = ''
+    this.data = this.allData
+    this._initPositions()
+    this.phantom.style.height = this.totalHeight + 'px'
+    this.el.scrollTop = 0
+    this._render()
+  }
+
+  /* ------ 跳转指定索引 ------
+   * 动态高度场景直接使用 positions 缓存中的 top 值
+   * 注意：如果目标项从未被渲染过，位置是预估的，跳转后可能需要二次修正
+   */
+  scrollToIndex(index) {
+    const clampedIndex = Math.max(0, Math.min(index, this.data.length - 1))
+    if (this.positions[clampedIndex]) {
+      this.el.scrollTop = this.positions[clampedIndex].top
+    }
+  }
+
+  selectItem(id) {
+    this.selectedId = id
+    this._render()
+  }
+
+  _updateMonitor({ startIndex, endIndex, renderTime, scrollTop }) {
+    if (!this.monitorEl) return
+    const domCount = endIndex - startIndex
+    this.monitorEl.innerHTML = `
+      <span><span class="label">数据总量</span><span class="value">${this.data.length.toLocaleString()}</span></span>
+      <span><span class="label">渲染 DOM</span><span class="value ${domCount < 30 ? 'good' : 'warn'}">${domCount}</span></span>
+      <span><span class="label">可见范围</span><span class="value">${startIndex} ~ ${endIndex - 1}</span></span>
+      <span><span class="label">scrollTop</span><span class="value">${Math.round(scrollTop)}px</span></span>
+      <span><span class="label">渲染耗时</span><span class="value ${parseFloat(renderTime) < 3 ? 'good' : 'warn'}">${renderTime}ms</span></span>
+      <span><span class="label">高度修正</span><span class="value">${this.correctedCount} 次</span></span>
+    `
+  }
+}
+
+
+/* ================================================================
+ *  第三部分：数据生成 + 实例化
+ * ================================================================ */
+
+// ---------- 固定高度数据：10万条 ----------
+const FIXED_ITEM_HEIGHT = 48
+const FIXED_TOTAL = 100000
+const TAG_COLORS = ['#f0f5ff;color:#2f54eb', '#f6ffed;color:#389e0d', '#fff7e6;color:#d46b08', '#fff1f0;color:#cf1322']
+const TAG_NAMES = ['前端', '后端', 'AI', 'DevOps']
+
+const fixedData = Array.from({ length: FIXED_TOTAL }, (_, i) => {
+  const tagIdx = i % TAG_NAMES.length
+  return {
+    id: i,
+    text: `数据条目 #${i + 1} — ${randomText(8)}`,
+    tag: TAG_NAMES[tagIdx],
+    tagColor: TAG_COLORS[tagIdx],
+  }
+})
+
+// ---------- 动态高度数据：1万条，文本长度随机 ----------
+const DYNAMIC_TOTAL = 10000
+
+const dynamicData = Array.from({ length: DYNAMIC_TOTAL }, (_, i) => ({
+  id: i,
+  text: `[${i + 1}] ${randomParagraph()}`,
+}))
+
+function randomText(len) {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+  let result = ''
+  for (let j = 0; j < len; j++) result += chars[Math.floor(Math.random() * chars.length)]
+  return result
+}
+
+function randomParagraph() {
+  const sentences = [
+    '虚拟列表只渲染可视区域内的少量 DOM 元素。',
+    '通过 scrollTop 计算 startIndex 和 endIndex，动态替换渲染内容。',
+    'requestAnimationFrame 可以将回调与屏幕刷新率同步，避免不必要的重复计算。',
+    '二分查找的时间复杂度为 O(log n)，远优于线性遍历。',
+    'DocumentFragment 可以在内存中构建 DOM 树，一次性插入，减少重排重绘。',
+    'transform: translateY() 不会触发回流，只触发合成层更新，性能更好。',
+    '缓冲区（buffer）在可视范围上下各多渲染几条，防止快速滚动时白屏。',
+    '动态高度场景需要维护位置缓存，渲染后用实际高度修正预估值。',
+    'CSS contain 属性可以限制浏览器的布局/绘制范围，提升渲染性能。',
+    'will-change: transform 提示浏览器提前创建 GPU 合成层。',
+    '虚拟列表中状态必须存在数据层，因为 DOM 会随时被销毁重建。',
+    '生产环境推荐使用 react-window、@tanstack/react-virtual 或 vue-virtual-scroller。',
+  ]
+  // 随机选取 1~4 句拼成段落（制造不同高度）
+  const count = 1 + Math.floor(Math.random() * 4)
+  const picked = []
+  for (let j = 0; j < count; j++) {
+    picked.push(sentences[Math.floor(Math.random() * sentences.length)])
+  }
+  return picked.join('')
+}
+
+
+// ---------- 实例化固定高度虚拟列表 ----------
+// 用 var 而非 const：构造函数内 _render() 会调用 renderItem，
+// 此时 const 变量还在暂时性死区（TDZ），访问会抛 ReferenceError。
+// var 在 TDZ 前值为 undefined，配合 && 短路可安全跳过。
+var fixedList = new FixedVirtualList({
+  el: document.getElementById('fixed-container'),
+  itemHeight: FIXED_ITEM_HEIGHT,
+  data: fixedData,
+  bufferSize: 5,
+  monitorEl: document.getElementById('fixed-monitor'),
+
+  renderItem(item, index) {
+    const div = document.createElement('div')
+    div.className = `list-item${fixedList && fixedList.selectedId === item.id ? ' selected' : ''}`
+    div.style.height = FIXED_ITEM_HEIGHT + 'px'
+
+    // 索引
+    const indexSpan = document.createElement('span')
+    indexSpan.className = 'index'
+    indexSpan.textContent = `#${item.id + 1}`
+
+    // 内容（含搜索高亮）
+    const contentSpan = document.createElement('span')
+    contentSpan.className = 'content'
+    if (fixedList && fixedList.keyword) {
+      const escaped = fixedList.keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+      const regex = new RegExp(`(${escaped})`, 'gi')
+      contentSpan.innerHTML = item.text.replace(regex, '<mark>$1</mark>')
+    } else {
+      contentSpan.textContent = item.text
+    }
+
+    // 标签
+    const tag = document.createElement('span')
+    tag.className = 'tag'
+    tag.style.background = item.tagColor.split(';')[0]
+    tag.style.color = item.tagColor.split(';')[1]?.replace('color:', '') || '#333'
+    tag.textContent = item.tag
+
+    div.appendChild(indexSpan)
+    div.appendChild(contentSpan)
+    div.appendChild(tag)
+
+    // 点击选中
+    div.addEventListener('click', () => fixedList.selectItem(item.id))
+
+    return div
+  }
+})
+
+
+// ---------- 实例化动态高度虚拟列表 ----------
+var dynamicList = new DynamicVirtualList({
+  el: document.getElementById('dynamic-container'),
+  data: dynamicData,
+  estimatedHeight: 72,
+  bufferSize: 3,
+  monitorEl: document.getElementById('dynamic-monitor'),
+
+  renderItem(item, index) {
+    const div = document.createElement('div')
+    div.className = `list-item dynamic${dynamicList && dynamicList.selectedId === item.id ? ' selected' : ''}`
+
+    const indexSpan = document.createElement('span')
+    indexSpan.className = 'index'
+    indexSpan.textContent = `#${item.id + 1}`
+
+    const contentSpan = document.createElement('span')
+    contentSpan.className = 'content'
+    if (dynamicList && dynamicList.keyword) {
+      const escaped = dynamicList.keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+      const regex = new RegExp(`(${escaped})`, 'gi')
+      contentSpan.innerHTML = item.text.replace(regex, '<mark>$1</mark>')
+    } else {
+      contentSpan.textContent = item.text
+    }
+
+    div.appendChild(indexSpan)
+    div.appendChild(contentSpan)
+
+    div.addEventListener('click', () => dynamicList.selectItem(item.id))
+
+    return div
+  }
+})
+
+
+/* ================================================================
+ *  第四部分：实时 DOM 数量监控
+ *  每秒更新一次，展示当前页面总 DOM 数和列表内 DOM 数
+ * ================================================================ */
+setInterval(() => {
+  const fixedDom = document.getElementById('fixed-container').querySelectorAll('.list-item').length
+  const dynamicDom = document.getElementById('dynamic-container').querySelectorAll('.list-item').length
+  document.getElementById('fixed-dom-count').textContent = `列表 DOM: ${fixedDom} | 页面总 DOM: ${document.querySelectorAll('*').length}`
+  document.getElementById('dynamic-dom-count').textContent = `列表 DOM: ${dynamicDom} | 页面总 DOM: ${document.querySelectorAll('*').length}`
+}, 1000)
+
+
+/* ================================================================
+ *  第五部分：键盘快捷键
+ *  Enter 触发搜索（聚焦在哪个 input 就搜索哪个列表）
+ * ================================================================ */
+document.getElementById('fixed-search').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') fixedList.search(e.target.value)
+})
+document.getElementById('dynamic-search').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') dynamicList.search(e.target.value)
+})
+</script>
+
+</body>
+</html>

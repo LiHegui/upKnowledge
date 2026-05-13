@@ -1,4 +1,4 @@
-# upKnowledge 项目架构文档
+﻿# upKnowledge 项目架构文档
 
 > 本文档用于描述 upKnowledge 项目的整体架构，供 AI 辅助完善本项目时参考。
 > 在线地址：[升级打怪🎯](https://lihegui.github.io/upKnowledge/)
@@ -9,7 +9,7 @@
 
 **upKnowledge** 是一个前端工程师的个人知识库 + 文档站点，核心价值在于：
 
-- 系统整理前端面试题，覆盖 CSS / HTML / JS / TS / React / Vue / 工程化 / 网络 / 算法等核心方向
+- 系统整理前端技术要点，覆盖 CSS / HTML / JS / TS / React / Vue / 工程化 / 网络 / 算法等核心方向
 - 沉淀实战解决方案（大文件上传、移动端适配、JWT 登录等）
 - 包含若干 demo 练习项目作为技术验证
 
@@ -49,14 +49,14 @@ upKnowledge/
 │   │   ├── config.js        ← 站点核心配置（导航栏/插件/主题/base）
 │   │   ├── styles/          ← 自定义全局样式
 │   │   └── dist/            ← 构建产物（git 忽略，部署用）
-│   ├── README.md            ← 站点首页（面试题导航入口）
+│   ├── README.md            ← 站点首页（技术要点导航入口）
 │   ├── deploy.sh            ← GitHub Pages 部署脚本
 │   │
-│   ├── interview/           ← 面试题模块（核心内容）
-│   │   ├── index.md         ← 面试题总目录
+│   ├── interview/           ← 技术要点模块（核心内容）
+│   │   ├── index.md         ← 技术要点总目录
 │   │   ├── 自测系列.md
-│   │   ├── 必问面试题系列/index.md
-│   │   ├── CSS/             ← CSS 面试题 + Demo HTML
+│   │   ├── 必问技术要点系列/index.md
+│   │   ├── CSS/             ← CSS 技术要点 + Demo HTML
 │   │   ├── HTML/            ← HTML 语义化、存储等
 │   │   ├── JavaScript/      ← JS 核心原理
 │   │   ├── ES6/             ← ES6+ 新特性（Promise、Map/Set 等）
@@ -146,9 +146,9 @@ upKnowledge/
 }
 ```
 
-**✅ 已完善**：sidebar 已全面配置，覆盖 interview / repository / tools / optimization 四大模块所有文档。navbar 已增加面试题、知识库、工具合集三个主入口。
+**✅ 已完善**：sidebar 已全面配置，覆盖 interview / repository / tools / optimization 四大模块所有文档。navbar 已增加技术要点、知识库、工具合集三个主入口。
 
-### 4.2 interview/ — 面试题模块（核心）
+### 4.2 interview/ — 技术要点模块（核心）
 
 每个技术方向对应一个子目录，通常包含：
 - `index.md`：该方向的题目汇总（Q&A 格式）
@@ -292,7 +292,7 @@ bash docs/deploy.sh
 
 ### 内容规范
 1. **Markdown 格式**：所有文档使用标准 Markdown，标题层级清晰（H1 → H2 → H3）
-2. **Q&A 结构**：面试题用 `## Q: 问题` + `A:` 段落格式，方便阅读
+2. **Q&A 结构**：题目用 `## Q: 问题` + `A:` 段落格式，方便阅读
 3. **代码块**：所有代码必须指定语言（```js / ```ts / ```bash）
 4. **代码演示**：需要可交互演示时使用 `:::demo ... :::` 语法（md-enhance 插件支持）
 5. **图片**：存放在对应目录的 `img/` 子目录，使用相对路径引用
@@ -311,7 +311,7 @@ sidebar: {
 - 代码文件：小驼峰命名（`sortAlgorithm.js`）或 PascalCase 组件（`MyComponent.vue`）
 
 ### 提交规范
-- `docs: 完善 vue3 面试题`
+- `docs: 完善 vue3 技术要点`
 - `feature: 新增 WebRTC demo 功能`
 - `fix: 修复侧边栏路由配置`
 

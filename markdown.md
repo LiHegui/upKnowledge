@@ -1,4 +1,4 @@
-
+﻿
 # 点击访问 -> [升级打怪🎯](https://lihegui.github.io/upKnowledge/#%F0%9F%9A%80-%E7%9F%A5%E8%AF%86%E5%BA%93)
 
 # 每个文件夹放着对应的题目
@@ -16,7 +16,7 @@
 # 目录说明
 
 - docs
- - interview (面试题)
+ - interview (技术要点)
 - project (空白项目都可以进行改动,可以做一些测试，功能实现，这部分比较随意，可以随意改动)
 
 # 提交规范

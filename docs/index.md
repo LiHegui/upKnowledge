@@ -74,7 +74,7 @@
 
 ## 深入专题 & 解决方案
 
-- [性能优化](./interview/性能优化/index.md)
+- [性能优化](./interview/性能优化/index.md) | [图片加载优化策略](./optimization/加载图片优化策略.md)
 - [设计模式](./interview/设计模式/index.md)
 - [前端登录方案](./interview/前端登录/登录的实现.md)
 - [大文件断点续传](./interview/解决方案/大文件断点续传/index.md)
@@ -93,22 +93,3 @@
 - [微信小程序](./interview/微信小程序（原生）/route.md) | [权限](./interview/微信小程序（原生）/权限.md) | [媒体](./interview/微信小程序（原生）/media.md)
 - [Web3D / Three.js](./interview/Web3D/three.md)
 - [Gatsby](./interview/Gastby/Gastby.md)
-- [服务器部署](./repository/server/deploy.md) | [准备工作](./repository/server/准备工作.md)
-
-### Linux
-
-- [快速掌握基础](./repository/Linux/快速掌握基础.md)
-
-### Gatsby
-
-- [Gatsby 入门](./repository/Gastby/Gastby.md) | [GraphQL](./repository/Gastby/GraphQL.md) | [查询数据](./repository/Gastby/QueryingData.md)
-
-### Web3D
-
-- [Three.js](./repository/Web3D/three.md)
-
----
-
-## 性能优化 ⚡
-
-- [图片加载优化策略](./optimization/加载图片优化策略.md)

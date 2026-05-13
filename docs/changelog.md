@@ -4,6 +4,7 @@
 
 ## 2026-05-13
 
+- feat: 添加导航同步功能，确保首页与侧边栏一致性；更新相关文档和示例 `c6f2b56`
 - refactor: update interview documentation titles to "技术要点" for consistency `e7cc462`
 - 更新虚拟列表文档，添加完整 Demo 深度讲解及关键设计说明 `aa8a85b`
 - fix: update markdown headers in interview documents and add virtual list guide `61169a4`

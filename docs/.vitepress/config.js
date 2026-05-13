@@ -129,6 +129,7 @@ export default defineConfig({
           collapsed: true,
           items: [
             { text: '性能优化', link: '/interview/性能优化/' },
+            { text: '图片加载优化策略', link: '/optimization/加载图片优化策略' },
             { text: '设计模式', link: '/interview/设计模式/' },
             { text: '前端登录', link: '/interview/前端登录/登录的实现' },
             { text: '大文件断点续传', link: '/interview/解决方案/大文件断点续传/' },

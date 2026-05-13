@@ -2,6 +2,8 @@
 
 > 虚拟列表是前端**大数据量渲染**的核心优化手段，也是中高级前端面试的高频考点。本章从原理到实战、从固定高度到动态高度、从原生 JS 到 React/Vue 框架，系统讲解虚拟列表的方方面面。
 
+> 📦 **完整可运行 Demo**：[demo.html](./demo.html) — 包含固定高度（10万条）+ 动态高度（1万条）双栏对比，含搜索高亮、选中、跳转、实时性能监控。直接用浏览器打开即可体验。
+
 ---
 
 ## 认知篇
@@ -1236,5 +1238,283 @@ renderItem(item, index) {
 | DOM 对象池 | ⚡ 进阶 | 减少 GC 压力 |
 | Web Worker 数据处理 | ⚡ 进阶 | 避免主线程阻塞 |
 | 二分查找定位 | ⚡ 动态高度必须 | O(log n) 定位起始项 |
+
+---
+
+## 完整 Demo 深度讲解篇
+
+## Q: 能否给出一个可直接运行的完整虚拟列表 Demo？逐行讲解关键设计？
+
+**A:**
+
+> 📦 完整源码见 [demo.html](./demo.html)，浏览器直接打开即可运行。
+
+### Demo 功能概览
+
+| 功能 | 左栏（固定高度） | 右栏（动态高度） |
+|------|------------------|------------------|
+| 数据量 | **10 万条** | **1 万条** |
+| 行高 | 固定 48px | 随机 40~200px |
+| 搜索高亮 | ✅ 过滤 + mark 标记 | ✅ |
+| 点击选中 | ✅ 蓝色高亮 | ✅ |
+| 跳转指定行 | ✅ scrollToIndex | ✅ |
+| 实时性能监控 | ✅ 渲染 DOM 数 / 耗时 / 范围 | ✅ + 高度修正计数 |
+| Enter 快捷搜索 | ✅ | ✅ |
+
+### 1. DOM 结构设计（三层嵌套）
+
+```
+.virtual-list-container         ← 固定高度容器，overflow: auto 产生滚动条
+  ├── .virtual-list-phantom     ← 绝对定位，高度 = 总高度，撑开滚动区域
+  └── .virtual-list-content     ← 绝对定位，transform: translateY() 定位
+       ├── .list-item           ← 真实 DOM（只有可见的 + buffer 条）
+       ├── .list-item
+       └── ...
+```
+
+**为什么需要 phantom 层？**
+
+```js
+// phantom 层的唯一作用：让浏览器产生正确长度的滚动条
+this.phantom.style.height = this.data.length * this.itemHeight + 'px'
+// 10万条 × 48px = 4,800,000px，但 phantom 层上没有任何子元素
+```
+
+如果不用 phantom，容器内只有 20~30 个 DOM，滚动条会非常短，用户无法感知列表的真实长度。
+
+**为什么 content 层用 `transform` 而非 `top`？**
+
+```css
+.virtual-list-content {
+  will-change: transform;   /* transform 不触发回流（reflow），只触发合成（composite） */
+}
+```
+
+- `top` / `margin-top` → 触发 Layout → Paint → Composite（三阶段都要跑）
+- `transform` → 只触发 Composite（GPU 直接移动图层，跳过 Layout 和 Paint）
+
+### 2. 固定高度：核心渲染流程
+
+```js
+_render() {
+  const scrollTop = this.el.scrollTop
+
+  // 第 1 步：算 startIndex —— 用除法 O(1)
+  // scrollTop=2400, itemHeight=48 → startIndex = 50（第 50 条开始可见）
+  let startIndex = Math.floor(scrollTop / this.itemHeight) - this.bufferSize
+  startIndex = Math.max(0, startIndex)    // 不能小于 0
+
+  // 第 2 步：算 endIndex
+  let endIndex = startIndex + this.visibleCount + this.bufferSize * 2
+  endIndex = Math.min(endIndex, this.data.length)  // 不能超出数据长度
+
+  // 第 3 步：偏移 content 层
+  // 如果 startIndex=45（含 5 条上方 buffer），偏移 = 45 × 48 = 2160px
+  this.content.style.transform = `translateY(${startIndex * this.itemHeight}px)`
+
+  // 第 4 步：批量创建 DOM
+  const fragment = document.createDocumentFragment()
+  for (let i = startIndex; i < endIndex; i++) {
+    fragment.appendChild(this.renderItem(this.data[i], i))
+  }
+  this.content.innerHTML = ''         // 清空旧 DOM
+  this.content.appendChild(fragment)  // 一次性插入（只触发一次重排）
+}
+```
+
+**关键细节：为什么用 `DocumentFragment`？**
+
+```js
+// ❌ 逐个 appendChild —— 每次都触发重排
+for (let i = 0; i < 20; i++) {
+  this.content.appendChild(createItem(i))  // 20 次重排
+}
+
+// ✅ fragment 批量操作 —— 只触发一次重排
+const fragment = document.createDocumentFragment()
+for (let i = 0; i < 20; i++) {
+  fragment.appendChild(createItem(i))      // fragment 在内存中，不触发重排
+}
+this.content.appendChild(fragment)          // 1 次重排
+```
+
+### 3. 动态高度：与固定高度的关键差异
+
+#### 差异一：位置缓存
+
+```js
+// 固定高度：不需要缓存，除法直接算
+offset = index * itemHeight   // O(1)
+
+// 动态高度：必须维护位置缓存数组
+this.positions = [
+  { index: 0, height: 80, top: 0,   bottom: 80  },
+  { index: 1, height: 45, top: 80,  bottom: 125 },
+  { index: 2, height: 120, top: 125, bottom: 245 },
+  // ... 每项的 top = 上一项的 bottom
+]
+```
+
+#### 差异二：二分查找定位
+
+```js
+// 固定高度：除法 O(1)
+startIndex = Math.floor(scrollTop / itemHeight)
+
+// 动态高度：二分查找 O(log n) —— 找第一个 bottom > scrollTop 的项
+_findStartIndex(scrollTop) {
+  let low = 0, high = this.positions.length - 1
+
+  while (low <= high) {
+    const mid = Math.floor((low + high) / 2)
+    const midBottom = this.positions[mid].bottom
+
+    if (midBottom < scrollTop) {
+      low = mid + 1             // 该项完全在视口上方，往后找
+    } else if (midBottom === scrollTop) {
+      return mid + 1            // 刚好滚过该项
+    } else {
+      // midBottom > scrollTop
+      if (mid === 0 || this.positions[mid - 1].bottom <= scrollTop) {
+        return mid               // ✅ 找到了！
+      }
+      high = mid - 1
+    }
+  }
+  return low
+}
+```
+
+#### 差异三：渲染后修正高度
+
+```js
+_updatePositions() {
+  const nodes = this.content.children
+
+  for (const node of nodes) {
+    const index = Number(node.dataset.index)
+    const rect = node.getBoundingClientRect()
+    const oldHeight = this.positions[index].height
+    const newHeight = rect.height
+
+    if (Math.abs(oldHeight - newHeight) > 0.5) {
+      // 修正当前项
+      const diff = newHeight - oldHeight
+      this.positions[index].height = newHeight
+      this.positions[index].bottom += diff
+
+      // ★ 关键：后续所有项都要连锁修正
+      // 因为每项的 top = 上一项的 bottom
+      for (let j = index + 1; j < this.positions.length; j++) {
+        this.positions[j].top = this.positions[j - 1].bottom
+        this.positions[j].bottom = this.positions[j].top + this.positions[j].height
+      }
+    }
+  }
+
+  // 总高度变了，更新 phantom
+  this.phantom.style.height = this.totalHeight + 'px'
+}
+```
+
+### 4. 搜索高亮实现
+
+```js
+search(keyword) {
+  this.keyword = keyword.trim()
+
+  // 第 1 步：过滤数据源（只保留匹配项）
+  this.data = this.allData.filter(item =>
+    item.text.toLowerCase().includes(this.keyword.toLowerCase())
+  )
+
+  // 第 2 步：更新 phantom 高度（数据量变了）
+  this.phantom.style.height = this.data.length * this.itemHeight + 'px'
+
+  // 第 3 步：重置滚动位置并重新渲染
+  this.el.scrollTop = 0
+  this._render()
+}
+
+// renderItem 中的高亮处理
+if (this.keyword) {
+  // ✅ 转义特殊字符，防止 ReDoS 攻击
+  const escaped = this.keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  const regex = new RegExp(`(${escaped})`, 'gi')
+  contentSpan.innerHTML = item.text.replace(regex, '<mark>$1</mark>')
+} else {
+  contentSpan.textContent = item.text   // 无关键词时用 textContent（更安全）
+}
+```
+
+### 5. 选中状态管理
+
+```js
+// ✅ 状态存在数据层（selectedId），而非 DOM 上
+selectItem(id) {
+  this.selectedId = id
+  this._render()    // 重新渲染，renderItem 中会判断 selected 状态
+}
+
+// renderItem 中
+div.className = `list-item${this.selectedId === item.id ? ' selected' : ''}`
+```
+
+> ⚠️ 为什么不能存在 DOM 上？因为虚拟列表的 DOM 会被**销毁和重建**——滚出去的条目 DOM 被移除，滚回来时重新创建。如果状态只在 DOM 上，就会丢失。
+
+### 6. 性能监控面板关键指标
+
+| 指标 | 含义 | 健康值 |
+|------|------|--------|
+| **渲染 DOM** | 当前 content 层中的真实 DOM 数量 | < 30 为 ✅ 绿色 |
+| **渲染耗时** | 单次 `_render()` 的执行耗时 | 固定高度 < 2ms，动态高度 < 3ms |
+| **可见范围** | 当前渲染的 startIndex ~ endIndex | 随滚动动态变化 |
+| **高度修正** | 动态高度场景独有，预估高度被实际高度修正的累计次数 | 滚动后逐渐增长 |
+| **页面总 DOM** | 整个页面的 DOM 节点数 | 始终保持 < 200（10万条数据！） |
+
+### 7. CSS 性能优化要点
+
+```css
+.list-item {
+  contain: layout style paint;
+  /* 
+   * contain 告诉浏览器：
+   *   layout  — 该元素的布局不影响外部元素
+   *   style   — CSS 计数器等不会泄漏到外部
+   *   paint   — 该元素的子元素不会绘制到边界外
+   * 浏览器可以据此跳过不必要的重排重绘计算
+   */
+}
+
+.virtual-list-content {
+  will-change: transform;
+  /*
+   * 提前告知浏览器该元素会频繁使用 transform
+   * 浏览器会为其创建独立的 GPU 合成层
+   * 滚动时只需移动该层，不重新光栅化
+   */
+}
+```
+
+### 8. scroll 节流方案
+
+```js
+// Demo 使用 rAF 节流（推荐方案）
+let ticking = false
+this.el.addEventListener('scroll', () => {
+  if (!ticking) {
+    requestAnimationFrame(() => {   // 与屏幕刷新率同步（通常 60fps = 16.7ms/帧）
+      this._render()
+      ticking = false
+    })
+    ticking = true                  // 同一帧内后续 scroll 事件被跳过
+  }
+})
+
+// 对比其他方案：
+// ❌ setTimeout(fn, 16)  —— 不精确，可能与刷新率错位
+// ❌ throttle(fn, 16)    —— 依赖定时器，不与渲染同步
+// ✅ rAF                —— 浏览器原生渲染节奏，最精确
+```
 
 ---

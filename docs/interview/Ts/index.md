@@ -1,4 +1,4 @@
-# TypeScript 面试题
+﻿# TypeScript 面试题
 
 > 涵盖 TypeScript 核心考点：类型系统、泛型、工具类型、类与接口、装饰器、工程实践，从基础到进阶全覆盖。
 

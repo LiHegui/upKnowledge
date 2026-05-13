@@ -142,6 +142,7 @@ export default defineConfig({
             { text: '移动端适配', link: '/interview/解决方案/移动端适配/' },
             { text: '前端工程化', link: '/interview/解决方案/前端工程化/' },
             { text: '实时协同系统', link: '/interview/解决方案/实时协同系统/' },
+            { text: '虚拟列表', link: '/interview/解决方案/虚拟列表/' },
           ],
         },
         {

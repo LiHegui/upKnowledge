@@ -58,7 +58,7 @@
 
 ## 服务端 & 运维
 
-- [Node.js](./interview/Node/index.md) | [nodemailer 邮件](./interview/Node/nodemailer.md)
+- [Node.js](./interview/Node/index.md) | [nodemailer 邮件](./interview/Node/nodemailer.md) | [Server 准备工作](./interview/Node/server-准备工作.md) | [Server 部署](./interview/Node/server-deploy.md)
 - [Nginx](./interview/Nginx/index.md)
 - [Linux 常用命令](./interview/Linux/index.md)
 
@@ -72,20 +72,17 @@
 
 ---
 
-## 深入专题
+## 深入专题 & 解决方案
 
 - [性能优化](./interview/性能优化/index.md)
 - [设计模式](./interview/设计模式/index.md)
 - [前端登录方案](./interview/前端登录/登录的实现.md)
-
----
-
-## 解决方案
-
 - [大文件断点续传](./interview/解决方案/大文件断点续传/index.md)
 - [JWT 登录方案](./interview/解决方案/JWT登录方案/index.md)
 - [移动端适配](./interview/解决方案/移动端适配/index.md)
 - [前端工程化方案](./interview/解决方案/前端工程化/index.md)
+- [实时协同系统](./interview/解决方案/实时协同系统/index.md)
+- [虚拟列表](./interview/解决方案/虚拟列表/index.md)
 
 ---
 

@@ -43,7 +43,7 @@ export default defineConfig({
           text: '🤖 AI × 前端',
           collapsed: true,
           items: [
-            { text: 'AI × 前端面试题', link: '/interview/AI/' },
+            { text: 'AI × 前端技术要点', link: '/interview/AI/' },
           ],
         },
         {
@@ -125,18 +125,12 @@ export default defineConfig({
           ],
         },
         {
-          text: '深入专题',
+          text: '深入专题 & 解决方案',
           collapsed: true,
           items: [
             { text: '性能优化', link: '/interview/性能优化/' },
             { text: '设计模式', link: '/interview/设计模式/' },
             { text: '前端登录', link: '/interview/前端登录/登录的实现' },
-          ],
-        },
-        {
-          text: '解决方案',
-          collapsed: true,
-          items: [
             { text: '大文件断点续传', link: '/interview/解决方案/大文件断点续传/' },
             { text: 'JWT 登录方案', link: '/interview/解决方案/JWT登录方案/' },
             { text: '移动端适配', link: '/interview/解决方案/移动端适配/' },

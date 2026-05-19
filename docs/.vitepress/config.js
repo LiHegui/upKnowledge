@@ -100,6 +100,7 @@ export default defineConfig({
             { text: '进阶-搭建组件库', link: '/interview/Webpack/模块化/进阶-搭建组件库' },
             { text: 'Vite', link: '/interview/Vite/' },
             { text: 'Git', link: '/interview/git/' },
+            { text: 'CI/CD', link: '/interview/CICD/' },
           ],
         },
         {

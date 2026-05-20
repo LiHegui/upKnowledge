@@ -27,40 +27,12 @@ const backendSidebar = [
     ],
   },
   {
-    text: '🌐 网络 & 协议',
-    collapsed: true,
-    items: [
-      { text: 'HTTP / TCP / WebSocket', link: '/interview/网络/' },
-      { text: '浏览器原理', link: '/interview/浏览器/' },
-      { text: '浏览器缓存', link: '/interview/浏览器/浏览器缓存' },
-    ],
-  },
-  {
     text: '🖥️ 运维 & 基础设施',
     collapsed: false,
     items: [
       { text: 'Linux 常用命令', link: '/interview/Linux/' },
       { text: 'Nginx', link: '/interview/Nginx/' },
-      { text: 'Docker 速通', link: '/interview/Docker/' },
-      { text: 'CI/CD', link: '/interview/CICD/' },
       { text: '操作系统', link: '/interview/操作系统/' },
-    ],
-  },
-  {
-    text: '🔐 安全',
-    collapsed: true,
-    items: [
-      { text: 'JWT 登录方案', link: '/interview/解决方案/JWT登录方案/' },
-      { text: '前端登录方案', link: '/interview/前端登录/登录的实现' },
-    ],
-  },
-  {
-    text: '🏗️ 系统设计 & 解决方案',
-    collapsed: true,
-    items: [
-      { text: '大文件断点续传', link: '/interview/解决方案/大文件断点续传/' },
-      { text: '实时协同系统', link: '/interview/解决方案/实时协同系统/' },
-      { text: '前端工程化方案', link: '/interview/解决方案/前端工程化/' },
     ],
   },
 ]
@@ -146,7 +118,6 @@ const frontendSidebar = [
       { text: '网络', link: '/interview/网络/' },
       { text: '浏览器', link: '/interview/浏览器/' },
       { text: '浏览器缓存', link: '/interview/浏览器/浏览器缓存' },
-      { text: '操作系统', link: '/interview/操作系统/' },
     ],
   },
   {
@@ -252,30 +223,19 @@ export default defineConfig({
       '/interview/Node/': backendSidebar,
       '/interview/Nginx/': backendSidebar,
       '/interview/Linux/': backendSidebar,
+      '/interview/操作系统/': backendSidebar,
 
       // ────────── 前端路径 → 前端侧边栏 ──────────
       '/interview/': frontendSidebar,
+      '/optimization/': frontendSidebar,
 
 
-
-      // ────────── 工具合集模块 ──────────
       '/tools/': [
         {
           text: '🔧 工具合集',
           collapsed: false,
           items: [
             { text: '路由工具', link: '/tools/routed' },
-          ],
-        },
-      ],
-
-      // ────────── 性能优化模块 ──────────
-      '/optimization/': [
-        {
-          text: '⚡ 性能优化',
-          collapsed: false,
-          items: [
-            { text: '加载图片优化策略', link: '/optimization/加载图片优化策略' },
           ],
         },
       ],

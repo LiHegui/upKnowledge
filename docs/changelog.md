@@ -2,6 +2,10 @@
 
 > 本页由部署脚本根据 git 提交记录自动生成。
 
+## 2026-05-20
+
+- Add MySQL and Redis interview preparation documents `9b6523b`
+
 ## 2026-05-19
 
 - feat: add technical Q&A document covering Node.js, performance optimization, TypeScript, and build tools `d5927e6`

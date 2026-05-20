@@ -2,6 +2,10 @@
 
 > 本页由部署脚本根据 git 提交记录自动生成。
 
+## 2026-05-19
+
+- feat: add technical Q&A document covering Node.js, performance optimization, TypeScript, and build tools `d5927e6`
+
 ## 2026-05-13
 
 - feat: 更新导航同步功能，添加图片加载优化策略链接并更新文档 `1aa2c00`

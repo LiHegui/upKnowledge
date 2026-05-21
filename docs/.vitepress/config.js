@@ -94,6 +94,7 @@ const frontendSidebar = [
       { text: 'React', link: '/interview/React/' },
       { text: 'React 渲染行为完全指南', link: '/interview/React/react-rendering-behavior' },
       { text: 'Fiber 架构与 Diff 算法深度解析', link: '/interview/React/fiber-diff' },
+      { text: 'Redux 完全指南', link: '/interview/React/redux' },
     ],
   },
   {

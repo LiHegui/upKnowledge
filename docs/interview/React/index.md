@@ -124,6 +124,38 @@ ReactDOM.render(<App />, document.getElementById('root'));
 
 ---
 
+## Q: 为什么 React 使用虚拟 DOM 来提高性能？
+
+**A:**
+
+React 使用虚拟 DOM 的核心原因是**减少直接操作真实 DOM 的次数**，而真实 DOM 操作是浏览器中最昂贵的操作之一。
+
+**性能提升的三个层面：**
+
+**① 批量更新（Batching）**
+
+不直接操作真实 DOM，而是先在内存中对虚拟 DOM 进行多次变更，最后统一一次性更新真实 DOM，大幅减少 reflow/repaint 次数。
+
+**② diff 算法精准定位差异**
+
+通过 diff 算法比较新旧虚拟 DOM 树，只找出需要变更的部分（最小化 DOM 操作），而不是整体重渲染。
+
+**③ 跨平台抽象**
+
+虚拟 DOM 是平台无关的 JS 对象层，相同的组件逻辑可以输出到 Web（ReactDOM）、移动端（React Native）、服务端（SSR），提高代码复用率。
+
+**关键对比：**
+
+| 场景                   | 直接操作 DOM           | 虚拟 DOM               |
+| ---------------------- | ---------------------- | ---------------------- |
+| 频繁小更新（如列表）   | ❌ 每次都触发渲染      | ✅ 批量收集后一次更新  |
+| 复杂树结构更新         | ❌ 难以手动优化        | ✅ diff 自动精确定位   |
+| 首次渲染               | ✅ 略快（无 diff 开销）| ❌ 多一层 JS 对象构建  |
+
+> ⚠️ **注意**：虚拟 DOM 并非在所有场景都比直接操作 DOM 快，在极其简单的页面中反而有额外开销。它的价值在于**大规模动态应用下的开发体验与性能的平衡**。
+
+---
+
 ## Q: 类组件与函数组件有什么区别？
 
 **A:**
@@ -204,6 +236,19 @@ const MyComponent: React.FC<Props> = ({ name, age = 18 }) => {
 ```
 
 > ⚠️ **注意**：TS 项目优先使用接口定义 Props，比 `prop-types` 更安全、更友好（编译期检查）。
+
+**PropTypes vs Flow vs TypeScript 对比：**
+
+| 维度         | PropTypes                     | Flow                           | TypeScript                |
+| ------------ | ----------------------------- | ------------------------------ | ------------------------- |
+| 检查时机     | ❌ 运行时                     | ✅ 编译时（静态）               | ✅ 编译时（静态）          |
+| 安装方式     | `npm install prop-types`    | 需安装 Flow + 配置 Babel         | `npm install typescript` |
+| 覆盖范围     | 仅 Props                      | 整个 JS 代码库                  | 整个代码库                |
+| IDE 支持     | 一般                          | 需插件（VS Code Flow 插件）     | ✅ 原生极佳                |
+| 社区/生态    | React 早期主流，逐渐减少使用  | 较小（Facebook 内部为主）       | ✅ 当前主流，社区庞大      |
+| 适用场景     | JS 老项目、快速验证           | 已有 Flow 项目                  | ✅ 新项目首选              |
+
+> ⚠️ **注意**：Flow 是 Facebook 开发的 JS 静态类型检查器，使用方式类似 TypeScript，但生态和工具链支持不如 TypeScript 成熟。新项目推荐直接使用 **TypeScript** 而非 Flow。
 
 ---
 
@@ -1208,6 +1253,123 @@ function Counter() {
 | 不可变更新 | ❌ 需手写展开 `...state`                    | ✅ 内置 Immer，直接"修改"   |
 | 异步处理   | 需安装 redux-thunk                            | ✅ 内置 createAsyncThunk    |
 | 推荐程度   | 已过时                                        | ✅ 官方推荐                 |
+
+---
+
+## Q: Redux 如何实现多个组件之间的通信？多个组件使用相同状态时如何进行管理？
+
+**A:**
+
+Redux 通过**全局单一 Store** 实现跨组件通信，任意组件都可以读取或修改共享状态，无需通过 props 层层传递。
+
+**核心机制：**
+
+```
+组件A dispatch(action)  →  Reducer 更新 Store  →  组件B/C 订阅的数据变化  →  自动重新渲染
+```
+
+**使用 `react-redux` 连接 React（推荐方式）：**
+
+```jsx
+import { useSelector, useDispatch } from 'react-redux'
+import { increment } from './counterSlice'
+
+// 组件A：修改状态
+function ComponentA() {
+  const dispatch = useDispatch()
+  return <button onClick={() => dispatch(increment())}>+1</button>
+}
+
+// 组件B：读取状态（两个组件无直接父子关系）
+function ComponentB() {
+  const count = useSelector(state => state.counter.count)
+  return <p>当前计数：{count}</p>
+}
+```
+
+**多组件共享相同状态的管理策略：**
+
+| 策略                 | 说明                                                              |
+| -------------------- | ----------------------------------------------------------------- |
+| `useSelector` 精准订阅 | 只订阅用到的 state 字段，避免全局重渲染                         |
+| `createSelector`（Reselect）| 记忆化派生数据，相同输入不重复计算                        |
+| 拆分 Slice          | 按业务模块拆分 Reducer，`combineReducers` 合并，结构清晰         |
+| RTK Query           | 服务端状态（接口数据）使用 RTK Query 管理，避免与 UI 状态混用    |
+
+> ⚠️ **注意**：纯 UI 状态（如弹窗是否打开）不适合放 Redux，放在组件本地 `useState` 即可。只有**多个组件共享且需要跨层通信**的状态才适合放 Redux。
+
+---
+
+## Q: Redux 中间件的实现原理是什么？
+
+**A:**
+
+Redux 中间件是一个**增强 `dispatch` 函数**的机制，使其支持处理异步操作、日志记录等副作用。
+
+**原理：函数组合（compose）**
+
+Redux 的 `applyMiddleware` 通过函数组合，将多个中间件串联成一条"洋葱模型"管道：
+
+```
+dispatch(action)  →  中间件1  →  中间件2  →  原始 dispatch  →  Reducer
+                  ←           ←           ←
+```
+
+**中间件的标准结构（三层柯里化函数）：**
+
+```js
+const myMiddleware = store => next => action => {
+  // action 到达 Reducer 之前执行
+  console.log('dispatching:', action)
+  
+  const result = next(action) // 调用下一个中间件（或原始 dispatch）
+  
+  // action 处理完成之后执行
+  console.log('next state:', store.getState())
+  
+  return result
+}
+```
+
+**`applyMiddleware` 核心实现：**
+
+```js
+function applyMiddleware(...middlewares) {
+  return createStore => (...args) => {
+    const store = createStore(...args)
+    let dispatch = store.dispatch
+
+    const middlewareAPI = {
+      getState: store.getState,
+      dispatch: (...args) => dispatch(...args) // 引用最终 dispatch
+    }
+
+    // 每个中间件注入 store API
+    const chain = middlewares.map(m => m(middlewareAPI))
+
+    // compose 将中间件链从右到左组合
+    dispatch = compose(...chain)(store.dispatch)
+
+    return { ...store, dispatch }
+  }
+}
+
+// compose 实现：f(g(h(x)))
+function compose(...fns) {
+  return fns.reduce((f, g) => (...args) => f(g(...args)))
+}
+```
+
+**常见中间件：**
+
+| 中间件             | 用途                                     |
+| ------------------ | ---------------------------------------- |
+| `redux-thunk`    | 支持 dispatch 函数（处理异步 action）     |
+| `redux-saga`     | 基于 Generator 的复杂异步流程管理         |
+| `redux-logger`   | 打印 action 和 state 变化日志             |
+| RTK `createAsyncThunk` | 内置异步 action 方案，推荐使用     |
+
+> ⚠️ **注意**：RTK 内置了 `redux-thunk`，大多数项目无需额外安装异步中间件。复杂的多步骤异步流程（如竞态处理、取消请求），可考虑使用 `redux-saga`。
 
 ---
 
@@ -2455,5 +2617,215 @@ const MyContext = React.createContext(defaultValue)
 | 不纯渲染        | 双重渲染不一致   | 确保渲染函数无副作用            |
 | Effect 未清理   | 双重 effect 调用 | 添加完整的 cleanup 函数         |
 | 旧版 Context    | 控制台警告       | 迁移到新 Context API            |
+
+---
+
+## React 工具库篇
+
+## Q: 什么是 React Intl？它有什么作用？
+
+**A:**
+
+**React Intl** 是 [FormatJS](https://formatjs.io/) 提供的 React 国际化（i18n）库，基于浏览器原生 `Intl` API，支持多语言文本、日期、数字、货币格式化。
+
+**核心功能：**
+
+| 功能                | 说明                                           |
+| ------------------- | ---------------------------------------------- |
+| 多语言翻译          | 通过 `messages` 对象管理不同语言文案            |
+| 日期/时间格式化     | `<FormattedDate>` / `useIntl().formatDate()`  |
+| 数字/货币格式化     | `<FormattedNumber>` 支持货币符号、千分位等      |
+| 复数/性别规则       | 根据语言规则自动处理"1 item / 2 items"等        |
+| 富文本翻译          | `<FormattedMessage>` 支持嵌入 HTML 标签         |
+
+**基本用法：**
+
+```jsx
+import { IntlProvider, FormattedMessage, useIntl } from 'react-intl'
+
+const messages = {
+  'zh-CN': { greeting: '你好，{name}！' },
+  'en-US': { greeting: 'Hello, {name}!' }
+}
+
+function App() {
+  return (
+    <IntlProvider locale="zh-CN" messages={messages['zh-CN']}>
+      <Greeting />
+    </IntlProvider>
+  )
+}
+
+function Greeting() {
+  return <FormattedMessage id="greeting" values={{ name: 'React' }} />
+  // 输出：你好，React！
+}
+```
+
+> ⚠️ **注意**：React Intl 适合需要**国际化**的应用，若项目只需简单中英文切换，也可使用轻量替代方案如 `i18next` + `react-i18next`。
+
+---
+
+## Q: 什么是 MERN 脚手架？它有什么作用？
+
+**A:**
+
+**MERN** 是一套全栈 JavaScript 技术组合的缩写：
+
+| 字母 | 技术       | 层次              |
+| ---- | ---------- | ----------------- |
+| M    | MongoDB    | 数据库层          |
+| E    | Express.js | 后端服务框架      |
+| R    | React      | 前端 UI 层        |
+| N    | Node.js    | 运行时环境        |
+
+**MERN 脚手架的作用：**
+
+快速搭建一个前后端分离的全栈项目，包含：
+- 前端：React（含路由、状态管理）
+- 后端：Node.js + Express REST API
+- 数据库：MongoDB（含 Mongoose 连接）
+- 开发环境：热更新、环境变量、并发启动前后端
+
+**常用方式：**
+
+```bash
+# 方式1：手动搭建
+npx create-react-app client
+mkdir server && cd server && npm init
+
+# 方式2：使用社区模板
+npx create-mern-app my-app
+# 或 GitHub 搜索 mern-starter / mern-boilerplate
+```
+
+> ⚠️ **注意**：MERN 并无官方脚手架，市面上有多种社区脚手架模板。实际项目中可根据需要选择，或手动组合各技术栈。
+
+---
+
+## Q: 有哪些 React 表单库？它们分别有什么优缺点？
+
+**A:**
+
+| 库                  | 特点                                          | 优点                                       | 缺点                                |
+| ------------------- | --------------------------------------------- | ------------------------------------------ | ----------------------------------- |
+| **React Hook Form** | 非受控组件为主，基于 Ref                      | ✅ 性能极佳（最少重渲染）、API 简洁        | 与受控组件 UI 库集成需额外配置       |
+| **Formik**          | 受控组件，声明式配置                          | ✅ 功能完整、社区成熟、配合 Yup 校验方便   | ❌ 大表单性能较差（频繁重渲染）      |
+| **React Final Form** | 订阅机制，按需重渲染                         | ✅ 性能较好、灵活                           | 学习曲线较陡，社区活跃度下降        |
+| **Antd Form**       | Ant Design 内置表单系统                       | ✅ 与 AntD 组件无缝集成                    | 绑定 AntD 生态，不易迁移            |
+
+**推荐选择：**
+
+```
+简单项目/性能优先   →  React Hook Form（首选）
+复杂校验 + 旧项目  →  Formik + Yup
+Ant Design 项目    →  Antd Form
+```
+
+**React Hook Form 基本用法：**
+
+```jsx
+import { useForm } from 'react-hook-form'
+
+function LoginForm() {
+  const { register, handleSubmit, formState: { errors } } = useForm()
+  
+  const onSubmit = data => console.log(data)
+  
+  return (
+    <form onSubmit={handleSubmit(onSubmit)}>
+      <input {...register('email', { required: '邮箱不能为空' })} />
+      {errors.email && <span>{errors.email.message}</span>}
+      <button type="submit">登录</button>
+    </form>
+  )
+}
+```
+
+---
+
+## Q: MERN 和 Yeoman 脚手架有什么区别？
+
+**A:**
+
+| 维度         | MERN 脚手架                          | Yeoman                                      |
+| ------------ | ------------------------------------ | ------------------------------------------- |
+| 定位         | 专注 MERN 技术栈的全栈项目模板       | 通用脚手架工具（Generator 插件体系）         |
+| 灵活性       | ❌ 固定技术栈（MongoDB/Express/React/Node） | ✅ 支持任意技术栈（Generator 自定义）   |
+| 官方支持     | 无官方维护，依赖社区模板              | ✅ 有官方维护的 `yo` CLI 工具               |
+| 使用方式     | 找一个 MERN 模板仓库克隆/使用        | `npm install -g yo generator-xxx`           |
+| 适用场景     | 快速启动 MERN 全栈项目               | 团队统一的项目生成规范、自定义脚手架         |
+| 现状         | 社区有多个非官方模板，质量参差不齐    | 逐渐被 Vite/Create React App 等取代         |
+
+> ⚠️ **注意**：现代前端项目更多使用 Vite、`create-react-app`（已停止维护）、Next.js 等官方/框架脚手架，Yeoman 使用场景越来越少。
+
+---
+
+## Q: 在 React 中，如何在页面重新加载时保留数据？
+
+**A:**
+
+页面刷新后，React 组件 state 会重置。需要借助**持久化存储**来跨刷新保留数据。
+
+**常用方案：**
+
+**① localStorage / sessionStorage（最常用）**
+
+```jsx
+// 自定义 Hook：状态与 localStorage 同步
+function useLocalStorage(key, initialValue) {
+  const [value, setValue] = useState(() => {
+    try {
+      const stored = localStorage.getItem(key)
+      return stored ? JSON.parse(stored) : initialValue
+    } catch {
+      return initialValue
+    }
+  })
+
+  useEffect(() => {
+    localStorage.setItem(key, JSON.stringify(value))
+  }, [key, value])
+
+  return [value, setValue]
+}
+
+// 使用
+const [user, setUser] = useLocalStorage('user', null)
+```
+
+**② Redux Persist（Redux 项目）**
+
+```js
+import { persistStore, persistReducer } from 'redux-persist'
+import storage from 'redux-persist/lib/storage' // localStorage
+
+const persistConfig = { key: 'root', storage }
+const persistedReducer = persistReducer(persistConfig, rootReducer)
+```
+
+**③ URL 参数（适合页面状态如筛选条件）**
+
+```jsx
+// 状态写入 URL，刷新后从 URL 恢复
+const [searchParams, setSearchParams] = useSearchParams()
+const filter = searchParams.get('filter') || 'all'
+```
+
+**④ IndexedDB（大量/复杂数据）**
+
+适合存储文件、大型列表等数据，可使用 `idb`、`Dexie.js` 等封装库。
+
+**方案对比：**
+
+| 方案            | 容量    | 数据类型     | 适用场景                |
+| --------------- | ------- | ------------ | ----------------------- |
+| localStorage    | ~5MB    | 字符串/JSON  | 用户设置、Token、小数据 |
+| sessionStorage  | ~5MB    | 字符串/JSON  | 单次会话数据            |
+| Redux Persist   | 依赖底层 | Redux state  | Redux 项目全局状态      |
+| URL Params      | 有限    | 字符串       | 筛选/分页/搜索条件      |
+| IndexedDB       | ~250MB+ | 任意数据     | 离线应用、大数据集      |
+
+> ⚠️ **注意**：敏感数据（密码、完整 Token）不应存储在 localStorage，存在 XSS 风险。Token 优先使用 `httpOnly Cookie` 存储。
 
 ---

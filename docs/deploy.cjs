@@ -61,13 +61,18 @@ run('npm run docs:build')
 
 // 4. 进入产物目录
 const distDir = path.resolve(__dirname, '.vitepress/dist')
-process.chdir(distDir)
+const rootDir = path.resolve(__dirname, '..')
+
+const runIn = (cmd, cwd) => execSync(cmd, { stdio: 'inherit', cwd })
 
 // 5. 推送到 gh-pages
-run('git init')
-run('git add -A')
-run('git commit -m "deploy"')
-run('git branch -M master')
-run('git push -f git@github.com:lihegui/upKnowledge.git master:gh-pages')
+runIn('git init', distDir)
+runIn('git add -A', distDir)
+runIn('git commit -m "deploy"', distDir)
+runIn('git branch -M master', distDir)
+runIn('git push -f git@github.com:lihegui/upKnowledge.git master:gh-pages', distDir)
+
+// 恢复工作目录，避免 Windows CMD 报"系统找不到指定的路径"
+process.chdir(rootDir)
 
 console.log('\n✅ 部署完成')

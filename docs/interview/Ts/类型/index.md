@@ -61,4 +61,32 @@ let strLength:number = (<string>someValue).length;
 ```typescript
 let strLength:number = (someValue as string).length;
 ```
-##
+
+## 非空断言与可选链
+
+**非空断言 `!`**：告诉 TypeScript "此处一定不为 null/undefined"（编译期，无运行时检查）：
+
+```typescript
+const el = document.getElementById('app')!  // 断言不为 null
+el.innerHTML = 'hello'
+
+// 建议：优先使用类型守卫或可选链代替
+const el2 = document.getElementById('app')
+if (el2) el2.innerHTML = 'hello'  // 更安全
+```
+
+**可选链 `?.`** 与 **空值合并 `??`**：
+
+```typescript
+const user = { profile: { name: 'Alice' } } as any
+
+// 可选链：避免 Cannot read property of null 报错
+const name = user?.profile?.name          // 'Alice' 或 undefined
+
+// 空值合并：只对 null/undefined 提供默认值（不对 0、''、false 生效）
+const display = name ?? '匿名'             // 'Alice'（有值则用原值）
+
+// 与 || 的区别
+const v1 = 0 || '默认'   // '默认'（0 被视为 falsy）
+const v2 = 0 ?? '默认'   // 0（0 不是 null/undefined）
+```

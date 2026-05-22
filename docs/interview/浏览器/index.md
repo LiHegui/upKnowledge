@@ -1,14 +1,128 @@
 ﻿# sourcemap映射的原理
 
+**Source Map** 是一个 JSON 文件，建立了压缩/转译后代码与原始源代码之间的**位置映射关系**，让开发者在调试时可以看到原始代码（TS、模块化 JS 等），而不是混淆压缩后的代码。
+
+**为什么需要 Source Map？**
+
+生产环境 JS 经过压缩、合并、Babel 转译、TS 编译等处理后，报错位置对应的是编译后的代码，难以定位问题。Source Map 解决了这个问题。
+
+**Source Map 文件结构：**
+
+```json
+{
+  "version": 3,
+  "file": "bundle.min.js",
+  "sources": ["src/a.ts", "src/b.ts"],
+  "names": ["foo", "bar"],
+  "mappings": "AACA,SAAS,GAAG"
+}
+```
+
+`mappings` 字段使用 **Base64 VLQ 编码**，记录编译后每个位置 → 原始文件/行/列的对应关系。
+
+**如何关联 Source Map：**
+
+```js
+// 文件末尾注释（开发/测试环境）
+//# sourceMappingURL=bundle.min.js.map
+
+// HTTP 响应头（对浏览器隐藏，仅错误监控平台读取）
+// SourceMap: bundle.min.js.map
+```
+
+**Webpack/Vite 中的配置策略：**
+
+| 场景 | 推荐配置 | 说明 |
+|------|---------|------|
+| 开发环境 | `eval-cheap-module-source-map` | 构建快，支持行级定位 |
+| 生产（错误监控） | `hidden-source-map` | `.map` 文件不暴露给浏览器，只上传到 Sentry |
+| 生产（开源项目） | `source-map` | 最完整，可在 DevTools 中查看原始源码 |
+
+> ⚠️ **注意**：生产环境不建议将完整 Source Map 暴露给浏览器（会泄露源码），推荐使用 `hidden-source-map` 并将 `.map` 文件仅上传到错误监控平台（如 Sentry）。
+
+---
+
 # Javascript本地存储的方式有哪些？区别及应用场景？
 
 - cookie =>是一种小型文本文件，主要是为了辨别用户身份信息而储存在用户本地的数据，为解决http无状态连接导致的问题。内存很小，通常只有4kb，数据可以在浏览器和服务器之间传递，适用于不同页面之间共享数据的情况。
 - localStorage =>html5的新方法，兼容ie8以上浏览器，是一种持久化的储存，除非手动删除，否则一直存在。它只能通过js进行操作，而且之能储存字符串类型的数据，适用于需要在浏览器存储大量数据的情况。
 - sessionStorage =>方法和localStorage类似，但是不是持久化存储，当前浏览器窗口关闭时，数据就会删除，适用于一次性登录的情况
 
-# 什么是xss攻击？
+## Q: 什么是 XSS 攻击？如何防范？
 
-# 什么是csrf攻击？
+**A:**
+
+**XSS（Cross-Site Scripting，跨站脚本攻击）** 是攻击者将恶意脚本注入到网页中，用户浏览时脚本在其浏览器执行，从而窃取信息、劫持会话或进行钓鱼攻击。
+
+**三种类型：**
+
+| 类型 | 原理 | 典型场景 |
+|------|------|---------|
+| 存储型（Stored XSS） | 恶意脚本持久化到数据库，所有用户访问时触发 | 评论区、帖子 |
+| 反射型（Reflected XSS） | 脚本通过 URL 参数传给服务器，再反射到页面 | 搜索框、错误提示 |
+| DOM 型（DOM-based XSS） | 前端 JS 直接将不可信数据写入 DOM，不经过服务器 | 动态渲染、前端路由 |
+
+**示例（反射型）：**
+
+```
+// 攻击者构造恶意链接，诱导用户点击
+https://example.com/search?q=<script>document.cookie 发送到攻击者服务器</script>
+```
+
+**防范措施：**
+
+1. **输出编码（转义）**：将 `<`、`>`、`"` 等特殊字符转为 HTML 实体（现代框架如 Vue/React 默认处理插值）
+2. **CSP（Content Security Policy）**：通过 HTTP 头限制脚本来源
+   ```http
+   Content-Security-Policy: default-src 'self'; script-src 'self'
+   ```
+3. **HttpOnly Cookie**：设置后 JS 无法读取，防止 Cookie 被窃取
+4. **输入验证**：服务端对用户输入进行白名单校验
+5. **避免危险 API**：禁止使用 `innerHTML`、`document.write`，改用 `textContent`
+
+---
+
+## Q: 什么是 CSRF 攻击？如何防范？
+
+**A:**
+
+**CSRF（Cross-Site Request Forgery，跨站请求伪造）** 是攻击者诱导已登录用户访问恶意页面，该页面自动发起对受信任站点的请求，利用用户的合法登录态执行未授权操作（如转账、改密码）。
+
+**攻击流程：**
+
+```
+用户登录 bank.com → Cookie 存储认证信息
+         ↓
+攻击者发送邮件，诱导用户点击 evil.com 链接
+         ↓
+evil.com 页面自动发请求 → bank.com/transfer?to=攻击者&amount=10000
+         ↓
+bank.com 收到请求，携带合法 Cookie，以为是用户本人操作 → 转账成功 ✗
+```
+
+**与 XSS 的区别：**
+
+| 对比维度 | XSS | CSRF |
+|---------|-----|------|
+| 攻击目标 | 用户浏览器中执行恶意脚本 | 利用用户身份伪造请求 |
+| 是否需要注入脚本 | ✅ 是 | ❌ 否 |
+| 防御核心 | 输出编码、CSP | Token 验证、SameSite |
+
+**防范措施：**
+
+1. **CSRF Token**：服务器生成随机 token 与表单/请求绑定，验证请求来源
+   ```js
+   // 请求头中携带 token（第三方无法伪造）
+   headers: { 'X-CSRF-Token': getCsrfToken() }
+   ```
+2. **SameSite Cookie**（最推荐）：设置 `SameSite=Strict/Lax`，跨站请求不携带 Cookie
+   ```http
+   Set-Cookie: sessionId=xxx; SameSite=Lax; HttpOnly; Secure
+   ```
+3. **检查 Referer / Origin 头**：拒绝非白名单来源的请求
+4. **双 Submit Cookie**：请求中同时携带 Cookie 值和参数值，服务端校验一致性
+
+---
 
 # 对浏览器缓存机制的了解？
 

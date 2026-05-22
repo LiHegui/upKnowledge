@@ -18,6 +18,46 @@
 ## 静态属性
 关键字static 可以通过类名直接调用
 ## 抽象类
-抽象类一般不会去实例化对象，只能被类去实现，关键字abstract
-abstract关键字是用于定义抽象类和在抽象类内部定义抽象方法
+
+抽象类一般不会去实例化对象，只能被类去实现，关键字 `abstract`。`abstract` 关键字用于定义抽象类和在抽象类内部定义抽象方法。
+
+```typescript
+abstract class Shape {
+  // 抽象方法：子类必须实现，不提供具体实现
+  abstract getArea(): number
+
+  // 普通方法：子类继承
+  toString() {
+    return `面积：${this.getArea()}`
+  }
+}
+
+class Circle extends Shape {
+  constructor(private radius: number) { super() }
+  getArea() {
+    return Math.PI * this.radius ** 2
+  }
+}
+
+class Rectangle extends Shape {
+  constructor(private width: number, private height: number) { super() }
+  getArea() {
+    return this.width * this.height
+  }
+}
+
+// const s = new Shape()  // ❌ 错误：抽象类不能实例化
+const circle = new Circle(5)
+console.log(circle.toString())  // 面积：78.54...
+```
+
+**抽象类 vs 接口对比：**
+
+| 维度 | 抽象类（abstract class）| 接口（interface）|
+|------|----------------------|-----------------|
+| 实现代码 | ✅ 可以有具体方法 | ❌ 只有声明 |
+| 构造函数 | ✅ 有 | ❌ 无 |
+| 多继承 | ❌ 只能继承一个 | ✅ 可实现多个 |
+| 访问修饰符 | ✅ 可以用 private/protected | 默认 public |
+| 使用场景 | 有共享实现逻辑的父类 | 只需类型约束 |
 

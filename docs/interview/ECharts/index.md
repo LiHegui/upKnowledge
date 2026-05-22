@@ -1103,3 +1103,146 @@ toolbox: {
 | 多图表时间联动 | DataZoom 事件 + `dispatchAction` |
 | 图表截图 | `chart.getDataURL({ pixelRatio: 2 })` |
 | SSR 服务端渲染 | `renderer: 'svg'` + `echarts-server` |
+
+---
+
+## 十、面试题精选
+
+> 本章将前九章的核心知识点提炼为面试高频问答，建议先尝试自答再展开查看。
+
+---
+
+## Q: ECharts 渲染 10 万条以上数据时卡顿，根本原因是什么？有哪些优化方案？
+
+**A:**
+
+**根本原因：** Canvas 2D 每帧需要逐点绘制，10 万个点意味着 10 万次绘制指令，主线程长时间被占用，导致页面卡顿甚至无响应。
+
+**优化方案全景：**
+
+| 层级 | 方案 | 说明 |
+|------|------|------|
+| 渲染器选择 | `renderer: 'canvas'`（默认）| SVG 基于 DOM，大数据节点爆炸，必须用 Canvas |
+| 合批绘制 | `large: true` + `largeThreshold` | 启用 Canvas 合批，自动对数据**采样特征值**，减少渲染点数 |
+| 降采样 | `sampling: 'lttb'` | LTTB 算法保留拐点和极值，视觉还原度最高 |
+| 分帧渲染 | `progressive` + `progressiveThreshold` | 每帧渲染固定数量的点，图表逐帧出现，不阻塞主线程 |
+| 数据传输 | SSE / WebSocket 流式推送 | 避免一次性传输大量数据，按批接收并增量追加 |
+| 框架优化 | `markRaw` / 普通对象存数据 | 避免 Vue Proxy 对图表数据深度代理 |
+| 超大数据 | ECharts-GL（WebGL） | 百万级数据点用 `scatterGL` / `lineGL`，性能是 Canvas 的 10~100 倍 |
+
+```js
+// 推荐配置：2000 ~ 10万点折线图
+series: [{
+  type: 'line',
+  large: true,
+  largeThreshold: 2000,
+  symbol: 'none',           // 关闭数据点圆圈，省去大量绘制
+  sampling: 'lttb',         // LTTB 降采样
+  progressive: 1000,        // 每帧渲染 1000 点，可与 large 同时开启
+  progressiveThreshold: 5000,
+  animation: false,         // 大数据必须关闭动画
+  data: hugeData,
+}]
+
+// Vue 中：实例用 markRaw，数据用普通对象
+import { markRaw, ref } from 'vue'
+const chartInstance = ref(null)
+const rawData = []  // ⚠️ 不用 reactive/ref
+
+onMounted(() => {
+  chartInstance.value = markRaw(echarts.init(el.value))
+})
+```
+
+> ⚠️ **注意**：`dataZoom` 默认 `start:0, end:100` 是全量渲染，**不是**性能优化手段。只有将 `end` 设为较小值（如 `end: 20`）才能限制渲染范围，否则它仅是交互组件。
+
+---
+
+## Q: `large` 模式和 `progressive` 模式的区别是什么？
+
+**A:**
+
+| 对比维度 | `large: true` | `progressive` |
+|---------|--------------|---------------|
+| 原理 | Canvas **合批绘制** + 内部采样，减少绘制次数 | **分帧渐进渲染**，将数据拆成多帧依次绘制 |
+| 视觉效果 | 一次性出现（只渲染特征值） | 图表逐帧"生长"出来 |
+| 主线程阻塞 | 单帧内完成，数据极大时仍可能短暂阻塞 | 分帧执行，完全不阻塞 |
+| 推荐场景 | 数据一次性加载完毕 | 数据量极大、需要展示渲染进度 |
+
+```js
+// 两者可同时开启，互相补充
+series: [{
+  type: 'scatter',
+  large: true,               // 合批绘制
+  largeThreshold: 2000,
+  progressive: 400,          // 分帧渲染
+  progressiveThreshold: 3000,
+  data: bigData,
+}]
+```
+
+---
+
+## Q: 实时流数据场景（边接收边渲染）如何优化？`setOption` 够用吗？
+
+**A:**
+
+**`setOption` vs `appendData` 的选择：**
+
+| 场景 | 推荐 API | 原因 |
+|------|---------|------|
+| 一次性静态数据 | `setOption` | 简单直接 |
+| 实时追加新数据点 | `appendData` | 只追加增量，不重建整个 series |
+| 图表类型/结构切换 | `setOption({ notMerge: true })` | 完全重建 |
+| 短时间内多次更新 | `setOption({ lazyUpdate: true })` | 合并为一次重绘 |
+
+**ECharts 内部已基于 `requestAnimationFrame` 调度**，`lazyUpdate: true` 开启后同一帧内的多次 `setOption` 自动合并，无需手动干预。
+
+**三种流式渲染方案：**
+
+```js
+// ① 普通推送（< 60次/秒）：appendData 直接追加，ECharts 内部 RAF 控制节奏
+const rawData = []  // ⚠️ 普通数组，不用响应式
+source.onmessage = (e) => {
+  const { points, total } = JSON.parse(e.data)
+  rawData.push(...points)
+  chart.appendData({ seriesIndex: 0, data: points })
+  if (rawData.length >= total) source.close()
+}
+
+// ② 高频推送（> 60次/秒）：业务层手动 RAF 攒批，避免频繁 diff 开销
+let buffer = [], rafId = null
+socket.onmessage = (e) => {
+  buffer.push(...JSON.parse(e.data).points)
+  if (!rafId) {
+    rafId = requestAnimationFrame(() => {
+      chart.appendData({ seriesIndex: 0, data: buffer })
+      buffer = []
+      rafId = null
+    })
+  }
+}
+
+// ③ 高频推送 + 需要数据计算：Worker 处理，主线程只渲染
+// worker.js
+self.onmessage = ({ data: { raw } }) => {
+  const processed = raw.filter(p => p.value > 0).map(p => [p.ts, p.value])
+  self.postMessage(processed)
+}
+// main.js
+const worker = new Worker('./worker.js')
+socket.onmessage = (e) => worker.postMessage({ raw: JSON.parse(e.data) })
+worker.onmessage = ({ data: processed }) => {
+  chart.appendData({ seriesIndex: 0, data: processed })
+}
+```
+
+**选型建议：**
+
+| 场景 | 方案 |
+|------|------|
+| 普通推送，无复杂计算 | `appendData` 直接追加 |
+| 高频推送，数据格式简单 | 业务层手动 RAF 攒批 |
+| 高频推送 + 数据需要计算/聚合 | Web Worker 处理 + 主线程渲染 |
+
+---

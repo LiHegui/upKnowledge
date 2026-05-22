@@ -4,6 +4,7 @@
 
 ## 2026-05-22
 
+- docs: add comprehensive guide for AMap JS API 2.0, covering key concepts, initialization, rendering mechanisms, performance optimization, common functionalities, framework integration, and troubleshooting tips `eb1273b`
 - feat: add AI Agent and Workflow documentation `626b0e7`
 - feat: 更新部署脚本以支持在子目录中执行 git 命令并恢复工作目录 `e563ec4`
 - feat: enhance interview documentation with TypeScript, Vue3, Webpack, and security topics `5f1fe64`

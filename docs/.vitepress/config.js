@@ -51,6 +51,8 @@ const frontendSidebar = [
     collapsed: true,
     items: [
       { text: 'AI × 前端技术要点', link: '/interview/AI/' },
+      { text: '构建 AI Agent', link: '/interview/AI/agent' },
+      { text: '构建 AI Workflow', link: '/interview/AI/workflow' },
     ],
   },
   {

@@ -7,7 +7,7 @@
 ## ⚡ 前端
 
 ### 📝 必刷 & AI
-[笔试系列](./interview/笔试系列.md) | [LeetCode 150](https://leetcode.cn/studyplan/top-interview-150/) ↗ | [AI × 前端](./interview/AI/index.md)
+[笔试系列](./interview/笔试系列.md) | [LeetCode 150](https://leetcode.cn/studyplan/top-interview-150/) ↗ | [AI × 前端](./interview/AI/index.md) | [构建 AI Agent](./interview/AI/agent.md) | [构建 AI Workflow](./interview/AI/workflow.md)
 
 ### 基础三件套
 [HTML](./interview/HTML/html相关.md) | [CSS](./interview/CSS/index.md) | [Sass & Less](./interview/CSS/sass和less.md) | [styled-components](./interview/CSS/style-components.md) | [JavaScript](./interview/JavaScript/index.md)

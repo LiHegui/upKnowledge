@@ -134,16 +134,134 @@ render(
 
 ### 使用自定义函数
 
+可以将通用样式逻辑提取为函数，在多个组件中复用：
 
+```typescript
+// 定义可复用的样式函数
+const flexCenter = () => `
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`
+
+const truncate = (width: string) => `
+  width: ${width};
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+`
+
+// 在组件中使用
+const Box = styled.div`
+  ${flexCenter()}
+  height: 200px;
+`
+
+const Title = styled.h2`
+  ${truncate('300px')}
+  font-size: 18px;
+`
+```
+
+也可以利用 `css` helper 函数（当需要在插值中包含完整 CSS 时）：
+
+```typescript
+import styled, { css } from 'styled-components'
+
+// 可复用的 CSS 片段
+const activeStyle = css`
+  background: #3498db;
+  color: white;
+  border-color: transparent;
+`
+
+const Button = styled.button<{ $active?: boolean }>`
+  padding: 8px 16px;
+  border: 1px solid #ddd;
+  ${props => props.$active && activeStyle}
+`
+```
 
 ## LEVEL！ UP！
 
 ### 主题化
 
->styled-components 通过导出包装组件来提供完整的主题支持ThemeProvider。该组件通过 context API 为自身下面的所有 React 组件提供一个主题。
->在渲染树中，所有样式组件都可以访问提供的主题，即使它们是多个级别的深度
+styled-components 通过 `ThemeProvider` 组件提供完整的主题支持，通过 context API 向所有子组件注入 theme 对象，无论嵌套多深都可以访问：
 
+```typescript
+import styled, { ThemeProvider, DefaultTheme } from 'styled-components'
 
+// 1. 定义主题类型（TypeScript）
+declare module 'styled-components' {
+  export interface DefaultTheme {
+    colors: {
+      primary: string
+      secondary: string
+      background: string
+      text: string
+    }
+    spacing: (n: number) => string
+  }
+}
+
+// 2. 定义主题对象
+const lightTheme: DefaultTheme = {
+  colors: {
+    primary: '#3498db',
+    secondary: '#2ecc71',
+    background: '#ffffff',
+    text: '#333333',
+  },
+  spacing: (n: number) => `${n * 8}px`,
+}
+
+const darkTheme: DefaultTheme = {
+  colors: {
+    primary: '#5dade2',
+    secondary: '#58d68d',
+    background: '#1a1a2e',
+    text: '#e8e8e8',
+  },
+  spacing: (n: number) => `${n * 8}px`,
+}
+
+// 3. 组件中访问 theme
+const Button = styled.button`
+  background: ${({ theme }) => theme.colors.primary};
+  color: white;
+  padding: ${({ theme }) => theme.spacing(1)} ${({ theme }) => theme.spacing(2)};
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+`
+
+const Page = styled.div`
+  background: ${({ theme }) => theme.colors.background};
+  color: ${({ theme }) => theme.colors.text};
+  min-height: 100vh;
+`
+
+// 4. 在顶层包裹 ThemeProvider
+function App() {
+  const [isDark, setIsDark] = useState(false)
+  
+  return (
+    <ThemeProvider theme={isDark ? darkTheme : lightTheme}>
+      <Page>
+        <Button onClick={() => setIsDark(!isDark)}>
+          切换主题
+        </Button>
+      </Page>
+    </ThemeProvider>
+  )
+}
+```
+
+> ⚠️ **注意**：在类组件中访问 theme 需要通过 `withTheme` HOC；函数组件可直接用 `useTheme()` hook：
+> ```typescript
+> import { useTheme } from 'styled-components'
+> const theme = useTheme()
+> ```
 
 ## 参考资料
 

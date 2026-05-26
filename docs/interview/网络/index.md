@@ -465,7 +465,103 @@ HTTP/1.1 304 Not Modified
 - **协商缓存**：向服务器验证缓存是否有效，返回 `304` 或新资源。
 - 实际开发中，通常结合两者使用：优先强缓存，失效后使用协商缓存。
 
-## fetch请求, 设计一个不会超时的fetch请求
+## Q: 如何设计一个支持超时取消和重试的 fetch 封装？
+
+**A:**
+
+原生 `fetch` 没有内置超时机制，需要通过 `AbortController` 实现。
+
+**基础版：单次 fetch + 超时控制**
+
+```js
+function fetchWithTimeout(url, options = {}, timeout = 10000) {
+  const controller = new AbortController()
+  const timeoutId = setTimeout(() => controller.abort(), timeout)
+
+  return fetch(url, { ...options, signal: controller.signal })
+    .then(res => {
+      clearTimeout(timeoutId)
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      return res.json()
+    })
+    .catch(err => {
+      clearTimeout(timeoutId)
+      if (err.name === 'AbortError') {
+        throw new Error(`请求超时（${timeout}ms）`)
+      }
+      throw err
+    })
+}
+```
+
+**进阶版：支持超时 + 自动重试 + 指数退避**
+
+```js
+async function fetchWithRetry(url, options = {}, {
+  timeout = 10000,
+  retries = 3,
+  retryDelay = 1000,   // 初始重试间隔
+  retryOn = [503, 429] // 哪些状态码触发重试
+} = {}) {
+
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), timeout)
+
+    try {
+      const res = await fetch(url, { ...options, signal: controller.signal })
+      clearTimeout(timeoutId)
+
+      // 判断是否需要重试
+      if (retryOn.includes(res.status) && attempt < retries) {
+        const delay = retryDelay * Math.pow(2, attempt) // 指数退避
+        await sleep(delay)
+        continue
+      }
+
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      return await res.json()
+
+    } catch (err) {
+      clearTimeout(timeoutId)
+
+      const isLast = attempt === retries
+      if (isLast) throw err  // 最后一次失败，直接抛出
+
+      if (err.name === 'AbortError') {
+        // 超时也重试
+        await sleep(retryDelay * Math.pow(2, attempt))
+      } else {
+        throw err  // 非超时错误，不重试
+      }
+    }
+  }
+}
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)) }
+```
+
+**所谓"不会超时"的方案 —— 断点重连 + 无限重试：**
+
+```js
+async function fetchUntilSuccess(url, options = {}) {
+  let delay = 1000
+  while (true) {
+    try {
+      const res = await fetchWithTimeout(url, options, 15000)
+      return res
+    } catch (err) {
+      console.warn(`请求失败，${delay}ms 后重试：`, err.message)
+      await sleep(delay)
+      delay = Math.min(delay * 2, 30000) // 最大等 30s 重试一次
+    }
+  }
+}
+```
+
+> ⚠️ **注意**：真正的"不会超时"设计应结合业务场景，无限重试可能造成接口雪崩。生产环境建议加**最大重试次数限制**和**断路器（Circuit Breaker）机制**。
+
+---
 
 ## Q: WebRTC 的核心原理是什么？完整建连流程是怎样的？
 

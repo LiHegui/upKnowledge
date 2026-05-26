@@ -190,7 +190,81 @@ const onSelect = (id: number) => emit('change', id)
 
 ---
 
-## Vue3 有哪些新特性？
+## Q: Vue3 有哪些新特性？
+
+**A:**
+
+Vue3 的核心升级可以从**响应式、API 设计、编译器、组件能力、工程支持**五个维度来梳理：
+
+**1. 响应式系统重写：Proxy 替代 Object.defineProperty**
+
+| 能力 | Vue 2（defineProperty）| Vue 3（Proxy）|
+|------|----------------------|--------------|
+| 监听新增属性 | ❌ 需要 `Vue.set` | ✅ 自动拦截 |
+| 监听数组索引/length | ❌ 需要重写数组方法 | ✅ 原生支持 |
+| 性能 | 初始化时递归遍历 | 懒代理，访问时才处理 |
+
+**2. Composition API（组合式 API）**
+
+```vue
+<script setup>
+import { ref, computed, onMounted } from 'vue'
+
+const count = ref(0)
+const double = computed(() => count.value * 2)
+
+onMounted(() => console.log('挂载完成'))
+</script>
+```
+
+- `setup()` / `<script setup>`：取代 Options API 的生命周期和 data/methods
+- `ref` / `reactive`：响应式数据
+- `computed` / `watch` / `watchEffect`：衍生状态与副作用
+- 逻辑可抽为**组合函数（composable）**，比 mixin 更清晰无冲突
+
+**3. 新组件：Fragment、Teleport、Suspense**
+
+```vue
+<!-- Fragment：模板不再需要单个根节点 -->
+<template>
+  <h1>标题</h1>
+  <p>内容</p>
+</template>
+
+<!-- Teleport：将内容渲染到 DOM 树的任意位置 -->
+<Teleport to="body">
+  <Modal />
+</Teleport>
+
+<!-- Suspense：异步组件加载时的占位 -->
+<Suspense>
+  <template #default><AsyncComponent /></template>
+  <template #fallback><Loading /></template>
+</Suspense>
+```
+
+**4. 编译器优化（性能大幅提升）**
+
+| 优化手段 | 说明 |
+|---------|------|
+| 静态提升（Static Hoisting） | 不含响应式依赖的节点提升到 render 外，只创建一次 |
+| Patch Flags | 给动态节点打标记，diff 时只对比有标记的部分 |
+| Block Tree | 按动态块组织 VNode，跳过静态节点 |
+| Tree-shaking | 运行时模块化，按需引入（`createApp` 等），核心仅 ~10KB gzip |
+
+**5. 更好的 TypeScript 支持**
+
+- 完全用 TypeScript 重写，内置类型定义更精确
+- `defineProps<T>()` / `defineEmits<T>()` 支持泛型
+- `<script setup lang="ts">` 配合 `vue-tsc` 实现编译期类型检查
+
+**6. 其他重要变化**
+
+- `v-model` 升级：支持多个 `v-model:xxx`，默认 prop 由 `value` 改为 `modelValue`
+- 状态管理推荐 **Pinia**（轻量、无 mutation、更好的 TS 支持）
+- 生命周期重命名：`beforeDestroy` → `onBeforeUnmount`，`destroyed` → `onUnmounted`
+- `emits` 选项显式声明组件事件，避免与原生事件冲突
+
 ---
 
 ## Q: Vue3 组件通信方式有哪些？

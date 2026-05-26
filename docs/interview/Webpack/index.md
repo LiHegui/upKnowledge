@@ -247,9 +247,38 @@ module: {
 
 
 
-### 如何手写一个loader
+### 如何手写一个 loader
 
+Loader 本质是一个函数，接收源文件内容作为参数，返回处理后的内容：
 
+```js
+// my-loader.js
+module.exports = function(source) {
+  // this 是 Webpack 注入的 Loader Context，提供各种工具方法
+  const options = this.getOptions() // 获取 webpack 配置中传来的 options
+
+  // 同步返回（直接 return）
+  return source.replace(/console\.log\(.*\);?/g, '') // 示例：移除所有 console.log
+}
+```
+
+**异步 Loader（处理需要时间的操作）：**
+
+```js
+module.exports = function(source) {
+  const callback = this.async() // 声明异步
+
+  someAsyncOperation(source, (err, result) => {
+    if (err) return callback(err)
+    callback(null, result, sourceMap, meta) // null=无错误，result=处理结果
+  })
+}
+```
+
+**链式 Loader 注意事项：**
+- Loader 执行顺序从**右到左**（数组末尾开始）
+- 中间的 Loader 输入/输出都是字符串或 Buffer
+- 最后一个 Loader 必须返回可在浏览器执行的 JS 字符串
 
 ## 常见的plugin
 
@@ -257,7 +286,126 @@ module: {
 - clean-webpack-plugin --> 删除（清理）构建目录
 - mini-css-extract-plugin --> 分离css成多个文件
 
-## webpack 如何进行性能优化
+## Q: webpack 如何进行性能优化
 
+**A:**
 
+Webpack 性能优化分为**构建速度优化**和**输出产物优化**两类：
+
+### 一、构建速度优化
+
+**1. 开启多进程构建（thread-loader）**
+
+```js
+{
+  test: /\.js$/,
+  use: [
+    'thread-loader', // 放在耗时 loader 前面，开启多进程
+    'babel-loader'
+  ]
+}
+```
+
+**2. 合理配置 resolve.alias / extensions**
+
+```js
+resolve: {
+  alias: { '@': path.resolve(__dirname, 'src') }, // 减少路径搜索
+  extensions: ['.js', '.vue'],  // 只配置常用的，减少文件探测次数
+}
+```
+
+**3. externals 排除大型依赖**
+
+```js
+externals: {
+  react: 'React',      // 通过 CDN 加载，不打入 bundle
+  'react-dom': 'ReactDOM'
+}
+```
+
+**4. 使用 cache（持久化缓存）**
+
+```js
+// webpack 5 内置缓存
+cache: {
+  type: 'filesystem', // 缓存到文件系统，下次构建直接复用
+  buildDependencies: { config: [__filename] }
+}
+```
+
+**5. 缩小 loader 处理范围**
+
+```js
+{
+  test: /\.js$/,
+  include: path.resolve(__dirname, 'src'), // 只处理 src 下的文件
+  exclude: /node_modules/,
+  use: ['babel-loader']
+}
+```
+
+---
+
+### 二、产物体积优化
+
+**1. Tree Shaking（删除未用代码）**
+
+- 只对 ES Module 有效（不支持 CommonJS `require`）
+- Webpack 5 生产模式默认开启
+- 第三方库需支持 ESM（如 lodash-es 替代 lodash）
+
+**2. Code Splitting（代码分割）**
+
+```js
+optimization: {
+  splitChunks: {
+    chunks: 'all',        // 所有 chunk 都参与分割
+    cacheGroups: {
+      vendors: {          // 第三方依赖单独打包
+        test: /[\\/]node_modules[\\/]/,
+        name: 'vendors',
+        chunks: 'all',
+      }
+    }
+  }
+}
+```
+
+**3. 动态导入（懒加载）**
+
+```js
+// 按需加载路由组件，首屏不载入
+const About = () => import(/* webpackChunkName: "about" */ './views/About.vue')
+```
+
+**4. 图片/资源优化**
+
+```js
+// webpack 5 内置 Asset Modules
+{
+  test: /\.(png|jpg|gif)$/,
+  type: 'asset',
+  parser: {
+    dataUrlCondition: { maxSize: 8 * 1024 } // 小于 8KB 转 base64
+  }
+}
+```
+
+**5. 开启 Gzip 压缩**
+
+```js
+const CompressionPlugin = require('compression-webpack-plugin')
+plugins: [
+  new CompressionPlugin({ algorithm: 'gzip', threshold: 10240 })
+]
+```
+
+| 手段 | 构建速度 | 产物体积 | 适用场景 |
+|------|---------|---------|---------|
+| thread-loader | ✅ 提升 | — | JS/TS 编译 |
+| cache（持久化） | ✅ 提升 | — | 增量构建 |
+| Tree Shaking | — | ✅ 减小 | 生产环境 |
+| Code Splitting | — | ✅ 减小 | 大型 SPA |
+| externals | ✅ 提升 | ✅ 减小 | 公共依赖 |
 

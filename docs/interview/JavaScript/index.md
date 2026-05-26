@@ -60,13 +60,29 @@ console.log(obj1.name) // 'Bob'
 
 **A:**
 
-| 特性          | `var`                 | `let`              | `const`                           |
-| ------------- | ----------------------- | -------------------- | ----------------------------------- |
-| 作用域        | 函数作用域              | 块级作用域           | 块级作用域                          |
-| 变量提升      | ✅ 有（值为 undefined） | ❌ 暂时性死区（TDZ） | ❌ 暂时性死区                       |
-| 重复声明      | ✅ 允许                 | ❌ 报错              | ❌ 报错                             |
-| 重新赋值      | ✅ 允许                 | ✅ 允许              | ❌ 不允许（基本类型）；对象属性可变 |
-| 挂载到 window | ✅                      | ❌                   | ❌                                  |
+| 特性          | `var`                      | `let`                        | `const`                             |
+| ------------- | -------------------------- | ---------------------------- | ----------------------------------- |
+| 作用域        | 函数作用域                 | 块级作用域                   | 块级作用域                          |
+| 变量提升      | ✅ 提升并初始化为 `undefined` | ✅ 提升但**不初始化**（TDZ） | ✅ 提升但**不初始化**（TDZ）        |
+| 重复声明      | ✅ 允许                    | ❌ 报错                      | ❌ 报错                             |
+| 重新赋值      | ✅ 允许                    | ✅ 允许                      | ❌ 不允许（基本类型）；对象属性可变 |
+| 挂载到 window | ✅                         | ❌                           | ❌                                  |
+
+> ⚠️ **注意**：`let`/`const` **也有变量提升**，常见误解是"只有 var 才提升"。区别在于：`var` 提升后初始化为 `undefined`，而 `let`/`const` 提升后**不初始化**，声明语句执行之前的区域称为**暂时性死区（Temporal Dead Zone，TDZ）**，此区间内访问变量会抛出 `ReferenceError`。
+
+```js
+// var —— 提升 + 初始化为 undefined
+console.log(a)  // undefined（不报错）
+var a = 1
+
+// let —— 提升但未初始化，TDZ 触发报错
+console.log(b)  // ❌ ReferenceError: Cannot access 'b' before initialization
+let b = 1
+```
+
+区分报错信息是关键：
+- `ReferenceError: x is not defined` → 变量根本不存在，**没有提升**
+- `ReferenceError: Cannot access 'x' before initialization` → 变量存在但未初始化，**提升了但在 TDZ 中**
 
 ```js
 // const 对象属性可以修改，但不能重新赋值

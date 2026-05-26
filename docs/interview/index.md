@@ -4,4 +4,4 @@
 
 ---
 
-收录方向：AI×前端 / HTML / CSS / JavaScript / TypeScript / Vue / React / 工程化 / 网络 / 浏览器 / Node.js / 性能优化 / 设计模式 / 算法 / 解决方案
+收录方向：AI×前端 / HTML / CSS / JavaScript / TypeScript / Vue / React / 工程化 / 网络 / 浏览器 / Node.js / 性能优化 / 设计模式 / 算法 / 解决方案 / **Canvas / ECharts / 高德地图**

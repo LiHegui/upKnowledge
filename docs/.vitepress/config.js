@@ -51,6 +51,8 @@ const frontendSidebar = [
     collapsed: true,
     items: [
       { text: 'AI × 前端技术要点', link: '/interview/AI/' },
+      { text: '构建 AI Agent', link: '/interview/AI/agent' },
+      { text: '构建 AI Workflow', link: '/interview/AI/workflow' },
     ],
   },
   {
@@ -140,6 +142,13 @@ const frontendSidebar = [
     ],
   },
   {
+    text: 'ECharts 可视化',
+    collapsed: true,
+    items: [
+      { text: 'ECharts 技术要点', link: '/interview/ECharts/' },
+    ],
+  },
+  {
     text: 'AnTd 组件库',
     collapsed: true,
     items: [
@@ -180,9 +189,12 @@ const frontendSidebar = [
     ],
   },
   {
-    text: 'Web3D / Three.js',
+    text: '🎨 可视化 & 图形',
     collapsed: true,
     items: [
+      { text: 'Canvas 技术要点', link: '/interview/Canvas/' },
+      { text: 'ECharts 技术要点', link: '/interview/ECharts/' },
+      { text: '高德地图 技术要点', link: '/interview/高德地图/' },
       { text: 'Three.js', link: '/interview/Web3D/three' },
     ],
   },

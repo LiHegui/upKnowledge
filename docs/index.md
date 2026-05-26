@@ -7,7 +7,7 @@
 ## ⚡ 前端
 
 ### 📝 必刷 & AI
-[笔试系列](./interview/笔试系列.md) | [LeetCode 150](https://leetcode.cn/studyplan/top-interview-150/) ↗ | [AI × 前端](./interview/AI/index.md)
+[笔试系列](./interview/笔试系列.md) | [LeetCode 150](https://leetcode.cn/studyplan/top-interview-150/) ↗ | [AI × 前端](./interview/AI/index.md) | [构建 AI Agent](./interview/AI/agent.md) | [构建 AI Workflow](./interview/AI/workflow.md)
 
 ### 基础三件套
 [HTML](./interview/HTML/html相关.md) | [CSS](./interview/CSS/index.md) | [Sass & Less](./interview/CSS/sass和less.md) | [styled-components](./interview/CSS/style-components.md) | [JavaScript](./interview/JavaScript/index.md)
@@ -31,7 +31,7 @@
 [性能优化](./interview/性能优化/index.md) | [图片加载优化](./optimization/加载图片优化策略.md) | [虚拟列表](./interview/解决方案/虚拟列表/index.md) | [大文件断点续传](./interview/解决方案/大文件断点续传/index.md) | [移动端适配](./interview/解决方案/移动端适配/index.md) | [实时协同 CRDT](./interview/解决方案/实时协同系统/index.md) | [前端工程化方案](./interview/解决方案/前端工程化/index.md) | [JWT 登录方案](./interview/解决方案/JWT登录方案/index.md) | [前端登录](./interview/前端登录/登录的实现.md)
 
 ### 设计模式 & 进阶
-[设计模式](./interview/设计模式/index.md) | [微前端](./interview/微前端/index.md) | [Three.js / Web3D](./interview/Web3D/three.md) | [Ant Design](./interview/AnTd/index.md) | [微信小程序](./interview/微信小程序（原生）/route.md) | [Gatsby](./interview/Gastby/Gastby.md)
+[设计模式](./interview/设计模式/index.md) | [微前端](./interview/微前端/index.md) | [Three.js / Web3D](./interview/Web3D/three.md) | [Ant Design](./interview/AnTd/index.md) | [微信小程序](./interview/微信小程序（原生）/route.md) | [Gatsby](./interview/Gastby/Gastby.md) | [ECharts 可视化](./interview/ECharts/index.md)
 
 ---
 

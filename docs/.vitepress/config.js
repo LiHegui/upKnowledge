@@ -85,6 +85,7 @@ const frontendSidebar = [
       { text: 'Vue3 Diff 算法', link: '/interview/Vue3/diff/' },
       { text: 'Vue3 性能提升', link: '/interview/Vue3/性能提升/' },
       { text: 'Tree-shaking', link: '/interview/Vue3/Treeshaking/' },
+      { text: 'Pinia 完全指南', link: '/interview/Vue3/pinia/' },
     ],
   },
   {
@@ -95,6 +96,7 @@ const frontendSidebar = [
       { text: 'React 渲染行为完全指南', link: '/interview/React/react-rendering-behavior' },
       { text: 'Fiber 架构与 Diff 算法深度解析', link: '/interview/React/fiber-diff' },
       { text: 'Redux 完全指南', link: '/interview/React/redux' },
+      { text: 'MobX 完全指南', link: '/interview/React/mobx' },
     ],
   },
   {

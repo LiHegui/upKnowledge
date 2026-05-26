@@ -16,10 +16,10 @@
 [TS 总览](./interview/Ts/index.md) | [类型系统](./interview/Ts/类型/index.md) | [接口](./interview/Ts/接口/index.md) | [类](./interview/Ts/类/index.md) | [函数](./interview/Ts/函数/index.md)
 
 ### Vue 生态
-[Vue2](./interview/Vue/vue.md) | [权限管理](./interview/Vue/AuthorityManagement.md) | [Vue3](./interview/Vue3/index.md) | [Diff 算法](./interview/Vue3/diff/index.md) | [性能提升](./interview/Vue3/性能提升/index.md) | [Tree-shaking](./interview/Vue3/Treeshaking/index.md)
+[Vue2](./interview/Vue/vue.md) | [权限管理](./interview/Vue/AuthorityManagement.md) | [Vue3](./interview/Vue3/index.md) | [Diff 算法](./interview/Vue3/diff/index.md) | [性能提升](./interview/Vue3/性能提升/index.md) | [Tree-shaking](./interview/Vue3/Treeshaking/index.md) | [Pinia 完全指南](./interview/Vue3/pinia/index.md)
 
 ### React 生态
-[React](./interview/React/index.md) | [渲染行为完全指南](./interview/React/react-rendering-behavior.md) | [Fiber & Diff 深度解析](./interview/React/fiber-diff.md) | [Redux 完全指南](./interview/React/redux.md)
+[React](./interview/React/index.md) | [渲染行为完全指南](./interview/React/react-rendering-behavior.md) | [Fiber & Diff 深度解析](./interview/React/fiber-diff.md) | [Redux 完全指南](./interview/React/redux.md) | [MobX 完全指南](./interview/React/mobx.md)
 
 ### 工程化
 [Webpack](./interview/Webpack/index.md) | [基础配置](./interview/Webpack/webpack基础配置.md) | [模块化](./interview/Webpack/模块化/history.md) | [Rollup](./interview/Webpack/模块化/Rollup.md) | [搭建组件库](./interview/Webpack/模块化/进阶-搭建组件库.md) | [Vite](./interview/Vite/index.md) | [Git](./interview/git/index.md) | [CI/CD](./interview/CICD/index.md) | [Docker](./interview/Docker/index.md)

@@ -121,6 +121,7 @@ const frontendSidebar = [
     collapsed: true,
     items: [
       { text: '网络', link: '/interview/网络/' },
+      { text: 'WebSocket 专题', link: '/interview/网络/WebSocket' },
       { text: '浏览器', link: '/interview/浏览器/' },
       { text: '浏览器缓存', link: '/interview/浏览器/浏览器缓存' },
     ],

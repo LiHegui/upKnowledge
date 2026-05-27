@@ -998,6 +998,94 @@ Vue3 编译器在构建时自动做以下优化，了解即可：
 
 ---
 
+## Q: 用户反馈「Vue 项目首屏加载慢」，你的排查思路和优化方案是什么？
+
+**A:**
+
+性能优化是「**先测量 → 找瓶颈 → 对症下药 → 再测量**」的闭环，不是清单堆砌。下面按真实排查顺序展开。
+
+### 一、测量定位（不测不优化）
+
+| 工具 | 用途 |
+| --- | --- |
+| **Chrome DevTools → Lighthouse** | 一键体检，看 LCP / FCP / TTFB / CLS / INP 分数 |
+| **Network 面板** | 看资源数、大小、加载瀑布图，找最慢请求 |
+| **Performance 面板** | 录制首屏过程，看主线程长任务、JS 解析耗时 |
+| **Coverage 面板** | 查 JS / CSS 未使用率，决定要不要拆包 |
+| **web-vitals 库** | 线上接入，上报真实用户的 Core Web Vitals |
+
+### 二、按瓶颈对症下药
+
+| 瓶颈 | 表现 | 解决 |
+| --- | --- | --- |
+| **TTFB 慢** | 后端首字节慢 | 后端优化 / CDN / 边缘节点 / SSR 缓存 |
+| **JS 包太大** | 主 chunk > 1MB | 路由懒加载、依赖拆包、CDN 外链、Tree-shaking |
+| **首屏图片大** | Network 看到大图 | WebP / AVIF、响应式 `srcset`、懒加载、占位图 |
+| **CSS 阻塞** | DOMContentLoaded 慢 | 关键 CSS 内联、非关键 CSS 异步、`media` 拆分 |
+| **JS 解析慢** | Main thread 红色长任务 | code splitting、`defer`、移到 Worker |
+| **请求瀑布串行** | 接口一个接一个 | 并行 `Promise.all` / 接口合并 / 预请求 |
+| **首屏白屏** | HTML 返回后空白 | SSR / 骨架屏 / 预渲染 |
+
+### 三、Vue 项目可落地的优化清单
+
+**运行时层面**
+
+| 优化点 | 做法 |
+| --- | --- |
+| 大列表卡顿 | 虚拟列表（`vue-virtual-scroller` / 自实现） |
+| 频繁更新 | `v-memo`（3.2+）按依赖跳过子树重渲染 |
+| 静态内容 | `v-once` 渲染一次；编译期 hoistStatic 自动处理 |
+| 大对象响应式 | `markRaw` / `shallowRef` / `shallowReactive` 跳过深层代理 |
+| 路由切换 | `<keep-alive>` 缓存组件实例 |
+| 事件 | `debounce` / `throttle`（输入、滚动、resize） |
+| 重复计算 | `computed` 替代 method（带缓存） |
+| 长任务 | Web Worker / `requestIdleCallback` / 时间切片 |
+
+**构建打包层面（Vite / Webpack）**
+
+| 优化点 | 做法 |
+| --- | --- |
+| 路由懒加载 | `() => import('xxx.vue')` 按路由拆 chunk |
+| 组件异步 | `defineAsyncComponent` 大组件异步加载 |
+| 依赖拆包 | `manualChunks` 把 vue / element-plus 拆成独立 vendor chunk，长缓存 |
+| 按需引入 | `unplugin-vue-components` 自动注册组件 |
+| CDN 外链 | Vue / ECharts / Lodash 走 CDN，减少 bundle |
+| Gzip / Brotli | `vite-plugin-compression` + nginx `gzip on` |
+| 图片压缩 | `vite-plugin-imagemin` 构建期压缩 |
+| 预加载 | `<link rel="preload">` 关键资源、字体 |
+
+```ts
+// vite.config.ts —— 关键拆包示例
+export default defineConfig({
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vue: ['vue', 'vue-router', 'pinia'],
+          ui: ['element-plus'],
+          chart: ['echarts'],
+        },
+      },
+    },
+  },
+})
+```
+
+### 四、架构级兜底方案
+
+- **SSR**（Nuxt）：服务端直出 HTML，LCP 大幅提升 + SEO 友好
+- **SSG**：构建时预生成静态页（文档站、营销页首选）
+- **PWA**：Service Worker 缓存资源，二次访问秒开
+- **微前端**：拆分大应用，按需加载子应用
+
+### 五、真实案例话术（面试加分）
+
+> 「上个项目首屏 4s+，用 Lighthouse + Performance 录制后发现 vendor chunk 2MB —— 原因是 `element-plus` 全量打包。改用 `unplugin-vue-components` 按需引入 + `manualChunks` 拆 vendor，bundle 降到 600KB，LCP 从 4.2s 降到 1.8s。」
+
+> ⚠️ **核心心态**：性能优化要测量驱动，不要盲目堆手段。能讲清「我是怎么定位瓶颈的」比「我会哪些优化」更打动面试官。
+
+---
+
 ## Q: Vue 中 keep-alive 的工作原理是什么？
 
 **A:**

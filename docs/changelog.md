@@ -2,6 +2,10 @@
 
 > 本页由部署脚本根据 git 提交记录自动生成。
 
+## 2026-05-27
+
+- refactor: Revise network technology interview content for clarity and structure `2c11097`
+
 ## 2026-05-26
 
 - feat: 更新面试官文档，增加进度系统概述和启动流程说明 `b8d0f7c`

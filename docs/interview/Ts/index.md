@@ -1,122 +1,12 @@
-﻿# TypeScript 技术要点
+# TypeScript 技术要点
 
 > 涵盖 TypeScript 核心考点：类型系统、泛型、工具类型、类与接口、装饰器、工程实践，从基础到进阶全覆盖。
+>
+> TS 在 Vue / React 项目里的工程化落地，见专题：[TypeScript 与项目结合](./与项目结合/)。
 
 ---
 
-## 基础认知篇
-
-## Q: TypeScript 是什么
-
-**A:**
-
-**TypeScript** 是 JavaScript 的**类型超集**，由微软开发。它在 JS 基础上添加了静态类型系统，最终编译为纯 JavaScript 运行。
-
-### 核心差异对比
-
-| 维度 | JavaScript | TypeScript |
-|------|-----------|-----------|
-| 类型系统 | 动态类型，运行时确定 | 静态类型，编译期检查 |
-| 错误发现 | 运行时报错 | 编译时报错 ✅ |
-| IDE 支持 | 基础提示 | 完整智能提示、重构 ✅ |
-| 学习成本 | 低 | 中（需掌握类型语法） |
-| 适用场景 | 小型脚本、快速原型 | 中大型项目、团队协作 |
-
-### TypeScript 核心特性
-
-1. **类型注解**：显式声明变量/参数/返回值类型
-2. **类型推断**：未注解时自动推断类型，无需每处都写
-3. **类型擦除**：编译产物是纯 JS，类型信息在运行时不存在
-4. **接口 / 类型别名**：描述对象结构
-5. **泛型**：编写类型安全的通用代码
-6. **枚举**：定义有限值域
-7. **装饰器**：元数据注解（class/method/property）
-8. **命名空间 & 模块**：代码组织与作用域隔离
-
-```ts
-// JS：运行时才报错
-function add(a, b) { return a + b }
-add(1, '2') // => '12'（隐式转换，无警告）
-
-// TS：编译时捕获错误
-function add(a: number, b: number): number { return a + b }
-add(1, '2') // ❌ Argument of type 'string' is not assignable to parameter of type 'number'
-```
-
----
-
-## Q: TS 数据类型汇总
-
-**A:**
-
-### JS 原有类型（TS 完全兼容）
-
-`boolean` / `number` / `string` / `null` / `undefined` / `symbol` / `bigint` / `object`
-
-### TS 新增类型
-
-| 类型 | 说明 | 示例 |
-|------|------|------|
-| `any` | 跳过类型检查，任意类型 | `let x: any = 1; x = 'str'` |
-| `unknown` | 安全的 any，使用前必须类型收窄 | `let x: unknown` |
-| `void` | 函数无返回值 | `function log(): void {}` |
-| `never` | 永不到达的类型（抛错/死循环） | `function throws(): never { throw new Error() }` |
-| `tuple` | 固定长度、固定类型的数组 | `let t: [string, number] = ['a', 1]` |
-| `enum` | 枚举，取值限定在固定范围 | `enum Direction { Up, Down }` |
-
-```ts
-// 元组：长度和类型都固定
-let tuple: [number, string, boolean]
-tuple = [1, 'hello', true]  // ✅
-tuple = [1, 'hello']        // ❌ 缺少第三个元素
-
-// never：穷举检查
-type Shape = 'circle' | 'square'
-function check(s: Shape) {
-  if (s === 'circle') return
-  if (s === 'square') return
-  const _exhaustive: never = s // 若新增类型未处理，这里报错 ✅
-}
-```
-
----
-
-## Q: any/unknown/never/void
-
-**A:**
-
-| 类型 | 含义 | 能赋值给其他类型？ | 使用前需检查？ |
-|------|------|-----------------|-------------|
-| `any` | 关闭类型检查 | ✅ 可以 | ❌ 不需要 |
-| `unknown` | 类型未知，安全版 any | ❌ 不可以（需收窄） | ✅ 需要 |
-| `void` | 函数无有意义的返回值 | ❌ | — |
-| `never` | 不可能存在的类型 | ✅ 可赋值给任何类型 | — |
-
-```ts
-// any：危险，绕过所有检查
-let a: any = 'hello'
-a.toFixed(2) // 运行时报错，编译期不报 ❌
-
-// unknown：安全，使用前必须收窄
-let u: unknown = 'hello'
-u.toUpperCase()       // ❌ 编译报错
-if (typeof u === 'string') {
-  u.toUpperCase()     // ✅ 收窄后可用
-}
-
-// never：常见于穷举检查和不可达分支
-function fail(msg: string): never {
-  throw new Error(msg)
-}
-```
-
-> ⚠️ **注意**：在业务代码中应尽量避免用 `any`，优先用 `unknown` + 类型收窄，保持类型安全。
-
----
-
-## 类型系统篇
-
-## Q: interface vs type如何选择？
+## Q: interface vs type 如何选择？
 
 **A:**
 
@@ -153,162 +43,7 @@ type C = B & { extra: string }      // type 交叉实现继承
 
 ---
 
-## Q: 联合 vs 交叉类型
-
-**A:**
-
-- **联合类型（Union）`A | B`**：值是 A **或** B 之一，只能访问两者的**公共成员**
-- **交叉类型（Intersection）`A & B`**：值同时满足 A **和** B，拥有两者的**全部成员**
-
-```ts
-type Cat = { name: string; meow(): void }
-type Dog = { name: string; bark(): void }
-
-// 联合类型：是猫或狗
-type Pet = Cat | Dog
-declare const pet: Pet
-pet.name    // ✅ 公共属性
-pet.meow()  // ❌ 不确定是猫，需要类型守卫
-
-// 交叉类型：同时具备猫和狗的特征
-type CatDog = Cat & Dog
-declare const cd: CatDog
-cd.meow()   // ✅
-cd.bark()   // ✅
-```
-
----
-
-## Q: 类型守卫方式
-
-**A:**
-
-类型守卫（Type Guard）用于在联合类型中**收窄**到具体类型，让 TS 知道当前分支的类型。
-
-### 四种方式
-
-**1. `typeof`**（适合原始类型）
-```ts
-function print(val: string | number) {
-  if (typeof val === 'string') {
-    console.log(val.toUpperCase()) // val: string
-  }
-}
-```
-
-**2. `instanceof`**（适合类实例）
-```ts
-function handle(err: Error | TypeError) {
-  if (err instanceof TypeError) {
-    // err: TypeError
-  }
-}
-```
-
-**3. `in` 操作符**（适合对象结构）
-```ts
-type Fish = { swim(): void }
-type Bird = { fly(): void }
-function move(animal: Fish | Bird) {
-  if ('swim' in animal) {
-    animal.swim() // animal: Fish
-  }
-}
-```
-
-**4. 自定义类型谓词 `is`**（最灵活）
-```ts
-function isString(val: unknown): val is string {
-  return typeof val === 'string'
-}
-
-if (isString(input)) {
-  input.toUpperCase() // ✅ input: string
-}
-```
-
----
-
-## Q: 类型操作符
-
-**A:**
-
-### `keyof` — 获取类型的键联合
-
-```ts
-interface Person { name: string; age: number }
-type Keys = keyof Person  // 'name' | 'age'
-
-// 经典用法：安全取属性
-function get<T, K extends keyof T>(obj: T, key: K): T[K] {
-  return obj[key]
-}
-get({ name: 'Alice', age: 18 }, 'name') // ✅ 返回 string
-```
-
-### `typeof` — 获取变量/函数的类型
-
-```ts
-const config = { host: 'localhost', port: 3000 }
-type Config = typeof config  // { host: string; port: number }
-
-function greet(name: string) { return `Hello ${name}` }
-type Greet = typeof greet    // (name: string) => string
-```
-
-### `in` — 遍历联合类型（映射类型）
-
-```ts
-type Readonly<T> = {
-  readonly [K in keyof T]: T[K]  // 遍历 T 的每个键
-}
-type ReadonlyPerson = Readonly<Person>
-// { readonly name: string; readonly age: number }
-```
-
-### `infer` — 在条件类型中推断类型
-
-```ts
-// 提取函数返回类型
-type ReturnType<T> = T extends (...args: any[]) => infer R ? R : never
-
-type R = ReturnType<() => string>  // string
-
-// 提取 Promise 内部类型
-type Awaited<T> = T extends Promise<infer U> ? U : T
-type A = Awaited<Promise<number>>  // number
-```
-
----
-
-## Q: 条件类型
-
-**A:**
-
-条件类型形如 `T extends U ? X : Y`，根据类型关系选择不同的类型，类似三元表达式。
-
-```ts
-// 基础用法
-type IsString<T> = T extends string ? 'yes' : 'no'
-type A = IsString<string>  // 'yes'
-type B = IsString<number>  // 'no'
-
-// 分布式条件类型（T 为联合类型时逐一分发）
-type ToArray<T> = T extends any ? T[] : never
-type C = ToArray<string | number>  // string[] | number[]
-
-// 过滤联合类型中的 null/undefined
-type NonNullable<T> = T extends null | undefined ? never : T
-type D = NonNullable<string | null | undefined>  // string
-```
-
-> ⚠️ **注意**：条件类型中 `infer` 只能在 `extends` 子句的右侧使用，不能在其他位置推断。
-
----
-
-## 泛型篇
-
-## Q: 泛型原理有哪些常见用法？
+## Q: 泛型原理与常见用法
 
 **A:**
 
@@ -360,7 +95,7 @@ getLength(42)        // ❌ number 没有 length
 
 ---
 
-## Q: TS 工具类型
+## Q: TS 内置工具类型有哪些？
 
 **A:**
 
@@ -415,9 +150,402 @@ type NonAdmin = Exclude<Roles, 'admin'>                  // 'editor' | 'viewer'
 
 ---
 
-## 类与接口篇
+## Q: any / unknown / never / void 的区别？
 
-## Q: interface 接口
+**A:**
+
+| 类型 | 含义 | 能赋值给其他类型？ | 使用前需检查？ |
+|------|------|-----------------|-------------|
+| `any` | 关闭类型检查 | ✅ 可以 | ❌ 不需要 |
+| `unknown` | 类型未知，安全版 any | ❌ 不可以（需收窄） | ✅ 需要 |
+| `void` | 函数无有意义的返回值 | ❌ | — |
+| `never` | 不可能存在的类型 | ✅ 可赋值给任何类型 | — |
+
+```ts
+// any：危险，绕过所有检查
+let a: any = 'hello'
+a.toFixed(2) // 运行时报错，编译期不报 ❌
+
+// unknown：安全，使用前必须收窄
+let u: unknown = 'hello'
+u.toUpperCase()       // ❌ 编译报错
+if (typeof u === 'string') {
+  u.toUpperCase()     // ✅ 收窄后可用
+}
+
+// never：常见于穷举检查和不可达分支
+function fail(msg: string): never {
+  throw new Error(msg)
+}
+```
+
+> ⚠️ **注意**：在业务代码中应尽量避免用 `any`，优先用 `unknown` + 类型收窄，保持类型安全。
+
+---
+
+## Q: 类型守卫有哪些方式？
+
+**A:**
+
+类型守卫（Type Guard）用于在联合类型中**收窄**到具体类型，让 TS 知道当前分支的类型。
+
+### 四种方式
+
+**1. `typeof`**（适合原始类型）
+```ts
+function print(val: string | number) {
+  if (typeof val === 'string') {
+    console.log(val.toUpperCase()) // val: string
+  }
+}
+```
+
+**2. `instanceof`**（适合类实例）
+```ts
+function handle(err: Error | TypeError) {
+  if (err instanceof TypeError) {
+    // err: TypeError
+  }
+}
+```
+
+**3. `in` 操作符**（适合对象结构）
+```ts
+type Fish = { swim(): void }
+type Bird = { fly(): void }
+function move(animal: Fish | Bird) {
+  if ('swim' in animal) {
+    animal.swim() // animal: Fish
+  }
+}
+```
+
+**4. 自定义类型谓词 `is`**（最灵活）
+```ts
+function isString(val: unknown): val is string {
+  return typeof val === 'string'
+}
+
+if (isString(input)) {
+  input.toUpperCase() // ✅ input: string
+}
+```
+
+---
+
+## Q: 类型操作符 keyof / typeof / in / infer
+
+**A:**
+
+### `keyof` — 获取类型的键联合
+
+```ts
+interface Person { name: string; age: number }
+type Keys = keyof Person  // 'name' | 'age'
+
+// 经典用法：安全取属性
+function get<T, K extends keyof T>(obj: T, key: K): T[K] {
+  return obj[key]
+}
+get({ name: 'Alice', age: 18 }, 'name') // ✅ 返回 string
+```
+
+### `typeof` — 获取变量/函数的类型
+
+```ts
+const config = { host: 'localhost', port: 3000 }
+type Config = typeof config  // { host: string; port: number }
+
+function greet(name: string) { return `Hello ${name}` }
+type Greet = typeof greet    // (name: string) => string
+```
+
+### `in` — 遍历联合类型（映射类型）
+
+```ts
+type Readonly<T> = {
+  readonly [K in keyof T]: T[K]  // 遍历 T 的每个键
+}
+type ReadonlyPerson = Readonly<Person>
+// { readonly name: string; readonly age: number }
+```
+
+### `infer` — 在条件类型中推断类型
+
+```ts
+// 提取函数返回类型
+type ReturnType<T> = T extends (...args: any[]) => infer R ? R : never
+
+type R = ReturnType<() => string>  // string
+
+// 提取 Promise 内部类型
+type Awaited<T> = T extends Promise<infer U> ? U : T
+type A = Awaited<Promise<number>>  // number
+```
+
+---
+
+## Q: 条件类型怎么用？
+
+**A:**
+
+条件类型形如 `T extends U ? X : Y`，根据类型关系选择不同的类型，类似三元表达式。
+
+```ts
+// 基础用法
+type IsString<T> = T extends string ? 'yes' : 'no'
+type A = IsString<string>  // 'yes'
+type B = IsString<number>  // 'no'
+
+// 分布式条件类型（T 为联合类型时逐一分发）
+type ToArray<T> = T extends any ? T[] : never
+type C = ToArray<string | number>  // string[] | number[]
+
+// 过滤联合类型中的 null/undefined
+type NonNullable<T> = T extends null | undefined ? never : T
+type D = NonNullable<string | null | undefined>  // string
+```
+
+> ⚠️ **注意**：条件类型中 `infer` 只能在 `extends` 子句的右侧使用，不能在其他位置推断。
+
+---
+
+## Q: 类型断言 as / ! / 类型守卫怎么选？
+
+**A:**
+
+### `as` 类型断言
+
+告诉编译器"我比你更清楚当前类型"，只影响编译期，不会做运行时检查。
+
+```ts
+const el = document.getElementById('app') as HTMLDivElement
+el.innerText = 'hello'
+```
+
+### 非空断言 `!`
+
+用于去掉 `null | undefined`，表示"这里一定不为空"。
+
+```ts
+const btn = document.getElementById('btn')!
+btn.addEventListener('click', () => {})
+```
+
+### 类型守卫（推荐）
+
+通过 `typeof` / `instanceof` / `in` / 自定义谓词做真实分支收窄，最安全。
+
+```ts
+const node = document.getElementById('app')
+if (node) {
+  node.innerHTML = 'ok' // ✅
+}
+```
+
+| 方式 | 是否安全 | 是否有运行时校验 | 适用场景 |
+|------|---------|------------------|---------|
+| `as` | ⚠️ 依赖开发者保证 | ❌ 无 | 明确知道类型时 |
+| `!` | ⚠️ 风险更高 | ❌ 无 | 生命周期可控、明确非空时 |
+| 类型守卫 | ✅ 最安全 | ✅ 有分支判断 | 大多数业务代码 |
+
+---
+
+## Q: 可选链 `?.` 与空值合并 `??` 怎么用？和 `||` 有什么区别？
+
+**A:**
+
+两者都是 ES2020 的语言特性，TS 完整支持，用来安全访问深层属性 / 提供默认值，避免冗长的 `&&` 判断。
+
+### 可选链 `?.`
+
+左值为 `null` / `undefined` 时短路返回 `undefined`，不再继续访问，**不会报错**。
+
+```ts
+interface User { profile?: { name: string; getAge?: () => number } }
+
+const u: User = {}
+u.profile?.name              // undefined，不会抛错
+u.profile?.getAge?.()        // 方法调用也可短路
+const list: number[] = []
+list?.[0]                    // 数组下标访问
+```
+
+### 空值合并 `??`
+
+左值为 `null` 或 `undefined` 时取右侧默认值；其他 falsy 值（`0` / `''` / `false`）会保留。
+
+```ts
+const pageSize = props.pageSize ?? 10   // 0 也会被保留
+const name = data.name ?? '匿名'
+```
+
+### `??` vs `||` 对比
+
+| 表达式 | `null` | `undefined` | `0` | `''` | `false` |
+| --- | --- | --- | --- | --- | --- |
+| `x \|\| 'd'` | `'d'` | `'d'` | `'d'` | `'d'` | `'d'` |
+| `x ?? 'd'` | `'d'` | `'d'` | `0` | `''` | `false` |
+
+> ⚠️ **注意**：业务里需要保留 `0` / `''` / `false` 作为合法值时，必须用 `??`，不要用 `||`。
+
+### 工程实践
+
+- TS `strictNullChecks` 开启后，`?.` 可让链路调用类型自动收窄为 `T | undefined`
+- `??=`、`||=`、`&&=` 是对应的逻辑赋值运算符，可简化默认值赋值
+- 不要把 `?.` 当万能保险，关键链路缺值时仍需显式判空并兜底
+
+---
+
+## Q: as const vs satisfies
+
+**A:**
+
+### `as const`（常量断言）
+
+作用：
+
+1. 字面量不再被拓宽（`'GET'` 不会变成 `string`）
+2. 对象属性变为 `readonly`
+3. 数组推断为只读元组
+
+```ts
+const req = {
+  method: 'GET',
+  path: '/users'
+} as const
+
+// req.method 类型是 'GET'，不是 string
+```
+
+### `satisfies`（TS 4.9+）
+
+用于"校验是否满足某类型"，但不改变表达式自身推断结果。
+
+```ts
+type Route = {
+  path: string
+  method: 'GET' | 'POST'
+}
+
+const route = {
+  path: '/users',
+  method: 'GET'
+} satisfies Route
+
+// route.method 仍保持字面量 'GET'，同时受 Route 约束
+```
+
+| 对比维度 | `as const` | `satisfies` |
+|------|------|------|
+| 主要目标 | 锁定字面量并只读化 | 校验结构兼容性 |
+| 是否改变推断结果 | ✅ 会（更窄） | ❌ 不会（保留原推断） |
+| 常见用途 | 配置常量、路由表、状态机 | 配置对象类型校验 |
+
+---
+
+## Q: TypeScript 是什么？与 JavaScript 的差异？
+
+**A:**
+
+**TypeScript** 是 JavaScript 的**类型超集**，由微软开发。它在 JS 基础上添加了静态类型系统，最终编译为纯 JavaScript 运行。
+
+### 核心差异对比
+
+| 维度 | JavaScript | TypeScript |
+|------|-----------|-----------|
+| 类型系统 | 动态类型，运行时确定 | 静态类型，编译期检查 |
+| 错误发现 | 运行时报错 | 编译时报错 ✅ |
+| IDE 支持 | 基础提示 | 完整智能提示、重构 ✅ |
+| 学习成本 | 低 | 中（需掌握类型语法） |
+| 适用场景 | 小型脚本、快速原型 | 中大型项目、团队协作 |
+
+### TypeScript 核心特性
+
+1. **类型注解**：显式声明变量/参数/返回值类型
+2. **类型推断**：未注解时自动推断类型，无需每处都写
+3. **类型擦除**：编译产物是纯 JS，类型信息在运行时不存在
+4. **接口 / 类型别名**：描述对象结构
+5. **泛型**：编写类型安全的通用代码
+6. **枚举**：定义有限值域
+7. **装饰器**：元数据注解（class/method/property）
+8. **命名空间 & 模块**：代码组织与作用域隔离
+
+```ts
+// JS：运行时才报错
+function add(a, b) { return a + b }
+add(1, '2') // => '12'（隐式转换，无警告）
+
+// TS：编译时捕获错误
+function add(a: number, b: number): number { return a + b }
+add(1, '2') // ❌ Argument of type 'string' is not assignable to parameter of type 'number'
+```
+
+---
+
+## Q: TS 数据类型有哪些？
+
+**A:**
+
+### JS 原有类型（TS 完全兼容）
+
+`boolean` / `number` / `string` / `null` / `undefined` / `symbol` / `bigint` / `object`
+
+### TS 新增类型
+
+| 类型 | 说明 | 示例 |
+|------|------|------|
+| `any` | 跳过类型检查，任意类型 | `let x: any = 1; x = 'str'` |
+| `unknown` | 安全的 any，使用前必须类型收窄 | `let x: unknown` |
+| `void` | 函数无返回值 | `function log(): void {}` |
+| `never` | 永不到达的类型（抛错/死循环） | `function throws(): never { throw new Error() }` |
+| `tuple` | 固定长度、固定类型的数组 | `let t: [string, number] = ['a', 1]` |
+| `enum` | 枚举，取值限定在固定范围 | `enum Direction { Up, Down }` |
+
+```ts
+// 元组：长度和类型都固定
+let tuple: [number, string, boolean]
+tuple = [1, 'hello', true]  // ✅
+tuple = [1, 'hello']        // ❌ 缺少第三个元素
+
+// never：穷举检查
+type Shape = 'circle' | 'square'
+function check(s: Shape) {
+  if (s === 'circle') return
+  if (s === 'square') return
+  const _exhaustive: never = s // 若新增类型未处理，这里报错 ✅
+}
+```
+
+---
+
+## Q: 联合类型 vs 交叉类型
+
+**A:**
+
+- **联合类型（Union）`A | B`**：值是 A **或** B 之一，只能访问两者的**公共成员**
+- **交叉类型（Intersection）`A & B`**：值同时满足 A **和** B，拥有两者的**全部成员**
+
+```ts
+type Cat = { name: string; meow(): void }
+type Dog = { name: string; bark(): void }
+
+// 联合类型：是猫或狗
+type Pet = Cat | Dog
+declare const pet: Pet
+pet.name    // ✅ 公共属性
+pet.meow()  // ❌ 不确定是猫，需要类型守卫
+
+// 交叉类型：同时具备猫和狗的特征
+type CatDog = Cat & Dog
+declare const cd: CatDog
+cd.meow()   // ✅
+cd.bark()   // ✅
+```
+
+---
+
+## Q: interface 接口怎么用？
 
 **A:**
 
@@ -466,7 +594,7 @@ class User implements Serializable {
 
 ---
 
-## Q: 访问修饰符
+## Q: 访问修饰符 public / protected / private
 
 **A:**
 
@@ -555,9 +683,7 @@ class Circle extends Shape {
 
 ---
 
-## 枚举与装饰器篇
-
-## Q: 枚举 Enum
+## Q: 枚举 Enum 怎么用？
 
 **A:**
 
@@ -620,7 +746,7 @@ function checkPermission(userPerm: number, required: Permission) {
 
 ---
 
-## Q: 装饰器特性有哪些类型？
+## Q: 装饰器有哪些类型？
 
 **A:**
 
@@ -685,9 +811,44 @@ class UserService {
 
 ---
 
-## 工程实践篇
+## Q: 函数重载和联合类型参数有什么区别？
 
-## Q: tsconfig 配置
+**A:**
+
+函数重载的核心是：
+
+1. 写多个重载签名（只声明，不实现）
+2. 最后写一个实现签名（参数通常用联合或 unknown）
+3. 实现体里做类型收窄
+
+```ts
+// 重载签名
+function format(input: string): string
+function format(input: number): string
+
+// 实现签名
+function format(input: string | number): string {
+  if (typeof input === 'number') return input.toFixed(2)
+  return input.trim()
+}
+
+format('  hi  ') // string
+format(12.3)    // string
+```
+
+### 与联合参数的区别
+
+| 对比维度 | 函数重载 | 联合类型参数 |
+|------|------|------|
+| 调用提示 | ✅ 可为不同入参给出不同签名 | ❌ 只有一个统一签名 |
+| 返回类型表达 | ✅ 可按入参精确区分返回类型 | ⚠️ 往往需要联合返回 |
+| 可读性 | ✅ 对外 API 更清晰 | 简单场景更轻量 |
+
+> ⚠️ **注意**：重载签名必须放在实现函数之前；调用方只看到重载签名，看不到实现签名。
+
+---
+
+## Q: tsconfig 关键配置有哪些？
 
 **A:**
 
@@ -726,7 +887,7 @@ class UserService {
 
 ---
 
-## Q: 声明文件用途如何使用？
+## Q: 声明文件 .d.ts 怎么用？
 
 **A:**
 
@@ -766,167 +927,7 @@ declare class EventBus { on(event: string, fn: Function): void }
 
 ---
 
-## Q: 命名空间概念和 ES 模块有何区别？
-
-**A:**
-
-**命名空间**是 TS 早期组织代码的方式，将相关代码包裹在一个具名作用域内，避免全局污染。
-
-```ts
-namespace Validation {
-  export interface StringValidator {
-    isAcceptable(s: string): boolean
-  }
-
-  export class LettersOnlyValidator implements StringValidator {
-    isAcceptable(s: string) {
-      return /^[A-Za-z]+$/.test(s)
-    }
-  }
-}
-
-const validator = new Validation.LettersOnlyValidator()
-```
-
-| 维度 | `namespace` | ES Module |
-|------|------------|-----------|
-| 作用域 | TS 编译时合并 | 文件级别隔离 |
-| 现代工程推荐 | ❌ 不推荐 | ✅ 推荐 |
-| 适用场景 | 声明文件（`.d.ts`）中 | 所有业务代码 |
-| Tree-shaking | ❌ 不支持 | ✅ 支持 |
-
-> ⚠️ **注意**：在现代 TS 项目中，**应使用 ES Module（`import/export`）替代命名空间**。命名空间目前主要用于全局声明文件（如 `@types` 包）中。
-
----
-
-## 高频补充篇
-
-## Q: 函数重载语法和联合类型参数有什么区别？
-
-**A:**
-
-函数重载的核心是：
-
-1. 写多个重载签名（只声明，不实现）
-2. 最后写一个实现签名（参数通常用联合或 unknown）
-3. 实现体里做类型收窄
-
-```ts
-// 重载签名
-function format(input: string): string
-function format(input: number): string
-
-// 实现签名
-function format(input: string | number): string {
-  if (typeof input === 'number') return input.toFixed(2)
-  return input.trim()
-}
-
-format('  hi  ') // string
-format(12.3)    // string
-```
-
-### 与联合参数的区别
-
-| 对比维度 | 函数重载 | 联合类型参数 |
-|------|------|------|
-| 调用提示 | ✅ 可为不同入参给出不同签名 | ❌ 只有一个统一签名 |
-| 返回类型表达 | ✅ 可按入参精确区分返回类型 | ⚠️ 往往需要联合返回 |
-| 可读性 | ✅ 对外 API 更清晰 | 简单场景更轻量 |
-
-> ⚠️ **注意**：重载签名必须放在实现函数之前；调用方只看到重载签名，看不到实现签名。
-
----
-
-## Q: 类型断言对比
-
-**A:**
-
-### `as` 类型断言
-
-告诉编译器“我比你更清楚当前类型”，只影响编译期，不会做运行时检查。
-
-```ts
-const el = document.getElementById('app') as HTMLDivElement
-el.innerText = 'hello'
-```
-
-### 非空断言 `!`
-
-用于去掉 `null | undefined`，表示“这里一定不为空”。
-
-```ts
-const btn = document.getElementById('btn')!
-btn.addEventListener('click', () => {})
-```
-
-### 类型守卫（推荐）
-
-通过 `typeof` / `instanceof` / `in` / 自定义谓词做真实分支收窄，最安全。
-
-```ts
-const node = document.getElementById('app')
-if (node) {
-  node.innerHTML = 'ok' // ✅
-}
-```
-
-| 方式 | 是否安全 | 是否有运行时校验 | 适用场景 |
-|------|---------|------------------|---------|
-| `as` | ⚠️ 依赖开发者保证 | ❌ 无 | 明确知道类型时 |
-| `!` | ⚠️ 风险更高 | ❌ 无 | 生命周期可控、明确非空时 |
-| 类型守卫 | ✅ 最安全 | ✅ 有分支判断 | 大多数业务代码 |
-
----
-
-## Q: as const vs satisfies
-
-**A:**
-
-### `as const`（常量断言）
-
-作用：
-
-1. 字面量不再被拓宽（`'GET'` 不会变成 `string`）
-2. 对象属性变为 `readonly`
-3. 数组推断为只读元组
-
-```ts
-const req = {
-  method: 'GET',
-  path: '/users'
-} as const
-
-// req.method 类型是 'GET'，不是 string
-```
-
-### `satisfies`（TS 4.9+）
-
-用于“校验是否满足某类型”，但不改变表达式自身推断结果。
-
-```ts
-type Route = {
-  path: string
-  method: 'GET' | 'POST'
-}
-
-const route = {
-  path: '/users',
-  method: 'GET'
-} satisfies Route
-
-// route.method 仍保持字面量 'GET'，同时受 Route 约束
-```
-
-| 对比维度 | `as const` | `satisfies` |
-|------|------|------|
-| 主要目标 | 锁定字面量并只读化 | 校验结构兼容性 |
-| 是否改变推断结果 | ✅ 会（更窄） | ❌ 不会（保留原推断） |
-| 常见用途 | 配置常量、路由表、状态机 | 配置对象类型校验 |
-
----
-
-## Q: 模块化选择`import type` 有什么作用？
+## Q: 模块化 / import type 有什么作用？
 
 **A:**
 
@@ -962,5 +963,38 @@ const getUserName = (u: User) => u.name
 ```
 
 > ⚠️ **注意**：在开启 `isolatedModules`、使用 Babel/SWC 单文件转译时，优先使用 `import type` 区分类型导入与值导入。
+
+---
+
+## Q: 命名空间 vs ES Module 怎么选？
+
+**A:**
+
+**命名空间**是 TS 早期组织代码的方式，将相关代码包裹在一个具名作用域内，避免全局污染。
+
+```ts
+namespace Validation {
+  export interface StringValidator {
+    isAcceptable(s: string): boolean
+  }
+
+  export class LettersOnlyValidator implements StringValidator {
+    isAcceptable(s: string) {
+      return /^[A-Za-z]+$/.test(s)
+    }
+  }
+}
+
+const validator = new Validation.LettersOnlyValidator()
+```
+
+| 维度 | `namespace` | ES Module |
+|------|------------|-----------|
+| 作用域 | TS 编译时合并 | 文件级别隔离 |
+| 现代工程推荐 | ❌ 不推荐 | ✅ 推荐 |
+| 适用场景 | 声明文件（`.d.ts`）中 | 所有业务代码 |
+| Tree-shaking | ❌ 不支持 | ✅ 支持 |
+
+> ⚠️ **注意**：在现代 TS 项目中，**应使用 ES Module（`import/export`）替代命名空间**。命名空间目前主要用于全局声明文件（如 `@types` 包）中。
 
 ---

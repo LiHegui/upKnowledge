@@ -61,7 +61,6 @@ const frontendSidebar = [
     items: [
       { text: 'HTML', link: '/interview/HTML/html相关' },
       { text: 'CSS', link: '/interview/CSS/' },
-      { text: 'Sass & Less', link: '/interview/CSS/sass和less' },
       { text: 'styled-components', link: '/interview/CSS/style-components' },
       { text: 'JavaScript', link: '/interview/JavaScript/' },
     ],
@@ -71,10 +70,7 @@ const frontendSidebar = [
     collapsed: true,
     items: [
       { text: 'TypeScript 概览', link: '/interview/Ts/' },
-      { text: '类型', link: '/interview/Ts/类型/' },
-      { text: '接口', link: '/interview/Ts/接口/' },
-      { text: '类', link: '/interview/Ts/类/' },
-      { text: '函数', link: '/interview/Ts/函数/' },
+      { text: 'TS 与项目结合', link: '/interview/Ts/与项目结合/' },
     ],
   },
   {
@@ -123,7 +119,6 @@ const frontendSidebar = [
       { text: '网络', link: '/interview/网络/' },
       { text: 'WebSocket 专题', link: '/interview/网络/WebSocket' },
       { text: '浏览器', link: '/interview/浏览器/' },
-      { text: '浏览器缓存', link: '/interview/浏览器/浏览器缓存' },
     ],
   },
   {
@@ -171,22 +166,6 @@ const frontendSidebar = [
       { text: '路由', link: '/interview/微信小程序（原生）/route' },
       { text: '媒体', link: '/interview/微信小程序（原生）/media' },
       { text: '权限', link: '/interview/微信小程序（原生）/权限' },
-    ],
-  },
-  {
-    text: 'Gatsby',
-    collapsed: true,
-    items: [
-      { text: 'Gatsby', link: '/interview/Gastby/Gastby' },
-      { text: 'GraphQL', link: '/interview/Gastby/GraphQL' },
-      { text: 'Querying Data', link: '/interview/Gastby/QueryingData' },
-      { text: 'Route', link: '/interview/Gastby/route' },
-      { text: 'Images & Media', link: '/interview/Gastby/ImagesAndMedia' },
-      { text: 'Plugin', link: '/interview/Gastby/plugin' },
-      { text: 'Router 2023', link: '/interview/Gastby/Router_20230802' },
-      { text: 'Built-in API', link: '/interview/Gastby/API/built_in_api' },
-      { text: 'CreatePage', link: '/interview/Gastby/API/CreatePage' },
-      { text: 'gatsby-source-filesystem', link: '/interview/Gastby/plugins/gatsby-source-filesystem' },
     ],
   },
   {

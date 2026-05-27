@@ -4,6 +4,8 @@
 
 ## 2026-05-26
 
+- feat: 更新面试官文档，增加进度系统概述和启动流程说明 `b8d0f7c`
+- Enhance TCP connection and disconnection diagrams in interview documentation `a527417`
 - feat: 添加 WebSocket 专题文档，更新网络技术要点，完善前端侧边栏 `664c408`
 - Merge branch 'master' of github.com:LiHegui/upKnowledge `2ceaae7`
 - docs: enhance Redux and Pinia documentation with detailed explanations and examples `2a2058f`

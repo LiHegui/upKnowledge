@@ -4,6 +4,193 @@
 
 ---
 
+## Q: TS 基础踩坑速查（字面量 / 可选 / readonly / 索引访问 / Exclude）
+
+**A:**
+
+> 训练时反复踩到的小坑集合，每条都是面试一句话就能挂的细节。
+
+### 1. 字面量类型 vs 普通类型 —— 看引号
+
+类型位置带不带引号，含义**完全不同**：
+
+```ts
+type A = string    // 接受任意字符串
+type B = 'hello'   // 只接受 'hello' 这一个值（字面量类型）
+
+const a: A = 'xxx'    // ✅
+const b: B = 'xxx'    // ❌ 只能赋 'hello'
+const b2: B = 'hello' // ✅
+```
+
+**判断技巧**：
+- 想限制「只能是某几个具体值」→ 用**字面量联合**：`'red' | 'green' | 'blue'`
+- 想表示「任意字符串」→ 用 `string`，**不要加引号**
+
+> ⚠️ 对象字面量上下文里最容易踩：`{ name: 'alice' }` 这里 `'alice'` 是字面量；`{ name: string }` 才是「任意字符串」。
+
+---
+
+### 2. `key?: T` vs `key: T | undefined`
+
+**完全是两回事**：
+
+| 写法 | key 可省略 | 值可为 undefined | `'key' in obj` |
+|------|----------|----------------|----------------|
+| `age?: number` | ✅ | ✅ | 可能 false |
+| `age: number \| undefined` | ❌ **必须存在** | ✅ | 永远 true |
+
+```ts
+type A = { age?: number }
+type B = { age: number | undefined }
+
+const a: A = {}                     // ✅
+const b: B = {}                     // ❌ key 必须存在
+const b2: B = { age: undefined }    // ✅ 值可以是 undefined，但 key 必须写
+```
+
+**口诀**：`?:` = "key 可以不写"；`: T | undefined` = "key 必须写，值可以是 undefined"。
+
+---
+
+### 3. `readonly` 是**浅只读**，运行时拦不住
+
+```ts
+type T = {
+  readonly user: { name: string }
+}
+const t: T = { user: { name: 'alice' } }
+
+t.user = { name: 'bob' }   // ❌ 报错（user 本身只读）
+t.user.name = 'bob'        // ✅ 通过！（嵌套属性没加 readonly）
+```
+
+要**深只读**需要递归映射类型：
+
+```ts
+type DeepReadonly<T> = {
+  readonly [K in keyof T]: T[K] extends object ? DeepReadonly<T[K]> : T[K]
+}
+```
+
+> ⚠️ **运行时陷阱**：`readonly` 只是 TS 编译期检查，**JS 运行时根本拦不住**。要真不可变得用 `Object.freeze()`（浅冻结）或递归 freeze。
+
+---
+
+### 4. `as const` 同时做两件事
+
+| 维度 | 没加 `as const` | 加了 `as const` |
+|------|---------------|----------------|
+| 可变性 | 可写 | `readonly` |
+| 值收窄 | 推断为宽类型 `number / string` | 推断为**字面量** `1 / 'hi'` |
+| 数组 | `number[]` | `readonly [...]` **元组** |
+
+```ts
+const a = { x: 1 }            // { x: number }
+const b = { x: 1 } as const   // { readonly x: 1 }
+
+const c = [1, 2, 3]           // number[]
+const d = [1, 2, 3] as const  // readonly [1, 2, 3]
+```
+
+**实战 — 单一数据源**：
+```ts
+const COLORS = ['red', 'green', 'blue'] as const
+type Color = typeof COLORS[number]
+// → 'red' | 'green' | 'blue'    数组加项类型自动同步
+```
+
+---
+
+### 5. 元组转联合：`T[number]`；取长度：`T['length']`
+
+```ts
+type Tuple = ['a', 'b', 'c']
+
+type Union = Tuple[number]   // 'a' | 'b' | 'c'    ← 索引访问"任意数字 key"
+type Len   = Tuple['length'] // 3                  ← 索引访问 'length' key
+```
+
+> ⚠️ **只有元组**才能拿到字面量长度。普通数组：
+> ```ts
+> type A = string[]
+> type LenA = A['length']  // number ← 不是字面量！
+> ```
+
+---
+
+### 6. `Exclude` / `Extract` / `NonNullable` 参数语义
+
+| 工具类型 | 含义 | 第二参 |
+|---------|------|--------|
+| `Exclude<T, U>` | 从 T **剔除** U | **黑名单** |
+| `Extract<T, U>` | 从 T **保留** U | **白名单** |
+| `NonNullable<T>` | 去掉 null/undefined | 无（只接 1 参） |
+
+```ts
+type Input = string | number | null | undefined
+
+type A = NonNullable<Input>                   // string | number ✅
+type B = Exclude<Input, null | undefined>     // string | number ✅
+type C = Exclude<Input, string | number>      // null | undefined ← 用反了！
+```
+
+> ⚠️ **常见错用**：以为第二参是"要保留的"，实际它是"要丢的"。"**Ex**-clude" = 排除。
+
+---
+
+### 7. `typeof`：值空间 → 类型空间
+
+TS 有**两套独立命名空间**：
+
+| 空间 | 谁住在这 | 何时存在 |
+|------|---------|---------|
+| **值空间** | `const` / `let` / `function` / `class` 实例 | 运行时 |
+| **类型空间** | `type` / `interface` / 泛型参数 | 编译期 |
+
+`typeof` 是"值 → 类型"的桥梁，**只有左边是值时才用**：
+
+```ts
+// 场景 A：已经是类型 → 不要 typeof
+type Input = ['a', 'b', 'c']
+type X = Input[number]                  // ✅
+type X2 = typeof Input[number]          // ❌ Input 不是值
+
+// 场景 B：是值 → 必须 typeof
+const colors = ['a', 'b', 'c'] as const
+type Y = typeof colors[number]          // ✅
+type Y2 = colors[number]                // ❌ colors 是值，不是类型
+```
+
+**判断技巧**：大写 `Input` / `Type` 一般是类型，不用 `typeof`；小写 `colors` / `obj` 这种 `const` 才需要 `typeof`。
+
+---
+
+### 8. `infer` 模式匹配 = JS 解构
+
+`T extends [infer F, ...any[]]` 看着抽象，对应 JS 的 `const [first, ...rest] = arr`：
+
+| JS 值解构 | TS 类型解构 |
+|-----------|------------|
+| `const [first, ...rest] = arr` | `T extends [infer F, ...any[]]` |
+| `first` ← 给值起名 | `infer F` ← 给类型起名 |
+| `...rest` ← 接住剩下的值 | `...any[]` ← 接住剩下的类型（不关心） |
+
+```ts
+// 取首
+type First<T extends readonly any[]> = T extends [infer F, ...any[]] ? F : never
+
+// 取末（镜像）
+type Last<T extends readonly any[]> = T extends [...any[], infer L] ? L : never
+
+// 去末（取剩余）
+type Pop<T extends readonly any[]> = T extends [...infer Rest, any] ? Rest : []
+```
+
+**为什么不直接 `T[0]`？** 因为 `[][0]` 得到 `undefined`，无法优雅处理空元组；用 `infer` 配条件类型，**不匹配直接走 `:never` 分支**，更严谨。
+
+---
+
 ## Q: interface vs type 如何选择？
 
 **A:**
@@ -90,6 +277,41 @@ getLength('hello')   // ✅
 getLength([1, 2, 3]) // ✅
 getLength(42)        // ❌ number 没有 length
 ```
+
+### ✨ 类型别名 vs 泛型 — 什么时候用 `<T>`？
+
+很多人卡在「写 `type A = ...` 还是 `type A<T> = ...`」上。**判断标准：你需不需要"输入"？**
+
+| 需求 | 写法 | 类比 JS |
+|------|------|---------|
+| 描述**一个固定**类型 | `type A = string` | `const a = 123`（变量） |
+| **接收输入**，根据输入算出不同类型 | `type A<T> = T[0]` | `function f(x) { ... }`（函数） |
+
+```ts
+// 场景 A：描述固定类型 → 别名
+type User = { name: string; age: number }
+const u: User = { name: 'alice', age: 18 }
+
+// 场景 B：根据输入算出结果 → 必须泛型
+type First<T extends readonly any[]> = T extends [infer F, ...any[]] ? F : never
+type X = First<[1, 2, 3]>    // 1
+type Y = First<['x', 'y']>   // 'x'
+```
+
+**完全对应 JS 函数的语法映射**：
+
+| JS 函数 | TS 泛型类型 |
+|------|------|
+| `function first(arr) { ... }` | `type First<T> = ...` |
+| `arr` 形参名 | `T` 形参名 |
+| `(arr)` 圆括号 | `<T>` 尖括号 |
+| `first([1,2,3])` 调用 | `First<[1,2,3]>` 调用 |
+| `arr: number[]`（参数类型注解） | `T extends number[]`（泛型约束） |
+
+> 💡 **`extends` 是约束 `T` 的，`T` 是引用入参的。两者必须搭配，缺一不可。**  
+> 没起名字（只写约束）就没法在等号右边引用 —— 就像 JS 里 `function first(number[])` 不写形参名你后面咋写函数体。
+
+**口诀**：**有"输入"就用泛型，没输入就用别名。**
 
 ---
 
@@ -305,6 +527,269 @@ type D = NonNullable<string | null | undefined>  // string
 ```
 
 > ⚠️ **注意**：条件类型中 `infer` 只能在 `extends` 子句的右侧使用，不能在其他位置推断。
+
+### ✨ 分布式条件类型 + `[T]` 禁用分发（必考陷阱）
+
+**「分布式条件类型只对裸（naked）类型参数触发」** —— 这是 TS 最容易踩的隐藏规则。
+
+```ts
+type IsString<T> = T extends string ? true : false
+
+// ❗ 联合类型会"自动逐项分发"
+type A = IsString<string | number>
+// = IsString<string> | IsString<number>
+// = true | false
+// = boolean   ⚠️ 不是 false！
+
+// ❗ never 会"短路"成 never
+type B = IsString<never>   // never（既不是 true 也不是 false）
+
+// ❗ any 同时满足两个分支
+type C = IsString<any>     // boolean
+```
+
+**禁用分发的诀窍：把 T 包成元组 `[T] extends [U]`**
+
+```ts
+type IsString<T> = [T] extends [string] ? true : false
+
+type A = IsString<string | number>   // false ✅（整体判断）
+type B = IsString<never>             // false ✅
+```
+
+| 写法 | `T = never` | `T = string \| number` | 适用 |
+|------|-------------|---------------------|------|
+| `T extends X ? Y : N`（裸） | **never** | **boolean**（分发） | 需要逐项处理联合（如 Exclude） |
+| `[T] extends [X] ? Y : N`（包起来） | **N** | **N**（整体判断） | 需要把联合当整体看 |
+
+**口诀**：**「需要逐项处理联合 → 裸；要把联合当整体 → 包。」**
+
+**典型应用**：
+```ts
+// 必须裸：Exclude 要逐项剔除
+type Exclude<T, U> = T extends U ? never : T
+
+// 必须包：IsNever 判断永远会被 never 短路
+type IsNever<T> = [T] extends [never] ? true : false
+
+// 必须包：判断"是不是 string 联合"
+type IsExactString<T> = [T] extends [string] ? true : false
+```
+
+### ✨ `infer` 使用规则（3 条必记）
+
+```ts
+T extends [infer F, ...any[]] ? F : never
+```
+
+**规则 1：`infer X` 只能写在 `extends` 后面的"匹配模式"里**
+```ts
+// ✅ 合法
+type First<T> = T extends [infer F, ...any[]] ? F : never
+
+// ❌ 全部非法
+type X<T> = infer U                                    // 不在条件类型里
+type Y<T> = T extends [infer F, ...any[]] ? infer F : never  // 结果分支不能 infer
+type Z<T> = T extends [F, ...any[]] ? F : never        // F 没声明
+```
+
+**规则 2：结果分支只能**引用**名字，不能再 `infer`**
+```ts
+type First<T> = T extends (infer U)[] ? U : never   // ✅ 直接用 U
+//                                      ▲
+type First<T> = T extends (infer U)[] ? infer U : never  // ❌
+```
+
+**规则 3：`infer X` ≈ JS 解构 + 命名**
+
+| JS 值解构 | TS 类型解构 |
+|-----------|------------|
+| `const [first, ...rest] = arr` | `T extends [infer F, ...any[]]` |
+| `first` ← 给值起名 | `infer F` ← 给类型起名 |
+| `...rest` ← 接住剩余值 | `...any[]` ← 接住剩余类型 |
+| `const { user } = obj` | `T extends { user: infer U }` |
+
+### ✨ 所有 `infer` 套路一览（背熟即可应付大半题）
+
+| 想拿什么 | 模式 |
+|---------|------|
+| 数组元素 | `T extends (infer U)[] ? U : never` |
+| 元组首 | `T extends [infer F, ...any[]] ? F : never` |
+| 元组末 | `T extends [...any[], infer L] ? L : never` |
+| 元组除首（尾部） | `T extends [any, ...infer Rest] ? Rest : []` |
+| 元组除末（头部） | `T extends [...infer Init, any] ? Init : []` |
+| 函数参数 | `T extends (...args: infer P) => any ? P : never` |
+| 函数返回 | `T extends (...args: any[]) => infer R ? R : never` |
+| Promise 内值 | `T extends Promise<infer U> ? U : never` |
+| 对象某属性 | `T extends { a: infer A } ? A : never` |
+| 构造函数实例 | `T extends new (...args: any) => infer I ? I : never` |
+| 字符串首字符 | `` T extends `${infer F}${string}` ? F : never `` |
+
+### ✨ 泛型约束的"宽窄"原则
+
+很多人把"约束"和"判断"写混：
+
+| 位置 | 作用 | 写什么 |
+|------|------|--------|
+| `<T extends ???>` | **入口校验**：限制 T 能传啥 | **最宽**（覆盖所有合法输入） |
+| `T extends ??? ? A : B` | **结果分支**：精确分类 | **最窄**（具体到字面量） |
+
+```ts
+// ❌ 约束太窄
+type If<C extends true, T, F> = C extends true ? T : F
+If<false, 'a', 'b'>   // ❌ false 都不让传
+
+// ✅ 约束写最宽（boolean），判断写最窄（true）
+type If<C extends boolean, T, F> = C extends true ? T : F
+```
+
+**口诀**：**"宽进严判"**。约束让能传的都进来，判断在内部精确分类。
+
+### ✨ 元组展开 `[...A, ...B]` 8 种形态
+
+TS 元组类型支持 JS 数组的所有展开语法 + `infer` 配合：
+
+```ts
+[...A, ...B]            // 拼接两个元组
+[X, ...A]               // 前面追加
+[...A, X]               // 后面追加
+[X, ...A, Y]            // 首尾包夹
+[...A, ...B, ...C]      // 三个拼起来
+
+[infer F, ...infer Rest]    // 首 + 剩余（解构出两个名字）
+[...infer Init, infer Last] // 末 + 剩余
+[any, ...infer Rest]        // 跳过首个，取剩余
+```
+
+实战范例：
+```ts
+// 反转元组（递归）
+type Reverse<T extends any[]> = T extends [infer F, ...infer R] ? [...Reverse<R>, F] : []
+
+// 加法（用元组长度模拟）
+type BuildTuple<L extends number, R extends any[] = []> =
+  R['length'] extends L ? R : BuildTuple<L, [any, ...R]>
+type Add<A extends number, B extends number> = [...BuildTuple<A>, ...BuildTuple<B>]['length']
+```
+
+---
+
+## Q: `infer` 怎么用？为什么这么反人类？
+
+**A:**
+
+### 一句话
+
+**`infer X` = 在一个"类型形状"里挖个洞，让 TS 帮你填上对应的部分，起名叫 X。** 本质 = JS 解构 + 起名。
+
+### 为什么看起来反人类
+
+TS 类型层面**没有** `if` / `const` / 多行语句，所有逻辑必须挤进一个表达式 → 于是发明了"在 `extends` 模式匹配的同时偷偷解构"的写法。**接受这个先天残疾**，看 `infer` 就顺眼了。
+
+### 渐进式理解（从已知到未知）
+
+```ts
+// Level 1：模板写死，纯判断
+T extends [string, number] ? number : never
+
+// Level 2：元组里"留个洞"，把值抠出来
+T extends [infer X, number] ? X : never
+// 意思：T 是不是"长得像 [?, number]"？是的话第 1 个位置叫 X
+
+// Level 3：模板可以是任何形状（不只元组）
+T extends (...args: any[]) => any ? ... : ...   // 函数形状
+T extends Promise<any> ? ... : ...               // Promise 形状
+
+// Level 4：在新形状里留洞
+T extends (...args: infer P) => any ? P : never  // 抠函数参数
+T extends Promise<infer V> ? V : never           // 抠 Promise 值
+```
+
+**关键认知**：`extends 模板` 的"模板"可以是任何类型形状 —— 元组、数组、函数、对象、Promise、自定义泛型...
+
+### 必须澄清的 3 个误区
+
+#### 误区 1：T 是参数列表？
+
+❌ **错**。`T` 是**外面传进来的整个东西**，参数列表只是 T 里面的"一小块"，需要 `infer` 抠出来。
+
+```ts
+function login(u: string, p: number) { return true }
+
+type T = typeof login
+// T = (u: string, p: number) => boolean   ← T 是整个函数，不是参数
+
+type P = MyParameters<T>
+// P = [string, number]                    ← P 才是参数列表
+```
+
+#### 误区 2：传啥都能抠？
+
+❌ **错**。**T 必须和模板形状对上**才能匹配，对不上直接走 `never`。
+
+```ts
+type MyParameters<T> = T extends (...args: infer P) => any ? P : never
+
+MyParameters<(a: string) => void>   // [string] ✅ 函数 vs 函数模板，匹配
+MyParameters<[string, number]>      // never ❌ 元组 vs 函数模板，不匹配
+MyParameters<number>                // never ❌ 数字 vs 函数模板，不匹配
+```
+
+#### 误区 3：`infer` 只能写在数组/元组里？
+
+❌ **错**。`infer` 可以放在**任何泛型位置**：
+
+| 场景 | 写法 |
+|------|------|
+| 元组 | `T extends [infer X, ...any[]]` |
+| 数组 | `T extends (infer X)[]` |
+| 函数参数 | `T extends (...args: infer P) => any` |
+| 函数返回 | `T extends (...args: any[]) => infer R` |
+| Promise | `T extends Promise<infer V>` |
+| 对象属性 | `T extends { id: infer I }` |
+| Map | `T extends Map<infer K, infer V>` |
+| 构造函数 | `T extends new (...args: any) => infer I` |
+| 字符串模板 | `` T extends `${infer Head}-${infer Tail}` `` |
+| 自定义泛型 | `T extends Box<infer V>` |
+
+### 真实工作流：`Parameters` + `ReturnType` + `typeof`
+
+**核心价值**：函数定义是"真理"，类型抠一次，多处复用。
+
+```ts
+// ① 业务函数（写一次，真理源头）
+async function fetchUser(id: string) {
+  return { id, name: 'mike', age: 25 }
+}
+
+// ② 类型抠一次
+type FetchUserArgs   = Parameters<typeof fetchUser>     // [string]
+type FetchUserReturn = Awaited<ReturnType<typeof fetchUser>>
+//                     ━━━━━━━ 用 Awaited 把 Promise 剥掉
+// = { id: string; name: string; age: number }
+
+// ③ 多处复用
+const formData: FetchUserArgs = ['user-1']           // 表单
+const mockData: FetchUserArgs = ['test-id']          // 测试
+const cache: FetchUserReturn | null = null           // 缓存
+function show(user: FetchUserReturn) { /* ... */ }   // 组件
+```
+
+**fetchUser 改签名 → 所有用到类型的地方自动跟着变** ✅
+
+### 三铁律（再背一次）
+
+| 铁律 | 例子 |
+|------|------|
+| ① 只能写在 `extends` 后面的「模式」里 | `T extends ...infer X... ? ... : ...` ✅ |
+| ② 不能写在约束位置 | `<T extends infer X>` ❌ |
+| ③ 结果分支只能引用名字，不能再 `infer` | `? X : Y` ✅ ／ `? infer X : Y` ❌ |
+
+### 心法
+
+> **「想抠哪里，就在哪里写 `infer 名字`，真分支再用这个名字。」**
+
+跟 JS 解构 `const { name } = obj` 一模一样的思路 —— **想要 `name` 就在解构模板里写 `name`**。
 
 ---
 

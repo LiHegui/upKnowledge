@@ -172,6 +172,7 @@ const frontendSidebar = [
     collapsed: true,
     items: [
       { text: 'Canvas 技术要点', link: '/interview/Canvas/' },
+      { text: 'Canvas · 点云大数据渲染', link: '/interview/Canvas/点云大数据渲染' },
       { text: 'ECharts 技术要点', link: '/interview/ECharts/' },
       { text: '高德地图 技术要点', link: '/interview/高德地图/' },
       { text: 'Three.js', link: '/interview/Web3D/three' },

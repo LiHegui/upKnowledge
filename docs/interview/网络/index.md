@@ -1,469 +1,327 @@
-﻿# 网络技术要点
+# 网络面试核心知识
 
-## http和https
+>  相关专题：[WebSocket 专题](./WebSocket.md) · [浏览器原理 → HTTP 缓存](../浏览器/#q-谈谈你对浏览器缓存机制的理解)
 
-HTTP是传文本传输协议，是实现网络通信的一种规范。
-HTTP常用于在Web浏览器和网站服务器之间传递信息，以明文方式发送内容，不提供任何方式的数据加密。
-特点如下：
-
-- 支持客户端/服务器模式
-- 简单快速
-  客户端向服务器请求服务时，只需传送请求方法和路径。由于http协议简单，使得HTTP服务器的程序规模小，因而通信速度很快。
-- 灵活
-  HTTP允许传输任意类型的数据对象。正在传输的又Content-Type标记。
-- 无连接
-  每次连接只处理一次请求。服务器处理完客户请求，并收到客户的应答后，即断开连接。采用这种方式可以节约传输时间。
-- 无状态
-  每个请求都是独立的，服务器不会记录之前的请求，所以对于每次请求都会返回相同的结果。
-  HTTPS
-  HTTP是以明文的方式进行传送，这样是并不安全的。而HTTPS出现正是为了解决HTTP不安全的特性。
-  多的这一层是SSL/TCL协议，通过SSL证书来验证服务器的身份，并为浏览器和服务器之间的通信进行加密。
-  SSL协议位于TCP/IP
-
-## https的加密流程
-
-HTTPS（HTTP Secure）是在HTTP协议基础上添加了安全性功能的协议，使用加密来保护数据的传输。以下是HTTPS的加密流程：
-
-- 客户端发起连接请求：客户端（例如浏览器）向服务器发送一个连接请求，指示其希望建立一个安全的HTTPS连接。
-- 服务器发送证书：服务器收到客户端的请求后，会将自己的数字证书发送给客户端。数字证书包含了服务器的公钥、证书有效期、证书颁发机构等信息。
-- 客户端验证证书：客户端接收到服务器的证书后，会验证证书的有效性。这包括检查证书的签名是否有效、证书是否过期、证书颁发机构是否受信任等。
-- 客户端生成随机密钥：如果证书验证成功，客户端会生成一个随机的对称密钥（即会话密钥），用于后续的对称加密。
-- 使用服务器的公钥加密会话密钥：客户端使用服务器的公钥对生成的会话密钥进行加密，并将加密后的会话密钥发送给服务器。
-- 服务器使用私钥解密会话密钥：服务器收到客户端发送的加密会话密钥后，使用自己的私钥进行解密，得到会话密钥。
-- 加密通信：客户端和服务器现在都拥有相同的会话密钥。双方使用该会话密钥进行对称加密，加密和解密传输的数据。
-  通过这个过程，HTTPS实现了安全的通信。客户端和服务器之间的数据传输是经过加密的，确保了数据的机密性和完整性，同时防止了中间人攻击和窃听。
-
-## 如何理解OSI七层模型?
-
-每一层实现各自的功能和协议，并完成与相邻的接口通信。
-
-- 应用层
-  DNS,HTTP，HTTPS
-- 表示层
-- 会话层
-- 传输层
-  传输层的主要任务是为了两台主进程之间的通信提供服务，处理数据包错误、数据包次序，以及其它一些关键传输的问题。
-  TCP和UDP
-- 网络层
-- 数据链路层
-- 物理层
-
-## 三次握手和四次挥手
-
-TCP（传输控制协议）是一种面向连接的、可靠的传输层协议。在建立连接和断开连接时，TCP 使用**三次握手**和**四次挥手**的机制来确保数据的可靠传输。以下是它们的简要说明：
+<style>
+.net-flow{display:flex;align-items:stretch;gap:0;flex-wrap:wrap;margin:12px 0}
+.net-step{flex:1;min-width:90px;padding:12px 8px;text-align:center;font-size:12px;font-weight:600;border-radius:7px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:4px}
+.net-step sub{font-weight:400;color:#888;font-size:11px;display:block;margin-top:2px}
+.net-arr{color:#999;font-size:18px;padding:0 4px;display:flex;align-items:center}
+.net-b{background:rgba(79,142,247,.12);border:1px solid rgba(79,142,247,.4);color:#2563eb}
+.net-g{background:rgba(61,220,132,.12);border:1px solid rgba(61,220,132,.4);color:#059669}
+.net-p{background:rgba(181,123,238,.12);border:1px solid rgba(181,123,238,.4);color:#8b5cf6}
+.net-o{background:rgba(255,159,67,.12);border:1px solid rgba(255,159,67,.4);color:#ea580c}
+.net-y{background:rgba(255,209,102,.12);border:1px solid rgba(255,209,102,.4);color:#ca8a04}
+.net-r{background:rgba(255,92,92,.12);border:1px solid rgba(255,92,92,.4);color:#dc2626}
+.net-osi{display:flex;flex-direction:column;gap:4px;margin:14px 0;max-width:680px}
+.net-osi-row{display:flex;align-items:center;padding:10px 14px;border-radius:6px;font-size:13px;gap:12px}
+.net-osi-row b{min-width:90px}
+.net-osi-row span{color:#666;font-size:12px}
+.net-cmp{display:flex;gap:12px;margin:14px 0;flex-wrap:wrap}
+.net-cmp-card{flex:1;min-width:240px;border-radius:8px;padding:14px 16px;border:1px solid #ddd}
+.net-cmp-card h5{margin:0 0 8px;font-size:14px}
+.net-cmp-card ul{margin:0;padding-left:18px;font-size:13px;line-height:1.7}
+.net-cmp-tcp{border-color:#3b82f6;background:rgba(59,130,246,.04)}
+.net-cmp-tcp h5{color:#2563eb}
+.net-cmp-udp{border-color:#10b981;background:rgba(16,185,129,.04)}
+.net-cmp-udp h5{color:#059669}
+</style>
 
 ---
 
-### **TCP 三次握手（建立连接）**
+## Q: 从输入 URL 到页面渲染发生了什么？
 
-三次握手用于在客户端和服务器之间建立 TCP 连接。目的是确保双方都能发送和接收数据。
+**A:**
 
-1. **第一次握手（SYN）**：
+<div class="net-flow">
+  <div class="net-step net-b">① URL 解析<sub>判断是 URL<br>还是搜索词</sub></div>
+  <div class="net-arr">→</div>
+  <div class="net-step net-g">② DNS 查询<sub>域名 → IP</sub></div>
+  <div class="net-arr">→</div>
+  <div class="net-step net-p">③ TCP 连接<sub>三次握手</sub></div>
+  <div class="net-arr">→</div>
+  <div class="net-step net-o">④ TLS 握手<sub>仅 HTTPS</sub></div>
+  <div class="net-arr">→</div>
+  <div class="net-step net-y">⑤ 发起请求<sub>HTTP Request</sub></div>
+  <div class="net-arr">→</div>
+  <div class="net-step net-r">⑥ 服务器响应<sub>HTTP Response</sub></div>
+  <div class="net-arr">→</div>
+  <div class="net-step net-b">⑦ 浏览器渲染<sub>解析 + 布局 + 绘制</sub></div>
+</div>
 
-   - 客户端向服务器发送一个 `SYN`（同步）报文，其中包含一个随机生成的初始序列号（`seq = x`）。
-   - 客户端进入 `SYN_SENT` 状态。
-2. **第二次握手（SYN + ACK）**：
-
-   - 服务器收到 `SYN` 报文后，向客户端发送一个 `SYN + ACK`（同步 + 确认）报文。
-     - `ACK` 报文的确认号为 `x + 1`（表示期望收到客户端的下一个序列号）。
-     - 服务器也会生成一个随机序列号 `seq = y`。
-   - 服务器进入 `SYN_RECEIVED` 状态。
-3. **第三次握手（ACK）**：
-
-   - 客户端收到 `SYN + ACK` 报文后，向服务器发送一个 `ACK`（确认）报文，确认号为 `y + 1`。
-   - 客户端和服务器都进入 `ESTABLISHED` 状态，连接建立成功。
-
-**总结**：
-
-- 三次握手的目的是确保双方都能发送和接收数据。
-- 通过交换初始序列号，双方可以确保数据的有序性和完整性。
-
----
-
-### **TCP 四次挥手（断开连接）**
-
-四次挥手用于在客户端和服务器之间断开 TCP 连接。目的是确保双方都能安全地关闭连接。
-
-1. **第一次挥手（FIN）**：
-
-   - 客户端向服务器发送一个 `FIN`（结束）报文，表示客户端没有数据要发送了。
-   - 客户端进入 `FIN_WAIT_1` 状态。
-2. **第二次挥手（ACK）**：
-
-   - 服务器收到 `FIN` 报文后，向客户端发送一个 `ACK` 报文，确认收到 `FIN`。
-   - 服务器进入 `CLOSE_WAIT` 状态，客户端进入 `FIN_WAIT_2` 状态。
-   - 此时，服务器可能还有未发送完的数据。
-3. **第三次挥手（FIN）**：
-
-   - 当服务器完成数据发送后，向客户端发送一个 `FIN` 报文，表示服务器也没有数据要发送了。
-   - 服务器进入 `LAST_ACK` 状态。
-4. **第四次挥手（ACK）**：
-
-   - 客户端收到 `FIN` 报文后，向服务器发送一个 `ACK` 报文，确认收到 `FIN`。
-   - 客户端进入 `TIME_WAIT` 状态，等待一段时间（2MSL，Maximum Segment Lifetime）以确保服务器收到 `ACK`。
-   - 服务器收到 `ACK` 后，关闭连接，进入 `CLOSED` 状态。
-   - 客户端在 `TIME_WAIT` 结束后，也关闭连接，进入 `CLOSED` 状态。
-
-**总结**：
-
-- 四次挥手的目的是确保双方都能安全地关闭连接。
-- 通过 `FIN` 和 `ACK` 的交换，确保双方都完成了数据的发送和接收。
-
----
-
-### **为什么需要三次握手和四次挥手？**
-
-1. **三次握手**：
-
-   - 确保双方都能发送和接收数据。
-   - 防止已失效的连接请求报文突然传送到服务器，导致错误。
-2. **四次挥手**：
-
-   - 确保双方都能安全地关闭连接。
-   - 服务器可能需要时间处理未发送完的数据，因此需要分两次发送 `ACK` 和 `FIN`。
-
----
-
-### **示意图**
-
-#### 三次握手：
+**第 7 步「浏览器渲染」展开**：
 
 ```
-客户端 -> SYN -> 服务器
-客户端 <- SYN + ACK <- 服务器
-客户端 -> ACK -> 服务器
+HTML → DOM Tree ─┐
+                 ├─→ Render Tree → Layout → Paint → Composite
+CSS  → CSSOM   ─┘
+                  ↑
+        JS（可能阻塞解析）
 ```
 
-#### 四次挥手：
+详见 [浏览器渲染原理](../浏览器/index.md)。
+
+---
+
+## Q: TCP 三次握手流程是什么？为什么是三次？
+
+**A:**
+
+TCP（传输控制协议）是一种面向连接的、可靠的传输层协议。三次握手的目的是确保**双方都能发送和接收数据**。
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" style="max-width:640px;width:100%;height:auto;background:#fff;border:1px solid #e5e7eb;border-radius:8px;">
+  <defs>
+    <marker id="arr1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#475569"/>
+    </marker>
+  </defs>
+  <rect x="60" y="20" width="120" height="34" rx="6" fill="#3b82f6"/>
+  <text x="120" y="42" text-anchor="middle" fill="#fff" font-size="15" font-weight="700">客户端 Client</text>
+  <rect x="460" y="20" width="120" height="34" rx="6" fill="#10b981"/>
+  <text x="520" y="42" text-anchor="middle" fill="#fff" font-size="15" font-weight="700">服务器 Server</text>
+  <line x1="120" y1="60" x2="120" y2="360" stroke="#94a3b8" stroke-width="2" stroke-dasharray="4 4"/>
+  <line x1="520" y1="60" x2="520" y2="360" stroke="#94a3b8" stroke-width="2" stroke-dasharray="4 4"/>
+  <text x="120" y="78" text-anchor="middle" fill="#64748b" font-size="13" font-weight="600">CLOSED</text>
+  <text x="520" y="78" text-anchor="middle" fill="#64748b" font-size="13" font-weight="600">LISTEN</text>
+  <text x="80" y="118" text-anchor="end" fill="#0ea5e9" font-size="13" font-weight="600">SYN_SENT</text>
+  <line x1="120" y1="130" x2="520" y2="170" stroke="#475569" stroke-width="2" marker-end="url(#arr1)"/>
+  <text x="320" y="142" text-anchor="middle" fill="#0f172a" font-size="13" font-weight="600">① SYN=1, seq=x</text>
+  <text x="560" y="188" text-anchor="start" fill="#16a34a" font-size="13" font-weight="600">SYN_RCVD</text>
+  <line x1="520" y1="200" x2="120" y2="240" stroke="#475569" stroke-width="2" marker-end="url(#arr1)"/>
+  <text x="320" y="212" text-anchor="middle" fill="#0f172a" font-size="13" font-weight="600">② SYN=1, ACK=1, seq=y, ack=x+1</text>
+  <text x="80" y="258" text-anchor="end" fill="#0ea5e9" font-size="13" font-weight="600">ESTABLISHED</text>
+  <line x1="120" y1="270" x2="520" y2="310" stroke="#475569" stroke-width="2" marker-end="url(#arr1)"/>
+  <text x="320" y="282" text-anchor="middle" fill="#0f172a" font-size="13" font-weight="600">③ ACK=1, seq=x+1, ack=y+1</text>
+  <text x="560" y="328" text-anchor="start" fill="#16a34a" font-size="13" font-weight="600">ESTABLISHED</text>
+  <line x1="120" y1="350" x2="520" y2="350" stroke="#f59e0b" stroke-width="2" marker-end="url(#arr1)" marker-start="url(#arr1)"/>
+  <text x="320" y="345" text-anchor="middle" fill="#f59e0b" font-size="13" font-weight="700">🎉 连接建立，开始数据传输</text>
+</svg>
+
+> 💡 **记忆口诀**：「我能发 → 你能收能发 → 我能收」，三次刚好让**双方都确认对方的收发能力**。
+
+**为什么不是两次？** 防止已失效的旧连接请求突然到达服务器，造成资源浪费。
+
+**为什么不是四次？** 第二次握手中 `SYN` 和 `ACK` 可以合并，没必要拆成两次。
+
+---
+
+## Q: TCP 四次挥手流程是什么？为什么是四次？
+
+**A:**
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 480" style="max-width:640px;width:100%;height:auto;background:#fff;border:1px solid #e5e7eb;border-radius:8px;">
+  <defs>
+    <marker id="arr2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#475569"/>
+    </marker>
+  </defs>
+  <rect x="60" y="20" width="120" height="34" rx="6" fill="#3b82f6"/>
+  <text x="120" y="42" text-anchor="middle" fill="#fff" font-size="15" font-weight="700">客户端 Client</text>
+  <rect x="460" y="20" width="120" height="34" rx="6" fill="#10b981"/>
+  <text x="520" y="42" text-anchor="middle" fill="#fff" font-size="15" font-weight="700">服务器 Server</text>
+  <line x1="120" y1="60" x2="120" y2="460" stroke="#94a3b8" stroke-width="2" stroke-dasharray="4 4"/>
+  <line x1="520" y1="60" x2="520" y2="460" stroke="#94a3b8" stroke-width="2" stroke-dasharray="4 4"/>
+  <text x="120" y="78" text-anchor="middle" fill="#64748b" font-size="13" font-weight="600">ESTABLISHED</text>
+  <text x="520" y="78" text-anchor="middle" fill="#64748b" font-size="13" font-weight="600">ESTABLISHED</text>
+  <text x="80" y="118" text-anchor="end" fill="#0ea5e9" font-size="13" font-weight="600">FIN_WAIT_1</text>
+  <line x1="120" y1="130" x2="520" y2="165" stroke="#475569" stroke-width="2" marker-end="url(#arr2)"/>
+  <text x="320" y="142" text-anchor="middle" fill="#0f172a" font-size="13" font-weight="600">① FIN=1, seq=u</text>
+  <text x="560" y="183" text-anchor="start" fill="#16a34a" font-size="13" font-weight="600">CLOSE_WAIT</text>
+  <line x1="520" y1="195" x2="120" y2="230" stroke="#475569" stroke-width="2" marker-end="url(#arr2)"/>
+  <text x="320" y="207" text-anchor="middle" fill="#0f172a" font-size="13" font-weight="600">② ACK=1, ack=u+1</text>
+  <text x="80" y="248" text-anchor="end" fill="#0ea5e9" font-size="13" font-weight="600">FIN_WAIT_2</text>
+  <rect x="430" y="218" width="180" height="50" rx="6" fill="#fef3c7" stroke="#f59e0b"/>
+  <text x="520" y="238" text-anchor="middle" fill="#92400e" font-size="11" font-weight="600">服务器处理剩余数据</text>
+  <text x="520" y="255" text-anchor="middle" fill="#92400e" font-size="11">（半关闭，仍可发送）</text>
+  <text x="560" y="298" text-anchor="start" fill="#16a34a" font-size="13" font-weight="600">LAST_ACK</text>
+  <line x1="520" y1="310" x2="120" y2="345" stroke="#475569" stroke-width="2" marker-end="url(#arr2)"/>
+  <text x="320" y="322" text-anchor="middle" fill="#0f172a" font-size="13" font-weight="600">③ FIN=1, ACK=1, seq=v, ack=u+1</text>
+  <text x="80" y="363" text-anchor="end" fill="#dc2626" font-size="13" font-weight="600">TIME_WAIT</text>
+  <line x1="120" y1="375" x2="520" y2="410" stroke="#475569" stroke-width="2" marker-end="url(#arr2)"/>
+  <text x="320" y="387" text-anchor="middle" fill="#0f172a" font-size="13" font-weight="600">④ ACK=1, seq=u+1, ack=v+1</text>
+  <text x="560" y="428" text-anchor="start" fill="#64748b" font-size="13" font-weight="600">CLOSED</text>
+  <text x="80" y="408" text-anchor="end" fill="#dc2626" font-size="11" font-style="italic">等待 2MSL</text>
+  <text x="80" y="450" text-anchor="end" fill="#64748b" font-size="13" font-weight="600">CLOSED</text>
+</svg>
+
+| 步骤 | 方向 | 报文 | 客户端状态 | 服务器状态 |
+|------|------|------|----------|----------|
+| ① | C → S | `FIN` | `FIN_WAIT_1` | `ESTABLISHED` |
+| ② | S → C | `ACK` | `FIN_WAIT_2` | `CLOSE_WAIT` |
+| ③ | S → C | `FIN` | `FIN_WAIT_2` | `LAST_ACK` |
+| ④ | C → S | `ACK` | `TIME_WAIT` → `CLOSED` | `CLOSED` |
+
+> ⚠️ **为什么是 4 次而不是 3 次？**
+> 服务器收到 `FIN` 后，可能还有数据未发完，所以 `ACK` 和 `FIN` 必须**分两次发送**（不能像握手那样合并）。这就是 TCP 的「半关闭」特性。
+
+> ⏱️ **为什么 TIME_WAIT 要等 2MSL？**
+> - 确保最后一个 `ACK` 能可靠到达服务器（若丢失，服务器会重传 `FIN`）
+> - 让旧连接的残留报文在网络中自然消亡，避免污染新连接
+
+---
+
+## Q: HTTP 和 HTTPS 的区别？
+
+**A:**
+
+| 维度 | HTTP | HTTPS |
+|------|------|-------|
+| 传输方式 | 明文 ❌ | 加密 ✅（TLS/SSL） |
+| 端口 | 80 | 443 |
+| 证书 | 不需要 | 需要 CA 证书 |
+| 性能 | 快 | 略慢（多了握手 + 加解密） |
+| URL | `http://` | `https://` |
+
+> 💡 **一句话**：HTTPS = HTTP + TLS。在 HTTP 和 TCP 之间多加了一层 TLS 用于加密。
 
 ```
-客户端 -> FIN -> 服务器
-客户端 <- ACK <- 服务器
-客户端 <- FIN <- 服务器
-客户端 -> ACK -> 服务器
-```
-
----
-
-希望这个回答对你有帮助！如果还有其他问题，欢迎继续提问！
-
-## TCP协议和UDP协议的区别
-
-- 他们都位于osi七层模型的传输层
-- 主要区别
-
-1. 可靠性：tcp是一种可靠的协议，它提供了数据之间的可靠传输和错误检验机制。它可以确认、重传和流控制等机制来确保数据的完整性和数序性。udp是一种不可靠的协议，它不提供数据的可靠性传输保证，每个数据报都是独立的实体，可能丢失、重复或者乱序。
-2. 连接性：tcp是一种面向连接的协议，他在通信之前需要通过三次握手来确保通信双方之间的连接建立。udp是一种面向无连接的协议，它不需要建立连接，发送方可以直接将数据报发送到目标地址
-3. 传输效率：因为tcp提供了可靠性和复杂的控制机制，所以它的传输效率相对较低。而udp是一种轻量级的协议，没复杂的控制机制，所以传输效率相对较快
-4. tcp是面向字节流的，将应用层的报文看成一串串的无结构的字节流，分解到多个tcp报文中传输后，在目标站重新装配。udp协议面向报文，不拆分报文，只保留边界，一个个发送报文，接收方去除报文首部后，原封不动的把报文交给上层。
-5. tcp应用于对数据完整性和可靠性要求高的应用场景，如网页浏览，文件传输，电子邮件等。udp适用于实时性要求高的、对数据可靠性要求较低的场景，如音视频播放、实时游戏、流媒体等。
-
-## 说说对WebSocket的理解？心跳机制?应用场景？
-
-
-在回答“对 WebSocket 的理解”时，可以从**基础概念、核心特点、与 HTTP 的关系、典型应用场景、以及工程实践中的关键设计**这几个层面来展开。下面整理了一份结构清晰、重点突出的回答框架，你可以根据实际情况适当调整深度。
-
----
-
-### 一、什么是 WebSocket？
-
-WebSocket 是一种**在单个 TCP 连接上实现全双工通信**的协议，它解决了 HTTP 协议“请求-响应”模式下服务器无法主动推送数据的痛点。
-
-- 协议标识：`ws://`（非加密）和 `wss://`（加密，基于 TLS）。
-- 标准化：由 IETF 定为 RFC 6455，所有现代浏览器都支持。
-
----
-
-### 二、核心特点与优势
-
-1. **全双工通信**客户端和服务端可以**同时**向对方发送数据，没有传统 HTTP 中“必须由客户端发起请求”的限制。
-2. **持久连接**一旦建立连接，只要不主动关闭，就可以一直保持，减少了反复握手带来的开销。
-3. **低延迟**省去了每次通信都需要携带 HTTP 头部（尤其 Cookie 等冗余信息），数据帧头很小，适合高频、实时场景。
-4. **协议升级**
-   通过 HTTP 的 `Upgrade` 机制完成握手，兼容现有 Web 基础设施（80/443 端口、代理、防火墙等）。
-
----
-
-### 三、与 HTTP 的关系及连接过程
-
-- 握手阶段：客户端发送一个携带 `Upgrade: websocket` 的 HTTP 请求，服务端确认后返回 `101 Switching Protocols`，之后协议升级为 WebSocket。
-- 数据传输阶段：不再使用 HTTP 语义，而是基于帧（frame）传输数据。
-- 常见误区：WebSocket 不是“基于 HTTP 的”，而是“借助 HTTP 完成握手”的独立协议。
-
----
-
-### 四、典型应用场景
-
-- **实时双向通信**：即时聊天、在线客服、直播弹幕、协同文档（如 Google Docs）。
-- **实时数据推送**：股票/加密货币行情、体育赛事比分、物联网设备状态。
-- **游戏与交互**：多人在线游戏、实时白板、远程控制。
-- **低延迟替代方案**：对轮询（Polling）或长轮询（Long Polling）的升级，显著降低服务器压力和网络延迟。
-
----
-
-### 五、工程实践中的关键设计（这部分可以体现项目经验）
-
-在实际开发中，仅仅使用 `onopen`/`onmessage`/`onclose`/`onerror` 是不够的，需要额外考虑以下几点：
-
-#### 1. 心跳机制（Heartbeat）
-
-- **为什么需要**：网络中间设备（如 Nginx、负载均衡）可能会在长时间无数据时主动断开连接，而客户端可能无法及时感知到 `onclose`。
-- **如何实现**：
-  - 应用层心跳：客户端定时发送 `ping`（自定义消息），服务端必须回复 `pong`；如果一段时间未收到 `pong`，则主动关闭连接并重连。
-  - 协议层心跳：服务端可发送协议层的 `Ping` 帧，浏览器会自动回复 `Pong`，但需要后端主动管理。
-- **核心要点**：心跳必须**前后端配合**，单靠前端无法闭环。
-
-#### 2. 重连策略
-
-- 在 `onclose` 中判断是否为主动关闭（如用户退出），若不是则触发重连。
-- 采用**指数退避 + 随机抖动**，避免瞬时大量重连打垮服务器。
-- 设置最大重试次数，结合 `online`/`offline` 事件，在网络恢复时立即尝试重连。
-
-#### 3. 消息可靠性与幂等
-
-- 当连接断开时，可引入**消息队列**暂存待发送的消息，连接恢复后重发。
-- 重发可能造成重复消息，业务层需设计幂等性（如使用唯一 ID 去重）。
-
-#### 4. 状态管理与并发控制
-
-- 防止同时多次调用 `connect()` 创建多个连接实例，需要用标志位或锁控制。
-- 页面关闭/刷新时，应在 `beforeunload` 中主动关闭连接，避免资源泄漏或后端收到异常断开。
-
-#### 5. 异常监控与降级
-
-- 记录连接状态变化（断开、重连成功、超时等）上报监控，便于排查。
-- 若 WebSocket 连接失败，可降级为 HTTP 轮询或长轮询（尤其在某些老旧网络环境下）。
-
----
-
-### 六、可能追问的问题（提前准备）
-
-**Q：WebSocket 和 SSE（Server-Sent Events）有什么区别？**
-
-- SSE 是单向的（服务端→客户端），基于 HTTP，支持自动重连，实现更简单；
-- WebSocket 是双向的，适合交互频繁的场景；若只需要服务端推送，SSE 可能更轻量。
-
-**Q：如何保证消息的顺序性？**
-
-- TCP 本身保证帧顺序，但若应用层有多个连接或消息被缓存重发，则需在消息中加入序列号，由接收方重排序。
-
-**Q：WebSocket 可以传输二进制数据吗？**
-
-- 可以，WebSocket 支持 `ArrayBuffer`、`Blob` 等二进制帧，适合传输图片、音频、自定义二进制协议等。
-
-**Q：WebSocket 连接数上限怎么处理？**
-
-- 单机受限于操作系统文件描述符和内存，需要横向扩展，通常借助消息队列（如 Redis Pub/Sub）在多个服务节点间广播消息。
-
----
-
-### 七、总结
-
-WebSocket 是一个**标准化、低延迟、全双工**的通信协议，非常适合实时性要求高的场景。但在实际工程中，**需要围绕它构建一套完整的稳定性方案**（心跳、重连、消息可靠性、监控等），才能真正发挥其优势，避免“连接假死”“消息丢失”等问题。
-
----
-
-可以先简洁地给出定义和特点，然后结合项目中的具体实践，聊聊心跳重连的设计，体现技术深度和工程落地能力。
-
-## 应用场景
-
-一些需要实时更新的场景
-
-## 说说地址栏输入 URL 敲下回车后发生了什么?
-
-- URL解析：首先判断你输入的是一个合法的URL 还是一个待搜索的关键词，并且根据你输入的内容进行对应操作
-- DNS 查询：见下文
-- TCP 连接：基于url解析出来的协议来和服务器建立连接
-- HTTP 请求：一旦与服务器建立连接，浏览器会发送一个HTTP请求，其中包含请求的方法（GET、POST等）、目标URL、请求头部和请求体等信息
-- 处理请求：服务器接收到浏览器发送的HTTP请求后，会根据请求中的信息进行处理。它会解析URL、读取请求头部和请求体，并执行相应的逻辑来生成响应
-- 响应请求：服务器根据请求的处理结果生成一个HTTP响应，包括响应状态码、响应头部和响应体等信息。响应的内容可能是HTML页面、图像、文本文件或其他数据
-- 接受请求：浏览器接收到服务器发送的HTTP响应后，会读取响应头部和响应体等信息
-- 页面渲染：如果响应是一个HTML页面，浏览器会解析HTML代码，并根据其中的CSS和JavaScript等资源进行页面的渲染和布局
-
-## DNS解析过程
-
-什么是dns：域名系统，是互联网一项服务，是进行域名和与之相对应的 IP 地址进行转换的服务器。简单来讲，DNS相当于一个翻译官，负责将域名翻译成ip地址
-IP 地址：一长串能够唯一地标记网络上的计算机的数字
-域名：是由一串用点分隔的名字组成的 Internet 上某一台计算机或计算机组的名称，用于在数据传输时对网站的定位标识
-解析域名的过程如下：
-
-- 首先搜索浏览器的 DNS 缓存，缓存中维护一张域名与 IP 地址的对应表
-- 若没有命中，则继续搜索操作系统的 DNS 缓存
-- 若仍然没有命中，则操作系统将域名发送至本地域名服务器，本地域名服务器采用递归查询自己的 DNS 缓存，查找成功则返回结果
-- 若本地域名服务器的 DNS 缓存没有命中，则本地域名服务器向上级域名服务器进行迭代查询
-  - 首先本地域名服务器向根域名服务器发起请求，根域名服务器返回顶级域名服务器的地址给本地服务器
-  - 本地域名服务器拿到这个顶级域名服务器的地址后，就向其发起请求，获取权限域名服务器的地址
-  - 本地域名服务器根据权限域名服务器的地址向其发起请求，最终得到该域名对应的 IP 地址
-- 本地域名服务器将得到的 IP 地址返回给操作系统，同时自己将 IP 地址缓存起来
-- 操作系统将 IP 地址返回给浏览器，同时自己也将 IP 地址缓存起
-- 至此，浏览器就得到了域名对应的 IP 地址，并将 IP 地址缓存起
-  ![Alt text](image.png)
-
-## http发送请求和dns发送一个请求的区别以及哪个更快
-
-HTTP（Hypertext Transfer Protocol）和DNS（Domain Name System）是在互联网通信中扮演不同角色的两个协议，它们的作用和性质有所不同。下面是它们在发送请求方面的区别：
-
-- TTP请求：HTTP是用于在客户端和服务器之间传输超文本数据的协议。当客户端需要获取某个资源（如网页、图片、视频等）时，会通过HTTP协议发送一个HTTP请求给服务器，请求的内容包括请求方式（如GET、POST）、请求路径、请求头和请求体等。服务器接收到请求后，根据请求的路径和其他信息，处理请求并返回相应的资源。
-- DNS请求：DNS是用于将域名解析为对应IP地址的协议。当客户端需要访问某个域名的网站时，它需要先将域名转换为IP地址，以便建立与服务器的连接。客户端会发送一个DNS查询请求给DNS服务器，请求的内容包括要解析的域名。DNS服务器接收到请求后，会递归地查询和解析域名，并返回对应的IP地址给客户端。
-  在请求的速度方面，DNS请求通常比HTTP请求快速。这是因为DNS请求通常只涉及域名解析的过程，而该过程通常是在本地操作系统或本地DNS缓存中完成的，而不需要通过网络发送到远程服务器。因此，DNS解析的速度主要取决于本地缓存和网络环境的响应速度。
-
----
-
-相比之下，HTTP请求涉及到与服务器的通信，需要经过网络传输数据。HTTP请求的速度受到多个因素的影响，包括网络延迟、服务器响应时间、带宽限制等。因此，HTTP请求的速度通常比DNS请求慢一些。
-
-需要注意的是，HTTP和DNS是在不同的层面上进行通信的协议，它们的目的和功能不同。HTTP用于传输数据，实现客户端和服务器之间的通信；而DNS用于域名解析，将域名映射为IP地址。它们在互联网通信中发挥着各自重要的作用，无法直接比较哪个更快，因为它们的性质和功能不同。
-
-## 常见的HTTP请求头
-
-- accept 浏览器可接受的MIME类型，如application/json、text/plain等
-- Cookie
-- Host
-  初始URL中的主机和端口
-
-## `<span style="color: red; font-weight: 700;">`HTTP缓存（强缓存、协商缓存）
-
-HTTP 缓存分为**强缓存**和**协商缓存**两种机制，它们共同作用以减少不必要的网络请求，提升性能。以下是它们的详细说明：
-
----
-
-**1. 强缓存**
-强缓存是指客户端直接从本地缓存中获取资源，而不向服务器发送请求。强缓存通过响应头中的 `Cache-Control` 和 `Expires` 字段来控制。
-
-**实现强缓存的响应头字段**
-
-- **`Cache-Control`**：
-
-  - `max-age=<seconds>`：资源在缓存中的最大存活时间（相对于请求时间）。
-  - `no-cache`：不使用强缓存，每次请求都需验证资源是否更新。
-  - `no-store`：禁止缓存资源。
-  - `public`：资源可以被任何缓存（如浏览器、代理服务器）缓存。
-  - `private`：资源只能被客户端缓存，不能被代理服务器缓存。
-
-  示例：
-
-  ```http
-  Cache-Control: max-age=3600, public
-  ```
-- **`Expires`**：
-
-  - 指定资源的过期时间（绝对时间），是一个 HTTP/1.0 的字段。
-  - 示例：
-    ```http
-    Expires: Wed, 21 Oct 2023 07:28:00 GMT
-    ```
-
-**强缓存的工作流程**
-
-1. 客户端首次请求资源，服务器返回资源并设置 `Cache-Control` 或 `Expires`。
-2. 客户端再次请求时，先检查缓存是否过期：
-   - 如果未过期（`max-age` 或 `Expires` 有效），直接从缓存中读取资源，**不会向服务器发送请求**。
-   - 如果已过期，则进入协商缓存流程。
-
-**强缓存的命中与未命中**
-
-- **命中**：状态码为 `200 (from disk cache)` 或 `200 (from memory cache)`。
-- **未命中**：缓存失效，进入协商缓存。
-
----
-
-**2. 协商缓存**
-协商缓存是指客户端向服务器发送请求，验证本地缓存是否仍然有效。如果有效，服务器返回 `304 Not Modified`，客户端使用本地缓存；如果无效，服务器返回新的资源。
-
-**实现协商缓存的响应头字段**
-
-- **`Last-Modified` 和 `If-Modified-Since`**：
-
-  - `Last-Modified`：服务器返回资源时，携带资源的最后修改时间。
-  - `If-Modified-Since`：客户端再次请求时，将该时间发送给服务器，服务器判断资源是否修改。
-  - 示例：
-    ```http
-    Last-Modified: Wed, 21 Oct 2023 07:28:00 GMT
-    If-Modified-Since: Wed, 21 Oct 2023 07:28:00 GMT
-    ```
-- **`ETag` 和 `If-None-Match`**：
-
-  - `ETag`：服务器返回资源时，携带资源的唯一标识（通常是哈希值）。
-  - `If-None-Match`：客户端再次请求时，将该标识发送给服务器，服务器判断资源是否修改。
-  - 示例：
-    ```http
-    ETag: "123456"
-    If-None-Match: "123456"
-    ```
-
-**协商缓存的工作流程**
-
-1. 客户端首次请求资源，服务器返回资源并设置 `Last-Modified` 或 `ETag`。
-2. 客户端再次请求时，携带 `If-Modified-Since` 或 `If-None-Match`。
-3. 服务器验证资源是否修改：
-   - 如果未修改，返回 `304 Not Modified`，客户端使用本地缓存。
-   - 如果已修改，返回新的资源（状态码 `200`）。
-
-**协商缓存的命中与未命中**
-
-- **命中**：状态码为 `304 Not Modified`。
-- **未命中**：状态码为 `200`，返回新的资源。
-
----
-
-**3. 强缓存与协商缓存的区别**
-
-| **特性**         | **强缓存**                                         | **协商缓存**                       |
-| ---------------------- | -------------------------------------------------------- | ---------------------------------------- |
-| **是否发送请求** | 否，直接从缓存读取                                       | 是，向服务器验证缓存是否有效             |
-| **状态码**       | `200 (from disk cache)` 或 `200 (from memory cache)` | `304 Not Modified`                     |
-| **响应头字段**   | `Cache-Control`、`Expires`                           | `Last-Modified`、`ETag`              |
-| **请求头字段**   | 无                                                       | `If-Modified-Since`、`If-None-Match` |
-| **优先级**       | 优先使用强缓存，失效后使用协商缓存                       | 强缓存失效后触发                         |
-
----
-
-**4. 实际应用中的缓存策略**
-
-1. **静态资源（如 CSS、JS、图片）**：
-
-   - 使用强缓存，设置较长的 `max-age`（如一年）。
-   - 通过文件名哈希（如 `app.12345.js`）确保资源更新后客户端能获取最新版本。
-2. **动态资源（如 API 数据）**：
-
-   - 使用协商缓存，设置 `Cache-Control: no-cache` 或 `max-age=0`。
-   - 通过 `ETag` 或 `Last-Modified` 验证资源是否更新。
-
----
-
-**5. 示例**
-**强缓存示例**
-
-```http
-HTTP/1.1 200 OK
-Cache-Control: max-age=3600, public
-Expires: Wed, 21 Oct 2023 08:28:00 GMT
-```
-
-**协商缓存示例**
-
-```http
-HTTP/1.1 200 OK
-Last-Modified: Wed, 21 Oct 2023 07:28:00 GMT
-ETag: "123456"
-```
-
-**协商缓存验证（未修改）**
-
-```http
-GET /resource HTTP/1.1
-If-Modified-Since: Wed, 21 Oct 2023 07:28:00 GMT
-If-None-Match: "123456"
-
-HTTP/1.1 304 Not Modified
+HTTP:   应用层(HTTP) ─────────────────> TCP
+HTTPS:  应用层(HTTP) ──> TLS加密层 ──> TCP
 ```
 
 ---
 
-**总结**
+## Q: HTTPS 是如何保证通信安全的？握手流程是怎样的？
 
-- **强缓存**：直接从本地缓存读取资源，不发送请求。
-- **协商缓存**：向服务器验证缓存是否有效，返回 `304` 或新资源。
-- 实际开发中，通常结合两者使用：优先强缓存，失效后使用协商缓存。
+**A:**
+
+**核心思想**：用**非对称加密**安全地交换一个**对称密钥**，之后用对称密钥加密通信（性能更好）。
+
+<div class="net-flow">
+  <div class="net-step net-b">① ClientHello<sub>客户端随机数<br>+ 支持的加密套件</sub></div>
+  <div class="net-arr">→</div>
+  <div class="net-step net-g">② ServerHello<sub>服务器随机数<br>+ 选定加密套件<br>+ 证书(含公钥)</sub></div>
+  <div class="net-arr">→</div>
+  <div class="net-step net-p">③ 客户端验证证书<sub>校验 CA 签名<br>有效期、域名</sub></div>
+  <div class="net-arr">→</div>
+  <div class="net-step net-o">④ 生成 Pre-master<sub>用公钥加密<br>发给服务器</sub></div>
+  <div class="net-arr">→</div>
+  <div class="net-step net-y">⑤ 双方生成会话密钥<sub>3 个随机数<br>→ master secret</sub></div>
+  <div class="net-arr">→</div>
+  <div class="net-step net-r">⑥ 对称加密通信<sub>用 AES 加密<br>传输数据</sub></div>
+</div>
+
+**为什么混用对称 + 非对称加密？**
+
+| 加密方式 | 速度 | 密钥管理 | 用途 |
+|---------|------|---------|------|
+| 非对称（RSA/ECC） | 慢 ❌ | 安全 ✅ | 仅用于交换对称密钥 |
+| 对称（AES） | 快 ✅ | 难以安全传输 ❌ | 加密后续业务数据 |
+
+> ⚠️ **证书的作用**：防止**中间人攻击**。CA 用自己的私钥给服务器公钥签名，浏览器内置 CA 公钥可验证签名，确认拿到的公钥确实属于该域名。
+
+---
+
+## Q: 常见 HTTP 请求方法和状态码？
+
+**A:**
+
+**请求方法**：
+
+| 方法 | 用途 | 幂等 | 安全 |
+|------|------|-----|------|
+| GET | 获取 | ✅ | ✅ |
+| POST | 创建 | ❌ | ❌ |
+| PUT | 完整更新 | ✅ | ❌ |
+| PATCH | 部分更新 | ❌ | ❌ |
+| DELETE | 删除 | ✅ | ❌ |
+| OPTIONS | 预检（CORS） | ✅ | ✅ |
+| HEAD | 同 GET 但只返响应头 | ✅ | ✅ |
+
+**状态码**：
+
+| 范围 | 含义 | 常见 |
+|------|------|------|
+| 1xx | 信息 | 101 切换协议（WebSocket） |
+| 2xx | 成功 | 200 OK / 201 Created / 204 No Content |
+| 3xx | 重定向 | 301 永久 / 302 临时 / 304 协商缓存命中 |
+| 4xx | 客户端错误 | 400 参数错 / 401 未认证 / 403 无权限 / 404 找不到 |
+| 5xx | 服务端错误 | 500 内部错 / 502 网关错 / 503 不可用 / 504 网关超时 |
+
+---
+
+## Q: TCP 和 UDP 的区别？分别适合什么场景？
+
+**A:**
+
+<div class="net-cmp">
+  <div class="net-cmp-card net-cmp-tcp">
+    <h5>🛡️ TCP — 可靠老实人</h5>
+    <ul>
+      <li>面向<b>连接</b>（三次握手）</li>
+      <li><b>可靠</b>传输：确认、重传、流控、拥塞控制</li>
+      <li>面向<b>字节流</b>，无边界</li>
+      <li>开销大，速度慢</li>
+      <li>一对一</li>
+    </ul>
+    <p style="margin:8px 0 0;font-size:12px;color:#666"><b>场景</b>：网页、文件下载、邮件、SSH</p>
+  </div>
+  <div class="net-cmp-card net-cmp-udp">
+    <h5>⚡ UDP — 极速莽夫</h5>
+    <ul>
+      <li><b>无连接</b>，直接发</li>
+      <li><b>不可靠</b>：可能丢、乱、重复</li>
+      <li>面向<b>报文</b>，保留边界</li>
+      <li>开销小，速度快</li>
+      <li>支持一对一、一对多、多对多</li>
+    </ul>
+    <p style="margin:8px 0 0;font-size:12px;color:#666"><b>场景</b>：视频通话、直播、DNS、游戏、QUIC</p>
+  </div>
+</div>
+
+> 💡 **选择依据**：要可靠选 TCP，要实时选 UDP。比如视频通话宁可丢几帧也不能卡顿，所以用 UDP。
+
+---
+
+## Q: 说说 OSI 七层模型？
+
+**A:**
+
+<div class="net-osi">
+  <div class="net-osi-row" style="background:#fee2e2;color:#991b1b"><b>7. 应用层</b><span>HTTP / HTTPS / DNS / FTP / SMTP</span></div>
+  <div class="net-osi-row" style="background:#fed7aa;color:#9a3412"><b>6. 表示层</b><span>数据格式转换、加密压缩</span></div>
+  <div class="net-osi-row" style="background:#fef3c7;color:#92400e"><b>5. 会话层</b><span>建立、管理、终止会话</span></div>
+  <div class="net-osi-row" style="background:#dcfce7;color:#166534"><b>4. 传输层</b><span>TCP / UDP — 端到端通信</span></div>
+  <div class="net-osi-row" style="background:#cffafe;color:#155e75"><b>3. 网络层</b><span>IP / ICMP — 路由寻址</span></div>
+  <div class="net-osi-row" style="background:#dbeafe;color:#1e40af"><b>2. 数据链路层</b><span>以太网 / ARP — 相邻节点间帧传输</span></div>
+  <div class="net-osi-row" style="background:#e9d5ff;color:#6b21a8"><b>1. 物理层</b><span>网线、光纤、电信号</span></div>
+</div>
+
+**记忆口诀**：「**物**理 — **数**链 — **网**络 — **传**输 — **会**话 — **表**示 — **应**用」 → 「物数网传会表应」
+
+> 💡 **实际工程中**用 **TCP/IP 四层模型**：应用层（融合 5/6/7）/ 传输层 / 网络层 / 网络接口层（融合 1/2）。
+
+---
+
+## Q: DNS 解析的过程是怎样的？
+
+**A:**
+
+DNS = 把**域名**翻译成 **IP 地址**的「翻译官」。
+
+<div class="net-flow">
+  <div class="net-step net-b">浏览器缓存</div>
+  <div class="net-arr">→</div>
+  <div class="net-step net-g">操作系统缓存<sub>hosts 文件</sub></div>
+  <div class="net-arr">→</div>
+  <div class="net-step net-p">本地 DNS 服务器<sub>运营商</sub></div>
+  <div class="net-arr">→</div>
+  <div class="net-step net-o">根域名服务器<sub>.</sub></div>
+  <div class="net-arr">→</div>
+  <div class="net-step net-y">顶级域名服务器<sub>.com</sub></div>
+  <div class="net-arr">→</div>
+  <div class="net-step net-r">权威域名服务器<sub>example.com</sub></div>
+</div>
+
+**查询特点**：
+
+- **客户端 → 本地 DNS**：递归查询（要么给答案，要么报错）
+- **本地 DNS → 根/顶级/权威**：迭代查询（每一步只告诉你下一步去哪问）
+- 每层结果都会**缓存**，下次更快
+
+> 💡 **优化技巧**：`<link rel="dns-prefetch" href="//example.com">` 提前解析关键域名。
+
+---
 
 ## Q: 如何设计一个支持超时取消和重试的 fetch 封装？
 
@@ -541,70 +399,59 @@ async function fetchWithRetry(url, options = {}, {
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)) }
 ```
 
-**所谓"不会超时"的方案 —— 断点重连 + 无限重试：**
-
-```js
-async function fetchUntilSuccess(url, options = {}) {
-  let delay = 1000
-  while (true) {
-    try {
-      const res = await fetchWithTimeout(url, options, 15000)
-      return res
-    } catch (err) {
-      console.warn(`请求失败，${delay}ms 后重试：`, err.message)
-      await sleep(delay)
-      delay = Math.min(delay * 2, 30000) // 最大等 30s 重试一次
-    }
-  }
-}
-```
-
-> ⚠️ **注意**：真正的"不会超时"设计应结合业务场景，无限重试可能造成接口雪崩。生产环境建议加**最大重试次数限制**和**断路器（Circuit Breaker）机制**。
+> ⚠️ **生产建议**：无限重试可能造成接口雪崩，务必加**最大重试次数限制**和**断路器（Circuit Breaker）机制**。
 
 ---
 
-## Q: WebRTC 的核心原理是什么？完整建连流程是怎样的？
+## Q: WebRTC 的核心原理是什么？建连流程是怎样的？
 
 **A:**
 
-**WebRTC** 是浏览器端实时音视频/数据通信标准，核心目标是在端到端（P2P）场景下实现低延迟通信。
+**WebRTC** 是浏览器端实时音视频/数据通信标准，核心目标是**端到端（P2P）低延迟**通信。
 
-核心组成：
+**四大核心组件：**
 
-1. **媒体采集**：`getUserMedia` 获取摄像头/麦克风流。
-2. **连接对象**：`RTCPeerConnection` 负责音视频与 DataChannel 传输。
-3. **信令通道**：交换 SDP/ICE 信息（通常用 WebSocket 实现，WebRTC 本身不规定信令协议）。
-4. **NAT 穿透**：通过 STUN 获取公网映射地址，必要时通过 TURN 中继转发。
+| 组件 | 作用 |
+|------|------|
+| `getUserMedia` | 采集摄像头/麦克风流 |
+| `RTCPeerConnection` | P2P 连接对象，负责媒体与数据传输 |
+| **信令服务器**（自建，通常用 WebSocket） | 交换 SDP / ICE 信息 |
+| **STUN / TURN** | NAT 穿透；穿透失败时 TURN 中继转发 |
 
-标准建连流程：
+**建连流程：**
 
-1. A 端创建 `offer`（SDP），通过信令发送给 B。
-2. B 端设置远端描述并创建 `answer`，再回传给 A。
-3. 双方持续交换 ICE Candidate（候选网络路径）。
-4. ICE 选出最优链路后，媒体流与数据通道建立。
-5. 若直连失败，自动回退到 TURN 中继。
+<div class="net-flow">
+  <div class="net-step net-b">① A 创建 offer<sub>SDP</sub></div>
+  <div class="net-arr">→</div>
+  <div class="net-step net-g">② 信令转发<sub>给 B</sub></div>
+  <div class="net-arr">→</div>
+  <div class="net-step net-p">③ B 创建 answer<sub>回给 A</sub></div>
+  <div class="net-arr">→</div>
+  <div class="net-step net-o">④ 交换 ICE<sub>候选路径</sub></div>
+  <div class="net-arr">→</div>
+  <div class="net-step net-y">⑤ 选最优链路<sub>P2P 或 TURN</sub></div>
+  <div class="net-arr">→</div>
+  <div class="net-step net-r">⑥ 媒体流建立</div>
+</div>
 
 ```ts
-// 简化示意：A 端创建 offer
 const pc = new RTCPeerConnection({
   iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
 })
-
 const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true })
 stream.getTracks().forEach(track => pc.addTrack(track, stream))
-
 const offer = await pc.createOffer()
 await pc.setLocalDescription(offer)
 // 通过信令服务器把 offer 发给对端
 ```
 
-| 对比维度 | WebSocket | WebRTC |
-|------|------|------|
+| 维度 | WebSocket | WebRTC |
+|------|-----------|--------|
 | 连接形态 | 客户端-服务器 | 端到端（优先 P2P） |
-| 典型场景 | 即时消息、推送 | 音视频通话、实时互动、点对点数据传输 |
-| 延迟表现 | 取决于服务端链路 | 直连时通常更低 |
-| 是否需要信令 | 不需要（自身即通信通道） | ✅ 需要（交换 SDP/ICE） |
+| 典型场景 | 即时消息、推送 | 音视频通话、实时互动 |
+| 延迟 | 取决于服务端 | 直连时通常更低 |
+| 信令 | 不需要 | ✅ 必须 |
 
-> ⚠️ **注意**：WebRTC 并不“去服务器化”，生产环境至少需要信令服务；复杂网络下还通常需要 TURN 服务保障连通率。
+> ⚠️ **注意**：WebRTC 并不"去服务器化"，至少需要信令服务；复杂网络下还需 TURN 服务保障连通率。
 
 ---

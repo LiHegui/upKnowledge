@@ -18,7 +18,7 @@
 
 ## 🌐 网络 & 协议
 
-[HTTP / TCP / WebSocket](../interview/网络/index.md) | [浏览器原理](../interview/浏览器/index.md) | [浏览器缓存](../interview/浏览器/浏览器缓存.md)
+[HTTP / TCP / WebSocket](../interview/网络/index.md) | [浏览器原理](../interview/浏览器/index.md)
 
 ---
 

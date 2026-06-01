@@ -2,6 +2,18 @@
 
 > 本页由部署脚本根据 git 提交记录自动生成。
 
+## 2026-05-27
+
+- refactor: Revise network technology interview content for clarity and structure `2c11097`
+
+## 2026-05-26
+
+- feat: 更新面试官文档，增加进度系统概述和启动流程说明 `b8d0f7c`
+- Enhance TCP connection and disconnection diagrams in interview documentation `a527417`
+- feat: 添加 WebSocket 专题文档，更新网络技术要点，完善前端侧边栏 `664c408`
+- Merge branch 'master' of github.com:LiHegui/upKnowledge `2ceaae7`
+- docs: enhance Redux and Pinia documentation with detailed explanations and examples `2a2058f`
+
 ## 2026-05-22
 
 - feat: 更新面试官文档，增加进度管理系统和面试规则，完善 ECharts 技术要点，添加 JavaScript 变量提升注意事项，更新技术要点收录方向 `09a165a`

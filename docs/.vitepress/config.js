@@ -66,7 +66,6 @@ const frontendSidebar = [
     items: [
       { text: 'HTML', link: '/interview/HTML/html相关' },
       { text: 'CSS', link: '/interview/CSS/' },
-      { text: 'Sass & Less', link: '/interview/CSS/sass和less' },
       { text: 'styled-components', link: '/interview/CSS/style-components' },
       { text: 'JavaScript', link: '/interview/JavaScript/' },
     ],
@@ -76,10 +75,7 @@ const frontendSidebar = [
     collapsed: true,
     items: [
       { text: 'TypeScript 概览', link: '/interview/Ts/' },
-      { text: '类型', link: '/interview/Ts/类型/' },
-      { text: '接口', link: '/interview/Ts/接口/' },
-      { text: '类', link: '/interview/Ts/类/' },
-      { text: '函数', link: '/interview/Ts/函数/' },
+      { text: 'TS 与项目结合', link: '/interview/Ts/与项目结合/' },
     ],
   },
   {
@@ -92,6 +88,7 @@ const frontendSidebar = [
       { text: 'Vue3 Diff 算法', link: '/interview/Vue3/diff/' },
       { text: 'Vue3 性能提升', link: '/interview/Vue3/性能提升/' },
       { text: 'Tree-shaking', link: '/interview/Vue3/Treeshaking/' },
+      { text: 'Pinia 完全指南', link: '/interview/Vue3/pinia/' },
     ],
   },
   {
@@ -102,6 +99,7 @@ const frontendSidebar = [
       { text: 'React 渲染行为完全指南', link: '/interview/React/react-rendering-behavior' },
       { text: 'Fiber 架构与 Diff 算法深度解析', link: '/interview/React/fiber-diff' },
       { text: 'Redux 完全指南', link: '/interview/React/redux' },
+      { text: 'MobX 完全指南', link: '/interview/React/mobx' },
     ],
   },
   {
@@ -124,8 +122,8 @@ const frontendSidebar = [
     collapsed: true,
     items: [
       { text: '网络', link: '/interview/网络/' },
+      { text: 'WebSocket 专题', link: '/interview/网络/WebSocket' },
       { text: '浏览器', link: '/interview/浏览器/' },
-      { text: '浏览器缓存', link: '/interview/浏览器/浏览器缓存' },
     ],
   },
   {
@@ -133,7 +131,6 @@ const frontendSidebar = [
     collapsed: true,
     items: [
       { text: '性能优化', link: '/interview/性能优化/' },
-      { text: '图片加载优化策略', link: '/optimization/加载图片优化策略' },
       { text: '设计模式', link: '/interview/设计模式/' },
       { text: '前端登录', link: '/interview/前端登录/登录的实现' },
       { text: '大文件断点续传', link: '/interview/解决方案/大文件断点续传/' },
@@ -176,26 +173,11 @@ const frontendSidebar = [
     ],
   },
   {
-    text: 'Gatsby',
-    collapsed: true,
-    items: [
-      { text: 'Gatsby', link: '/interview/Gastby/Gastby' },
-      { text: 'GraphQL', link: '/interview/Gastby/GraphQL' },
-      { text: 'Querying Data', link: '/interview/Gastby/QueryingData' },
-      { text: 'Route', link: '/interview/Gastby/route' },
-      { text: 'Images & Media', link: '/interview/Gastby/ImagesAndMedia' },
-      { text: 'Plugin', link: '/interview/Gastby/plugin' },
-      { text: 'Router 2023', link: '/interview/Gastby/Router_20230802' },
-      { text: 'Built-in API', link: '/interview/Gastby/API/built_in_api' },
-      { text: 'CreatePage', link: '/interview/Gastby/API/CreatePage' },
-      { text: 'gatsby-source-filesystem', link: '/interview/Gastby/plugins/gatsby-source-filesystem' },
-    ],
-  },
-  {
     text: '🎨 可视化 & 图形',
     collapsed: true,
     items: [
       { text: 'Canvas 技术要点', link: '/interview/Canvas/' },
+      { text: 'Canvas · 点云大数据渲染', link: '/interview/Canvas/点云大数据渲染' },
       { text: 'ECharts 技术要点', link: '/interview/ECharts/' },
       { text: '高德地图 技术要点', link: '/interview/高德地图/' },
       { text: 'Three.js', link: '/interview/Web3D/three' },

@@ -521,11 +521,17 @@ function createStore(reducer, preloadedState, enhancer) {
 
 **A:**
 
-`compose` 将多个函数**从右到左**组合成一个函数：
+`compose` 将多个函数**从右到左**组合成一个函数——**本质就是把手写嵌套调用变成动态组合**：
 
 ```js
-compose(f, g, h)(x)  ===  f(g(h(x)))
+// 手写嵌套（静态，函数数量固定）
+const result = f(g(h(x)))
+
+// compose（动态，函数数量可变）
+const result = compose(f, g, h)(x)
 ```
+
+数据流从**右往左**：`x → h → g → f → 输出`
 
 **Redux 中的实现：**
 
@@ -553,7 +559,14 @@ dispatch = compose(middleware1, middleware2, middleware3)(store.dispatch)
 
 **`reduce` 折叠过程逐步拆解：**
 
-`reduce` 不传初始值时，数组第一个元素作为初始 accumulator，逐步把数组"折叠"成一个函数：
+`reduce` 的作用是把数组"折叠"成一个值，先看求和的类比：
+
+```js
+// 经典例子：求和
+[1, 2, 3, 4].reduce((acc, cur) => acc + cur, 0) // → 10
+```
+
+compose 里，`reduce` 不传初始值时，数组第一个元素作为初始 accumulator，逐步把数组**折叠成一个函数**：
 
 ```js
 [f, g, h].reduce((a, b) => (...args) => a(b(...args)))
@@ -570,6 +583,26 @@ dispatch = compose(middleware1, middleware2, middleware3)(store.dispatch)
 dispatch = compose(...chain)(store.dispatch)
 //                           ^^^^^^^^^^^^^
 //                           调用时才传入，这就是 args[0]
+```
+
+**`compose(...chain)(store.dispatch)` 的两步理解：**
+
+关键点：`compose(...chain)` 返回的是**函数定义**，不是执行结果，要分两步看：
+
+```js
+// 第一步：compose(...chain) 返回一个函数定义，f/g/h 内部都还没被调用
+const composed = (...args) => f(g(h(...args)))
+
+// 第二步：(store.dispatch) 才是真正触发执行，store.dispatch 填入 args
+composed(store.dispatch)
+// 等价于：f(g(h(store.dispatch)))
+```
+
+类比普通函数：
+
+```js
+const fn = (x) => x * 2   // 定义，没执行
+fn(5)                      // 传参，才执行
 ```
 
 **柯里化 vs compose 的区别：**

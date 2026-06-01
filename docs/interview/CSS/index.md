@@ -1,118 +1,127 @@
-﻿# CSS技术要点
+﻿# CSS 技术要点
 
-## <h1 style="color: #1b73e5;">说说你对盒子模型的理解?</h1>
+> 涵盖：BFC、盒模型、布局（Flex / 定位 / 居中）、动画、性能、响应式、Sass/Less。按面试高频排序。
 
-一个盒子由四个部分组成：`content、padding、border、margin`
+---
 
-切换方式 `box-sizing: content-box(标准)|border-box(怪异盒子)|inherit(父元素继承)`
+## Q: 谈谈你对 BFC 的理解？
 
-- 标准盒子模型
-    - 宽度 = `content`
-- IE怪异盒子模型
-    - 宽度 =  `content` + `padding` + `border`
+**A:**
 
-## <h1 style="color: #1b73e5;">回流与重绘</h1>
+**BFC（Block Formatting Context，块级格式化上下文）** 是页面中一块独立的渲染区域，内部按一套独立规则布局，且与外部相互隔离。
 
-- 回流
-  是指当 `DOM` 元素的布局或几何属性发生改变时，浏览器需要重新计算元素的大小和位置，然后重新排列页面上受影响的元素的过程。这个过程是非常消耗性能的，因为它会触发多次的计算和布局，可能会导致页面的卡顿和响应延迟。
-- 重绘
-  是指当 `DOM` 元素的样式属性发生改变时，浏览器需要重新绘制元素的外观，但不会影响元素的布局和位置。这个过程比回流消耗的性能要少一些，但仍然需要一定的计算和绘制。
-- 措施
-    - 避免在布局完成后修改元素的样式，因为这会触发回流和重绘。
-    - 将需要多次访问的 `DOM` 元素缓存起来，避免重复的计算和布局。
-    - 使用 `CSS3` 的 `transform` 属性来代替修改元素的位置和大小，因为这不会触发回流。
-    - 合并多次修改样式的操作，避免多次触发回流和重绘。
-    - 尽可能减少页面中的 `DOM` 元素数量，因为更少的元素意味着更少的计算和布局。
+**渲染规则：**
 
-## <h1 style="color: #1b73e5;">DOCTYPE声明</h1>
+- 内部盒子在垂直方向上一个接一个放置
+- 同一 BFC 内相邻块级元素的垂直 margin 会**折叠**（取较大值）
+- BFC 区域不会与 `float` 元素重叠
+- 计算 BFC 高度时，内部浮动元素**参与高度计算**（清除浮动原理）
+- BFC 是隔离的独立容器，内外互不影响
 
-声明文档类型（DOCTYPE）可以告诉浏览器使用哪种 HTML 或 XHTML 规范解析文档
+**触发条件：**
 
-## <h1 style="color: #1b73e5;">CSS样式优先级</h1>
+- `float` 不为 `none`
+- `position: absolute | fixed`
+- `display: inline-block | table-cell | flow-root`（`flow-root` 是 CSS3 专为 BFC 设计，无副作用，推荐）
+- `overflow` 不为 `visible`（`hidden` / `auto` / `scroll`）
 
-- 内联样式
-    1 0 0 0
-- id选择器
-    0 1 0 0
-- 类选择器、属性选择器、伪类选择器
-    className、 a[ref='eee']、li:last-child
-    0 0 1 0
-- 标签选择器、伪元素选择器
-    0 0 0 1
-- 后代选择器
-    #div span 选择id为box元素内部所有的div元素
-    0
-- 子选择器
-    #div>span => 选择以父元素div的子元素span,一层
-    0
-- 相邻同胞选择器
-    h1+p
-    #div + #span => 选择紧跟在div后面的span元素
-    0
-- 群组选择器
-    div,p =>选择div、p的所有元素
+**应用场景：**
 
-继承属性
-- 字体系列属性
-- 文本系列属性
-- 元素可见性
-- 表格布局属性
-- 列表属性
-- 光标属性
+- ✅ 清除内部浮动（父元素设 `overflow: hidden` 或 `display: flow-root`）
+- ✅ 防止相邻元素 margin 折叠（用 BFC 包裹其中一个）
+- ✅ 自适应两栏布局（左浮动 + 右 BFC，右侧自动避开浮动）
 
-**延申一：css优先级会产生满10进位吗**
+> ⚠️ **注意**：`display: flex / grid` 创建的是 **FFC / GFC**，不是 BFC，但行为类似（也是独立格式化上下文）。
 
-不会的
+<!-- BFC 可视化 Demo（class 以 bfc- 前缀作用域隔离） -->
+<style>
+.bfc-demo-wrap { font-family:'PingFang SC','Microsoft YaHei',sans-serif; color:#333; margin:20px 0; }
+.bfc-demo-wrap h4 { margin:24px 0 8px; color:#2c3e50; font-size:15px; }
+.bfc-label { font-size:13px; color:#888; margin:8px 0; }
+.bfc-stage { border:1px dashed #bbb; padding:12px; margin:8px 0 16px; background:#fafafa; }
+.bfc-box { padding:10px; color:#fff; box-sizing:border-box; }
+.bfc-red    { background:#e74c3c; }
+.bfc-blue   { background:#3498db; }
+.bfc-green  { background:#2ecc71; }
+.bfc-orange { background:#f39c12; }
+.bfc-purple { background:#9b59b6; }
+.bfc-bad  { border:3px solid #e74c3c !important; }
+.bfc-good { border:3px solid #2ecc71 !important; }
+.bfc-yel  { background:#ffe !important; }
+</style>
 
-在 CSS 优先级（Specificity）的计算中，不会产生进位。优先级权重是一个四位的独立系统（A, B, C, D），每一位的取值范围是独立的，不会因为某一位的值超过某个阈值而影响其他位
+<div class="bfc-demo-wrap">
 
-CSS优先级是通过计算选择器的权重来确定的，并且如果优先级相同，则后面的规则将覆盖前面的规则。这种进位机制确保了选择器的顺序在决定样式应用方面的重要性。
+<h4>① 规则 1：块级元素垂直排列（默认行为）</h4>
+<div class="bfc-stage">
+  <div class="bfc-box bfc-red">第一块（块级元素自动占满一行）</div>
+  <div class="bfc-box bfc-blue">第二块（紧跟其后，垂直排列）</div>
+  <div class="bfc-box bfc-green">第三块（继续往下排）</div>
+</div>
 
-## <span style="color:red;">谈谈你对BFC的理解？</span>
+<h4>② 规则 2：浮动元素参与高度计算（清除浮动）</h4>
+<div class="bfc-label">❌ 不开启 BFC：父元素高度塌陷（红框紧贴顶部）</div>
+<div class="bfc-stage bfc-bad">
+  <div class="bfc-box bfc-blue" style="float:left; width:120px;">浮动子元素 1</div>
+  <div class="bfc-box bfc-green" style="float:left; width:120px;">浮动子元素 2</div>
+</div>
+<div class="bfc-label">✅ 父元素加 <code>overflow: hidden</code> 触发 BFC：高度正确包裹</div>
+<div class="bfc-stage bfc-good" style="overflow:hidden;">
+  <div class="bfc-box bfc-blue" style="float:left; width:120px;">浮动子元素 1</div>
+  <div class="bfc-box bfc-green" style="float:left; width:120px;">浮动子元素 2</div>
+</div>
 
-块级格式化上下文，它是页面中一块渲染区域，并且有一套属于自己的渲染规则：
-- 内部盒子会在垂直方向上一个接一个的放置，与方向无关。
-- BFC就是一个独立的隔离的独立容器，不会影响盒子之外的布局
-- 内部的浮动元素也参与高度计算
-- BFC的区域不会与float元素产生重叠
+<h4>③ 规则 3：BFC 不与浮动元素重叠（自适应两栏布局）</h4>
+<div class="bfc-label">❌ 右侧被左侧浮动覆盖</div>
+<div class="bfc-stage">
+  <div class="bfc-box bfc-red" style="float:left; width:150px; height:80px;">左侧浮动</div>
+  <div class="bfc-box bfc-blue" style="height:120px;">右侧普通块（左边被红色盒子盖住了！）</div>
+</div>
+<div class="bfc-label">✅ 右侧加 <code>overflow: hidden</code> 触发 BFC：自动让出空间，宽度自适应</div>
+<div class="bfc-stage">
+  <div class="bfc-box bfc-red" style="float:left; width:150px; height:80px;">左侧浮动</div>
+  <div class="bfc-box bfc-blue" style="height:120px; overflow:hidden;">右侧 BFC，乖乖待在浮动元素旁边，剩余宽度自适应 —— 经典两栏布局！</div>
+</div>
 
-## 触发条件
+<h4>④ 规则 4：阻止相邻元素 margin 折叠</h4>
+<div class="bfc-label">❌ 两个盒子各设 <code>margin: 30px 0</code>，实际间距只有 30px（折叠了）</div>
+<div class="bfc-stage bfc-yel">
+  <div class="bfc-box bfc-orange" style="margin:30px 0;">上方盒子（margin-bottom: 30px）</div>
+  <div class="bfc-box bfc-purple" style="margin:30px 0;">下方盒子（margin-top: 30px）</div>
+</div>
+<div class="bfc-label">✅ 用一个 BFC 父级包裹下方盒子：间距变成 60px（不再折叠）</div>
+<div class="bfc-stage bfc-yel">
+  <div class="bfc-box bfc-orange" style="margin:30px 0;">上方盒子（margin-bottom: 30px）</div>
+  <div style="overflow:hidden;">
+    <div class="bfc-box bfc-purple" style="margin:30px 0;">下方盒子（被 BFC 包裹，margin 隔离）</div>
+  </div>
+</div>
 
-- 浮动元素 float
-- display inline-block flex inline-flex grid table
-- position absolute fixed
+</div>
 
-## 应用场景
+---
 
-- 防止margin重叠
-- 清除内部浮动
-- 自适应多栏布局
+## Q: 谈谈你对盒子模型的理解？
 
-# 如何实现单行／多行文本溢出的省略样式？
-## 单行省略
+**A:**
+
+一个盒子由四个部分组成：`content`、`padding`、`border`、`margin`。通过 `box-sizing` 切换两种模型：
+
+| 模型 | `box-sizing` 值 | 元素宽度计算 |
+|------|----------------|------------|
+| **W3C 标准盒模型** | `content-box`（默认） | `width = content` |
+| **IE 怪异盒模型** | `border-box` | `width = content + padding + border` |
+| 继承父元素 | `inherit` | — |
+
 ```css
-div{
-  
-}
+* { box-sizing: border-box; } /* 项目常用全局设置，避免 padding 撑开元素 */
 ```
-## 如何实现多行省略？
-见ellipsis.html
-- 单行
-    ```css
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis; 
-    ```
-- 多行
-    这个可能有兼容性的问题
-    ```css
-    -webkit-line-clamp: 2;
-    display: -webkit-box;
-    -webkit-box-orient: vertical;   
-    white-space: nowrap;
-    text-overflow: ellipsis; 
-    ```
-## Q: 元素居中方案
+
+> 💡 现代 CSS Reset / 项目脚手架（如 Tailwind）默认会把所有元素设为 `border-box`。
+
+---
+
+## Q: 元素居中有哪些方案？
 
 **A:**
 
@@ -130,20 +139,27 @@ div{
 
 ```css
 .parent { position: relative; }
-
 .child {
   position: absolute;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%); /* 向左上方偏移自身宽高的 50% */
+  transform: translate(-50%, -50%);
 }
 ```
 
-### 方案三：绝对定位 + margin: auto（需要知道子元素尺寸）
+### 方案三：Grid 布局
+
+```css
+.parent {
+  display: grid;
+  place-items: center; /* 等同于 align-items + justify-items */
+}
+```
+
+### 方案四：绝对定位 + margin: auto（需要确定子元素尺寸）
 
 ```css
 .parent { position: relative; }
-
 .child {
   position: absolute;
   top: 0; right: 0; bottom: 0; left: 0;
@@ -153,28 +169,15 @@ div{
 }
 ```
 
-### 方案四：Grid 布局
-
-```css
-.parent {
-  display: grid;
-  place-items: center; /* 等同于 align-items + justify-items */
-}
-```
-
 ### 方案五：绝对定位 + 负 margin（需要确定子元素尺寸）
 
 ```css
-.parent { position: relative; }
-
 .child {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 100px;
-  height: 100px;
-  margin-top: -50px;  /* 高度的一半 */
-  margin-left: -50px; /* 宽度的一半 */
+  top: 50%; left: 50%;
+  width: 100px; height: 100px;
+  margin-top: -50px;
+  margin-left: -50px;
 }
 ```
 
@@ -184,546 +187,44 @@ div{
 |------|---------------------|-------|-------|
 | Flex | ❌ 不需要 | ✅ 现代浏览器全支持 | ⭐⭐⭐⭐⭐ |
 | 绝对定位 + transform | ❌ 不需要 | ✅ IE9+ | ⭐⭐⭐⭐ |
-| Grid place-items | ❌ 不需要 | ✅ 现代浏览器 | ⭐⭐⭐⭐ |
-| 绝对定位 + margin:auto | ✅ 需要 | ✅ 全兼容 | ⭐⭐⭐ |
-| 绝对定位 + 负margin | ✅ 需要 | ✅ 全兼容 | ⭐⭐ |
+| Grid `place-items` | ❌ 不需要 | ✅ 现代浏览器 | ⭐⭐⭐⭐ |
+| 绝对定位 + `margin:auto` | ✅ 需要 | ✅ 全兼容 | ⭐⭐⭐ |
+| 绝对定位 + 负 margin | ✅ 需要 | ✅ 全兼容 | ⭐⭐ |
 
 ---
-## Q: CSS 浮动与清除
+
+## Q: Flex 布局容器和子项属性分别如何设置？
 
 **A:**
-
-### 浮动是什么
-
-`float` 属性最初设计用于**文字环绕图片**，后来被广泛用于页面布局。设置了 `float` 的元素会**脱离正常文档流**，向左或向右浮动，直到遇到父容器边界或另一个浮动元素为止。
-
-```css
-.img { float: left; }
-```
-
-### 浮动带来的影响
-
-**1. 父元素高度塌陷（最常见问题）**
-
-子元素浮动后脱离文档流，父元素感知不到子元素高度，导致高度变为 0。
-
-```html
-<div class="parent">      <!-- 高度塌陷为 0 -->
-  <div class="child" style="float:left;">浮动子元素</div>
-</div>
-```
-
-**2. 影响后续兄弟元素布局**
-
-浮动元素后面的**块级兄弟元素**会占据浮动元素原本的位置（文字/行内元素则绕行）。
-
-**3. 影响行内元素排列**
-
-行内元素（文字、`inline` 元素）会围绕浮动元素排列，形成文字环绕效果。
-
----
-
-### 清除浮动的方法
-
-#### 方法一：clearfix 伪元素（✅ 推荐，最主流）
-
-不添加额外 DOM，用 CSS 伪元素在父容器尾部生成一个清除块：
-
-```css
-.clearfix::after {
-  content: '';
-  display: block;
-  clear: both;
-  height: 0;
-  visibility: hidden;
-}
-/* 兼容 IE6/7（现代项目可忽略） */
-.clearfix { *zoom: 1; }
-```
-
-```html
-<div class="parent clearfix">
-  <div class="child" style="float:left;">浮动子元素</div>
-</div>
-```
-
-#### 方法二：触发 BFC（✅ 推荐）
-
-BFC 容器会包裹内部的浮动元素，计算高度时将浮动元素纳入：
-
-```css
-.parent {
-  overflow: hidden;   /* 触发 BFC，最常用 */
-  /* 或 */
-  display: flow-root; /* CSS3 专门用于触发 BFC，无副作用 */
-}
-```
-
-> ⚠️ **注意**：`overflow: hidden` 会裁剪溢出内容；`display: flow-root` 是更干净的方案，但旧浏览器兼容性稍差。
-
-#### 方法三：父元素固定高度（❌ 不推荐）
-
-```css
-.parent { height: 200px; }
-```
-
-内容动态变化时高度不可控，不适合生产环境。
-
-#### 方法四：末尾空标签 clear（❌ 不推荐）
-
-```html
-<div class="parent">
-  <div style="float:left;">浮动子元素</div>
-  <div style="clear:both;"></div>  <!-- 空标签，语义差 -->
-</div>
-```
-
----
-
-### clear 属性说明
-
-`clear` 属性用于指定元素左侧/右侧不允许有浮动元素：
-
-| 值 | 说明 |
-|----|------|
-| `left` | 左侧不允许浮动元素 |
-| `right` | 右侧不允许浮动元素 |
-| `both` | 两侧都不允许，最常用 |
-| `none` | 默认，允许两侧浮动 |
-
----
-
-### 方案对比总结
-
-| 方案 | 优点 | 缺点 |
-|------|------|------|
-| `clearfix::after` | 无副作用，语义清晰 | 需要额外 class |
-| `overflow: hidden` | 一行代码，简洁 | 会裁剪溢出内容 |
-| `display: flow-root` | 专为此场景设计，无副作用 | IE 不支持 |
-| 固定高度 | 简单 | 不灵活，动态内容失效 |
-| 空标签 | 兼容性好 | 增加无意义 DOM，语义差 |
-
----
-
-## CSS 动画篇
-
-## Q: 动画实现方式各自适用场景是什么？
-
-**A:**
-
-CSS 动画主要有三种实现方式：
-
-| 方式 | 触发方式 | 控制能力 | 适用场景 |
-|------|---------|---------|---------|
-| `transition` | 状态变化触发（hover/class切换） | 弱，只能定义起止状态 | 简单的状态切换动效 |
-| `transform` | 配合 transition/animation 使用 | 变形操作 | 位移、旋转、缩放、倾斜 |
-| `animation` + `@keyframes` | 自动播放，可循环 | 强，可定义多个关键帧 | 复杂、自动播放的动画 |
-
----
-
-## Q: transition 过渡动画有哪些属性？
-
-**A:**
-
-`transition` 用于在元素**状态改变时**（如 hover、class 切换）平滑地过渡 CSS 属性值。
-
-### 语法
-
-```css
-transition: property duration timing-function delay;
-/* 简写示例 */
-transition: all 0.3s ease-in-out 0s;
-```
-
-### 属性详解
-
-| 属性 | 说明 | 示例值 |
-|------|------|-------|
-| `transition-property` | 指定要过渡的 CSS 属性，`all` 表示全部 | `width`, `opacity`, `all` |
-| `transition-duration` | 过渡持续时间 | `0.3s`, `300ms` |
-| `transition-timing-function` | 缓动函数，控制速度曲线 | `ease`、`linear`、`ease-in-out`、`cubic-bezier()` |
-| `transition-delay` | 延迟多久后开始过渡 | `0.2s` |
-
-### 代码示例
-
-```css
-.btn {
-  background-color: blue;
-  transform: scale(1);
-  transition: background-color 0.3s ease, transform 0.2s ease;
-}
-
-.btn:hover {
-  background-color: red;
-  transform: scale(1.1);
-}
-```
-
-### 注意事项
-
-> ⚠️ **注意**：`transition` 不支持 `display` 属性的过渡（`none` → `block` 无法渐变）。可以用 `visibility` 或 `opacity` 替代实现渐隐效果。
-
----
-
-## Q: transform 变形函数
-
-**A:**
-
-`transform` 本身不是动画，而是**变形操作**，配合 `transition` 或 `animation` 才能呈现动画效果。由于 `transform` 不会触发回流，**性能优于直接修改 `top/left/width`**。
-
-### 常用函数
-
-| 函数 | 说明 | 示例 |
-|------|------|------|
-| `translate(x, y)` | 位移（不脱离文档流） | `translate(50px, 100px)` |
-| `translateX(n)` / `translateY(n)` | 单轴位移 | `translateX(-50%)` 常用于居中 |
-| `scale(x, y)` | 缩放 | `scale(1.5)` 放大1.5倍 |
-| `rotate(deg)` | 旋转 | `rotate(45deg)` |
-| `skew(x, y)` | 倾斜 | `skew(20deg, 10deg)` |
-| `matrix(...)` | 矩阵变换，综合以上所有 | 较少直接使用 |
-
-### 3D 变换
-
-```css
-/* 开启3D空间 */
-.parent { perspective: 1000px; }
-
-.card {
-  transform: rotateY(180deg);    /* 绕Y轴翻转 */
-  transform: translateZ(100px);  /* 在Z轴方向移动 */
-  transform: rotate3d(1, 1, 0, 45deg);
-}
-```
-
-### transform-origin
-
-`transform-origin` 控制变形的基准点，默认是元素中心 `50% 50%`：
-
-```css
-.rotate-corner {
-  transform-origin: top left;  /* 以左上角为基准旋转 */
-  transform: rotate(45deg);
-}
-```
-
----
-
-## Q: animation 关键帧动画8 个属性分别是什么？
-
-**A:**
-
-`animation` 配合 `@keyframes` 可以实现完全自定义的动画，无需用户交互触发，支持循环播放。
-
-### @keyframes 定义动画序列
-
-```css
-@keyframes slideIn {
-  from {                        /* 等同于 0% */
-    transform: translateX(-100%);
-    opacity: 0;
-  }
-  50% {                         /* 中间某个时间点 */
-    opacity: 0.5;
-  }
-  to {                          /* 等同于 100% */
-    transform: translateX(0);
-    opacity: 1;
-  }
-}
-```
-
-### animation 8 个属性详解
-
-```css
-.box {
-  animation-name: slideIn;              /* 对应 @keyframes 名称 */
-  animation-duration: 1s;              /* 一次动画持续时间 */
-  animation-timing-function: ease-in-out; /* 缓动函数 */
-  animation-delay: 0.5s;               /* 延迟开始时间 */
-  animation-iteration-count: infinite; /* 播放次数：数字 或 infinite */
-  animation-direction: alternate;      /* 方向：normal / reverse / alternate / alternate-reverse */
-  animation-fill-mode: forwards;       /* 结束后状态：none / forwards / backwards / both */
-  animation-play-state: running;       /* 播放状态：running / paused */
-}
-```
-
-| 属性 | 常用值 | 说明 |
-|------|-------|------|
-| `animation-direction` | `normal` / `alternate` | `alternate` 实现往返动画 |
-| `animation-fill-mode` | `forwards` / `backwards` / `both` | `forwards` 让动画停在最后一帧 |
-| `animation-play-state` | `running` / `paused` | JS 控制暂停：`el.style.animationPlayState = 'paused'` |
-
-### 简写语法
-
-```css
-/* name duration timing-function delay iteration-count direction fill-mode */
-animation: slideIn 1s ease-in-out 0.5s infinite alternate forwards;
-
-/* 多个动画用逗号分隔 */
-animation: fadeIn 0.5s ease, slideUp 0.8s ease 0.3s;
-```
-
----
-
-## Q: transition vs animation
-
-**A:**
-
-| 对比维度 | `transition` | `animation` |
-|---------|-------------|-------------|
-| 触发方式 | 需要状态变化触发（hover、class 切换） | 自动执行，无需触发 |
-| 关键帧 | 只有起止两个状态 | 可定义多个关键帧（`%` 控制） |
-| 循环播放 | ❌ 不支持 | ✅ 支持（`infinite`） |
-| 暂停控制 | ❌ 不支持 | ✅ `animation-play-state: paused` |
-| 方向控制 | ❌ 不支持 | ✅ `animation-direction: alternate` |
-| JS 控制 | 依赖状态切换 | 可直接操控 `animationPlayState` |
-| 适用场景 | 简单 hover 效果、状态切换 | 复杂动画、自动播放、loading |
-
----
-
-## Q: CSS 动画效果实现
-
-**A:**
-
-### 1. 淡入淡出
-
-```css
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to   { opacity: 1; }
-}
-
-.fade-in {
-  animation: fadeIn 0.5s ease forwards;
-}
-```
-
-### 2. 骨架屏加载（Shimmer）
-
-```css
-@keyframes shimmer {
-  0%   { background-position: -200% 0; }
-  100% { background-position:  200% 0; }
-}
-
-.skeleton {
-  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-  background-size: 200% 100%;
-  animation: shimmer 1.5s infinite;
-}
-```
-
-### 3. 旋转 Loading
-
-```css
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-.loader {
-  width: 40px;
-  height: 40px;
-  border: 4px solid #eee;
-  border-top-color: #3498db;
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-}
-```
-
-### 4. 弹跳效果
-
-```css
-@keyframes bounce {
-  0%, 100% {
-    transform: translateY(0);
-    animation-timing-function: ease-in;
-  }
-  50% {
-    transform: translateY(-30px);
-    animation-timing-function: ease-out;
-  }
-}
-
-.bounce {
-  animation: bounce 0.8s infinite;
-}
-```
-
----
-
-## Q: CSS 动画性能优化
-
-**A:**
-
-### 核心原则：触发 GPU 合成层，避免回流重绘
-
-**✅ 推荐使用（不触发回流）：**
-- `transform`（translate / scale / rotate）
-- `opacity`
-- `filter`
-
-**❌ 避免使用（触发回流）：**
-- `top` / `left` / `margin` / `width` / `height`
-
-### will-change 提示浏览器
-
-```css
-/* 提前告知浏览器该元素会发生哪种变化，让其提前优化 */
-.animated {
-  will-change: transform, opacity;
-}
-
-/* 动画结束后移除，避免常驻内存占用 */
-.animated.done {
-  will-change: auto;
-}
-```
-
-> ⚠️ **注意**：`will-change` 不要滥用，它会占用额外 GPU 内存。只在**确实有性能瓶颈**的元素上使用，且动画结束后及时还原为 `auto`。
-
-### requestAnimationFrame vs CSS 动画
-
-| 方式 | 优点 | 缺点 |
-|------|------|------|
-| CSS animation | 自动走 GPU 合成层，性能最优 | 逻辑控制弱 |
-| JS + `requestAnimationFrame` | 逻辑灵活，可精细控制 | 需手动优化性能 |
-| JS + `setTimeout/setInterval` | ❌ 不推荐 | 不与屏幕刷新率同步，卡顿明显 |
-
-### 减少动画层数
-
-合成层虽然性能好，但**层数过多会占用大量 GPU 内存**，导致页面整体变慢。通过 Chrome DevTools → Layers 面板可以查看当前页面的合成层情况。
-
----
-## CSS如何画一个三角形？原理是什么？
-见triangle
-```javascript
-<a href="./triangle.html">demo</a>
-```
-## css几种隐藏元素的方式的区别
-
-`display: none`
-
-DOM 结构：浏览器不会渲染 display 属性为 none 的元素，会让元素完全从渲染树中消失，渲染的时候不占据任何空间；
-事件监听：无法进行 DOM 事件监听，不能点击；
-性能：修改元素会造成文档回流（reflow 与 repaint）,读屏器不会读取display: none元素内容，性能消耗较大；
-继承：是非继承属性，由于元素从渲染树消失，造成子孙节点消失，即使修改子孙节点属性子孙节点也无法显示，毕竟子类也不会被渲染；
-场景：显示出原来这里不存在的结构；
-transition：transition 不支持 display。
-
-`visibility: hidden`
-
-DOM 结构：不会让元素从渲染树消失，渲染元素继续占据空间，只是内容不可见；
-事件监听：无法进行 DOM 事件监听，不能点击；
-性能：修改元素只会造成本元素的重绘（repaint），是重回操作，比回流操作性能高一些，性能消耗较少；读屏器读取visibility: hidden元素内容；
-继承：是继承属性，子孙节点消失是由于继承了visibility: hidden，子元素可以通过设置 visibility: visible 来取消隐藏；
-场景：显示不会导致页面结构发生变动，不会撑开；
-transition：transition 支持 visibility，visibility 会立即显示，隐藏时会延时。
-
-`opacity: 0`
-
-DOM 结构：透明度为 100%，不会让元素从渲染树消失，渲染元素继续占据空间，只是内容不可见；
-事件监听：可以进行 DOM 事件监听，可以点击；
-性能：提升为合成层，是重建图层，不和动画属性一起则不会产生repaint（不脱离文档流，不会触发重绘），性能消耗较少；
-继承：会被子元素继承，且子元素并不能通过 opacity: 1 来取消隐藏；
-场景：可以跟transition搭配；
-transition：transition 支持 opacity，opacity 可以延时显示和隐藏。
-display: none： 从这个世界消失了, 不存在了；
-opacity: 0： 视觉上隐身了, 看不见, 可以触摸得到；
-visibility: hidden： 视觉和物理上都隐身了, 看不见也摸不到, 但是存在的；
-
-## css 如何获取前20个元素
-
-1. :nth-child()选择器允许你基于元素的父元素中的位置选择元素
-选择前20个元素
-```css
-ul li:nth-child(-n+20) {  
-    background-color: yellow;  
-}
-```
-2. :nth-last-child()选择器允许你基于元素的父元素中的位置选择元素
-选择后20个元素
-```css
-ul li:nth-last-child(-n+20) {
-    background-color: yellow;
-}
-3. 如果你的元素不是连续的，或者你需要选择特定类型的元素，你可能需要使用更复杂的`:nth-child()`选择器。例如，如果你只想选择前20个`<div>`元素
-
-```css
-div:nth-of-type(-n+20) {  
-    background-color: yellow;  
-}
-```
-
-关于上述的 n 的范围的有效解释
-
-n 的范围是 0 到 19，因为这是公式 -n + 20 能够有效匹配倒数第 20 个到倒数第 1 个元素的区间。
-如果 n 超过 19，公式计算结果会小于或等于 0，超出了 CSS 选择器的有效范围。
-
-
-## <h1 style="color: #1b73e5;">请列举CSS中常见的符号，并说明其含义</h1> 
-
-- `>` 用于选择某个元素的直接子元素
-- `+` 用于选择紧接在某个元素后的第一个兄弟元素。
-- `~` 用于选择某个元素后的所有兄弟元素。
-- `&` 是 Sass 或 Less 等 CSS 预处理器中的特殊符号，用于引用父选择器
-- `空格` 用于选择某个元素的所有后代元素。
-- `,` 用于选择多个选择器，将它们组合在一起。
-- `*` 用于选择所有元素。
-- `:` 用于选择伪类，例如 `:hover`、`:active`、`:focus` 等。
-- `::` 用于选择伪元素，例如 `::before`、`::after` 等。
-- `#` 用于选择具有特定 `ID` 的元素。
-- `.` 用于选择具有特定类名的元素。
-- `[attr]` 用于选择具有指定属性的元素。
-- `[attr=value]` 用于选择具有指定属性和值的元素。
-
----
-
-## Flex 布局篇
-
-## Q: Flex 布局属性容器和子项分别如何设置？
-
-**A:**
-
-Flex 布局分为**容器属性**和**子项属性**两类。
 
 ### 容器属性（父元素）
 
 ```css
 .container {
-  display: flex;               /* 开启 flex 布局 */
-  flex-direction: row;         /* 主轴方向：row(默认) | row-reverse | column | column-reverse */
-  flex-wrap: nowrap;           /* 是否换行：nowrap(默认) | wrap | wrap-reverse */
+  display: flex;
+  flex-direction: row;         /* 主轴：row | row-reverse | column | column-reverse */
+  flex-wrap: nowrap;           /* 换行：nowrap | wrap | wrap-reverse */
   justify-content: flex-start; /* 主轴对齐：flex-start | flex-end | center | space-between | space-around | space-evenly */
-  align-items: stretch;        /* 交叉轴对齐（单行）：stretch | flex-start | flex-end | center | baseline */
-  align-content: stretch;      /* 交叉轴对齐（多行）：同上，仅在多行时生效 */
-  gap: 16px;                   /* 子项间距，等同于 row-gap + column-gap */
+  align-items: stretch;        /* 交叉轴对齐（单行） */
+  align-content: stretch;      /* 交叉轴对齐（多行） */
+  gap: 16px;                   /* 子项间距 */
 }
 
 /* 简写 */
-flex-flow: row nowrap; /* flex-direction + flex-wrap */
+flex-flow: row nowrap;
 ```
 
-### 子项属性（子元素）
+### 子项属性
 
 ```css
 .item {
-  flex-grow: 0;    /* 放大比例，0 表示不放大，默认 0 */
-  flex-shrink: 1;  /* 缩小比例，1 表示等比缩小，默认 1 */
-  flex-basis: auto;/* 主轴初始尺寸，默认 auto（取 width/height 值） */
-  flex: 0 1 auto;  /* 简写：grow shrink basis */
-
+  flex-grow: 0;     /* 放大比例，默认 0 */
+  flex-shrink: 1;   /* 缩小比例，默认 1 */
+  flex-basis: auto; /* 主轴初始尺寸 */
+  flex: 0 1 auto;   /* 简写：grow shrink basis */
   align-self: auto; /* 单独覆盖父容器的 align-items */
   order: 0;         /* 排列顺序，数值越小越靠前 */
 }
-```
-
-### flex 简写规则
-
-```css
-flex: 1       /* 等同于 flex: 1 1 0% — 均匀占满剩余空间（最常用）*/
-flex: auto    /* 等同于 flex: 1 1 auto */
-flex: none    /* 等同于 flex: 0 0 auto — 不放大不缩小 */
-flex: 0 1 200px /* grow shrink basis 完整写法 */
 ```
 
 ### 常见场景速查
@@ -732,14 +233,13 @@ flex: 0 1 200px /* grow shrink basis 完整写法 */
 /* 水平垂直居中 */
 .box { display: flex; justify-content: center; align-items: center; }
 
-/* 左固定，右自适应（两栏布局） */
+/* 左固定，右自适应 */
 .sidebar { width: 200px; flex-shrink: 0; }
 .main    { flex: 1; }
 
-/* 底部固定（sticky footer） */
+/* Sticky footer */
 .layout  { display: flex; flex-direction: column; min-height: 100vh; }
 .content { flex: 1; }
-.footer  { /* 高度自适应 */ }
 ```
 
 ### justify-content 各值效果
@@ -755,11 +255,12 @@ flex: 0 1 200px /* grow shrink basis 完整写法 */
 
 ---
 
-## Q: flex:1 含义解析
+## Q: `flex: 1` 的含义是什么？
 
 **A:**
 
-`flex: 1` 是 `flex: 1 1 0%` 的简写，含义是：
+`flex: 1` 是 `flex: 1 1 0%` 的简写：
+
 - `flex-grow: 1` — 有剩余空间时**等比放大**
 - `flex-shrink: 1` — 空间不足时**等比缩小**
 - `flex-basis: 0%` — 初始尺寸为 **0**，从零开始分配空间
@@ -767,24 +268,17 @@ flex: 0 1 200px /* grow shrink basis 完整写法 */
 > ⚠️ **注意**：`flex: 1` 与 `flex: auto`（即 `flex: 1 1 auto`）的区别在于 `flex-basis`。`flex: 1` 忽略子项自身内容宽度，完全按比例分配；`flex: auto` 则先按内容分配，再分配剩余空间。
 
 ```css
-/* 三列等宽布局 */
-.col { flex: 1; }
-
-/* 1:2:1 比例布局 */
-.col-a { flex: 1; }
+.col { flex: 1; }      /* 三列等宽 */
+.col-a { flex: 1; }    /* 1:2:1 比例 */
 .col-b { flex: 2; }
 .col-c { flex: 1; }
 ```
 
 ---
 
-## position 定位篇
-
-## Q: position 定位方式各自有什么区别？
+## Q: position 五种定位方式有什么区别？
 
 **A:**
-
-### 五种定位方式
 
 | 值 | 是否脱离文档流 | 参照物 | 特点 |
 |----|-------------|-------|------|
@@ -794,81 +288,44 @@ flex: 0 1 200px /* grow shrink basis 完整写法 */
 | `fixed` | ✅ 脱离 | 视口（viewport） | 不随页面滚动 |
 | `sticky` | 介于两者之间 | 最近滚动容器 | 到达阈值前 relative，之后 fixed |
 
-### relative —— 相对自身偏移
-
-```css
-.box {
-  position: relative;
-  top: 10px;   /* 向下偏移 10px（原位置仍占据空间） */
-  left: 20px;
-}
-```
-
-### absolute —— 绝对定位
-
 ```css
 /* 子绝父相：经典用法 */
 .parent { position: relative; }
+.child  { position: absolute; top: 0; right: 0; }
 
-.child {
-  position: absolute;
-  top: 0;
-  right: 0;  /* 贴右上角 */
-}
-```
+/* 固定按钮 */
+.back-to-top { position: fixed; bottom: 20px; right: 20px; }
 
-> ⚠️ **注意**：`absolute` 会向上查找最近的 `position` 不为 `static` 的祖先元素，若全部都是 `static`，则相对于 `<html>` 根元素定位。
-
-### fixed —— 固定在视口
-
-```css
-/* 固定在右下角的按钮 */
-.back-to-top {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-}
-```
-
-> ⚠️ **注意**：若父元素有 `transform`、`filter` 或 `perspective` 属性，`fixed` 会失效，改为相对该父元素定位。
-
-### sticky —— 粘性定位
-
-```css
 /* 表头吸顶 */
-thead th {
-  position: sticky;
-  top: 0;  /* 距顶部 0px 时固定，必须指定阈值 */
-  background: white;
-  z-index: 1;
-}
+thead th { position: sticky; top: 0; background: white; z-index: 1; }
 ```
 
-`sticky` 在未到达阈值时表现为 `relative`，到达阈值后变为 `fixed`，**不脱离文档流，原位置仍保留**。
+> ⚠️ **注意**：
+> - `absolute` 找不到非 static 祖先时，相对 `<html>` 根元素定位
+> - 若父元素有 `transform`、`filter`、`perspective`，`fixed` 会失效，改为相对该父元素定位
+> - `sticky` 必须指定阈值（如 `top: 0`），且不能在 `overflow: hidden` 容器内
 
 ---
 
-## z-index 与层叠上下文篇
-
-## Q: z-index 失效原因什么是层叠上下文？
+## Q: z-index 为什么会失效？什么是层叠上下文？
 
 **A:**
 
 ### z-index 生效条件
 
-`z-index` **只对定位元素**（`position` 不为 `static`）以及 Flex/Grid 子项生效，普通流元素设置 `z-index` 无效。
+`z-index` **只对定位元素**（`position` 不为 `static`）以及 Flex/Grid 子项生效，普通流元素设置无效。
 
 ### 层叠上下文（Stacking Context）
 
-层叠上下文是 CSS 中的 "隔离层"，形成层叠上下文的元素内部 z-index 与外部完全隔离。
+层叠上下文是 CSS 中的「隔离层」，形成层叠上下文的元素内部 z-index 与外部完全隔离。
 
-**触发层叠上下文的条件：**
+**触发条件：**
 
 | 条件 | 说明 |
 |------|------|
 | `position: relative/absolute/fixed/sticky` + `z-index` 不为 `auto` | 最常见 |
 | `opacity` 值小于 1 | 半透明元素 |
-| `transform` 不为 `none` | 含 translate/rotate 等 |
+| `transform` 不为 `none` | 含 translate / rotate 等 |
 | `filter` 不为 `none` | 含 blur 等 |
 | `will-change` 指定上述属性 | 提前声明 |
 | `isolation: isolate` | 专门用于创建层叠上下文 |
@@ -876,38 +333,597 @@ thead th {
 ### 层叠顺序（从低到高）
 
 ```
-背景和边框 → 负z-index → 块级元素 → 浮动元素 → 行内元素 → z-index:0/auto → 正z-index
+背景和边框 → 负 z-index → 块级元素 → 浮动元素 → 行内元素 → z-index:0/auto → 正 z-index
 ```
 
 ### z-index 失效的常见原因
 
-**1. 元素不是定位元素**
 ```css
 /* ❌ 无效：普通流元素 */
 .box { z-index: 999; }
-
 /* ✅ 有效 */
 .box { position: relative; z-index: 999; }
-```
 
-**2. 父元素创建了层叠上下文，子元素 z-index 被"隔离"**
-```css
-.parent { position: relative; z-index: 1; }  /* 创建了层叠上下文 */
-.child  { position: relative; z-index: 9999; } /* 再大也被限制在父元素层叠上下文内 */
-```
+/* ❌ 父元素创建层叠上下文，子元素被「隔离」 */
+.parent { position: relative; z-index: 1; }
+.child  { position: relative; z-index: 9999; } /* 再大也突破不了父级层叠 */
 
-**3. `opacity < 1` 或 `transform` 导致 fixed 失效**
-```css
-/* fixed 子元素不再相对视口定位 */
+/* ❌ transform 导致 fixed 失效 */
 .parent { transform: translateX(0); }
-.child  { position: fixed; } /* 失效！改为相对 .parent 定位 */
+.child  { position: fixed; } /* 失效，改为相对 .parent 定位 */
 ```
 
 ---
 
-## 伪类与伪元素篇
+## Q: 什么是回流与重绘？如何减少？
 
-## Q: 伪类与伪元素常见的有哪些？
+**A:**
+
+| 概念 | 触发条件 | 性能消耗 |
+|------|---------|---------|
+| **回流（Reflow）** | DOM 元素的**布局或几何属性**改变（宽高、位置、内容、display） | 🔴 高（需重新计算布局） |
+| **重绘（Repaint）** | 仅元素**样式属性**改变（颜色、背景、visibility） | 🟡 中（不涉及布局重算） |
+
+> 📌 **回流必然引起重绘，重绘不一定引起回流**。
+
+**优化措施：**
+
+1. **避免频繁修改样式**：合并多次操作，或一次性设置 `cssText` / 切换 class
+2. **使用 transform / opacity 替代位移**：走 GPU 合成层，不触发回流重绘
+3. **离线操作 DOM**：先 `display: none` 或 `documentFragment` 批量改完再插入
+4. **缓存布局值**：避免在循环中反复读取 `offsetWidth` / `getBoundingClientRect()`（会强制同步回流）
+5. **减少 DOM 数量**：节点越少，计算量越小
+6. **复杂动画用 `position: absolute / fixed`**：脱离文档流，回流范围只在自身
+
+---
+
+## Q: 隐藏元素的几种方式有什么区别？
+
+**A:**
+
+| 维度 | `display: none` | `visibility: hidden` | `opacity: 0` |
+|------|----------------|----------------------|-------------|
+| 是否占据空间 | ❌ 不占据 | ✅ 占据 | ✅ 占据 |
+| 是否触发回流 | ✅ 触发 | ❌ 仅重绘 | ❌ 仅重绘（提升为合成层） |
+| 是否响应事件 | ❌ 不响应 | ❌ 不响应 | ✅ 可点击 |
+| 是否被子元素继承 | ❌ 非继承 | ✅ 继承（子可用 visible 覆盖） | ✅ 继承（子无法用 opacity:1 取消） |
+| 是否支持 transition | ❌ 不支持 | ✅ 支持（瞬时切换显示，延时隐藏） | ✅ 完美支持 |
+| 屏幕阅读器是否读取 | ❌ 不读取 | ✅ 读取 | ✅ 读取 |
+
+**形象比喻：**
+
+- `display: none` —— 从这个世界消失了，不存在了
+- `visibility: hidden` —— 视觉和物理上都隐身了，看不见也摸不到，但还存在
+- `opacity: 0` —— 视觉上隐身了，看不见，但可以触摸得到
+
+---
+
+## Q: CSS 样式优先级如何计算？
+
+**A:**
+
+**优先级权重（A, B, C, D 四位系统）：**
+
+| 选择器 | 权重 |
+|-------|------|
+| 内联样式 `style=""` | `1 0 0 0` |
+| ID 选择器 `#id` | `0 1 0 0` |
+| 类 / 属性 / 伪类 `.cls` `[attr]` `:hover` | `0 0 1 0` |
+| 标签 / 伪元素 `div` `::before` | `0 0 0 1` |
+| 通配符 / 后代 / 子代 `*` `>` ` ` `+` `~` | `0` |
+| `!important` | 最高（覆盖一切） |
+
+```css
+/* 计算示例：0,2,1,1 */
+#main #content .post p { ... }
+```
+
+**比较规则**：先比 A 位，A 相同再比 B 位，依次比下去。**优先级不会进位**（10 个类选择器也不会等于 1 个 ID）。
+
+**可继承属性：**
+
+- 字体系列（`font-family`、`font-size` 等）
+- 文本系列（`color`、`line-height`、`text-align` 等）
+- 元素可见性（`visibility`）
+- 列表属性（`list-style`）
+- 光标 `cursor`
+
+---
+
+## Q: 如何实现单行 / 多行文本溢出省略？
+
+**A:**
+
+### 单行省略
+
+```css
+.single {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+```
+
+### 多行省略（基于 WebKit，移动端兼容性好）
+
+```css
+.multi {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;  /* 限制行数 */
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+```
+
+### 通用兼容方案（伪元素模拟）
+
+```css
+.multi-fallback {
+  position: relative;
+  line-height: 1.5em;
+  max-height: 3em;        /* 行高 × 行数 */
+  overflow: hidden;
+}
+.multi-fallback::after {
+  content: '...';
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  padding: 0 4px;
+  background: #fff;
+}
+```
+
+> ⚠️ **注意**：`-webkit-line-clamp` 在非 WebKit 内核浏览器需要降级方案；现代主流浏览器（Chrome / Edge / Safari / 移动端）已广泛支持。
+
+---
+
+## Q: CSS 如何画一个三角形？有哪些方法？
+
+**A:**
+
+### 方法 1：border 不同颜色（最经典）
+
+利用边框相接处呈 45° 切角的特性，将其他三边设为透明：
+
+```css
+/* 向下三角 */
+.triangle-down {
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 50px 50px 0;
+  border-color: #d9534f transparent transparent;
+}
+
+/* 空心三角（用 ::after 叠一个白色小三角） */
+.triangle-hollow {
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 0 50px 50px;
+  border-color: transparent transparent #d9534f;
+  position: relative;
+}
+.triangle-hollow::after {
+  content: '';
+  position: absolute;
+  top: 6px;
+  left: -40px;
+  border-style: solid;
+  border-width: 0 40px 40px;
+  border-color: transparent transparent #fff;
+}
+```
+
+### 方法 2：Unicode 三角符号
+
+最简单但不可自定义形状（只能改字色/字号）：
+
+```html
+<span style="font-size:100px; color:blue;">▼</span>
+<!-- 可选：◄ ► ▼ ▲ ◀ ▶ ⊿ △ ▽ ▷ ◁ -->
+```
+
+### 方法 3：linear-gradient 线性渐变
+
+```css
+.triangle-linear {
+  width: 120px;
+  height: 100px;
+  background: linear-gradient(to bottom right, blue 50%, transparent 50%);
+}
+```
+
+### 方法 4：conic-gradient 锥形渐变
+
+```css
+.triangle-conic {
+  width: 120px;
+  height: 100px;
+  background: conic-gradient(from 90deg at 0 0, blue 0 40deg, transparent 40.1deg);
+}
+```
+
+### 方法 5：伪元素旋转
+
+容器 `overflow:hidden`，内部用旋转的方块露出三角部分：
+
+```css
+.triangle-rotate {
+  width: 120px;
+  height: 100px;
+  position: relative;
+  overflow: hidden;
+}
+.triangle-rotate::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: blue;
+  transform-origin: 0 0;
+  transform: rotate(56deg);
+}
+```
+
+### 方法 6：clip-path 裁剪（✅ 现代推荐）
+
+最直观、可任意定义多边形顶点：
+
+```css
+.triangle-clip {
+  width: 100px;
+  height: 100px;
+  background: blue;
+  clip-path: polygon(0 0, 100% 0, 0 100%);
+}
+```
+
+### 方案对比
+
+| 方法 | 优点 | 缺点 |
+|------|------|------|
+| border | 兼容性最好 | 无法加阴影/渐变 |
+| Unicode | 一行搞定 | 只能改字色字号 |
+| linear-gradient | 灵活 | 锯齿较明显 |
+| conic-gradient | 角度可控 | 兼容性稍弱 |
+| 伪元素旋转 | 边缘清晰 | 计算角度麻烦 |
+| **clip-path** | 任意形状、可加阴影 | IE 不支持 |
+
+---
+
+## Q: transition 过渡动画有哪些属性？
+
+**A:**
+
+`transition` 用于在元素**状态改变时**（如 hover、class 切换）平滑过渡 CSS 属性值。
+
+```css
+transition: property duration timing-function delay;
+/* 简写 */
+transition: all 0.3s ease-in-out 0s;
+```
+
+| 属性 | 说明 | 示例值 |
+|------|------|-------|
+| `transition-property` | 要过渡的属性，`all` 表示全部 | `width`, `opacity`, `all` |
+| `transition-duration` | 持续时间 | `0.3s`, `300ms` |
+| `transition-timing-function` | 缓动函数 | `ease` / `linear` / `ease-in-out` / `cubic-bezier()` |
+| `transition-delay` | 延迟开始时间 | `0.2s` |
+
+```css
+.btn {
+  background-color: blue;
+  transform: scale(1);
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+.btn:hover {
+  background-color: red;
+  transform: scale(1.1);
+}
+```
+
+> ⚠️ **注意**：`transition` 不支持 `display` 属性的过渡（`none ↔ block` 无法渐变），可用 `visibility + opacity` 替代实现渐隐效果。
+
+---
+
+## Q: transform 有哪些常用变形函数？
+
+**A:**
+
+`transform` 本身不是动画，而是**变形操作**，配合 `transition` 或 `animation` 才呈现动画效果。由于不会触发回流，**性能优于直接修改 `top/left/width`**。
+
+| 函数 | 说明 | 示例 |
+|------|------|------|
+| `translate(x, y)` | 位移（不脱离文档流） | `translate(50px, 100px)` |
+| `translateX(n)` / `translateY(n)` | 单轴位移 | `translateX(-50%)` 常用于居中 |
+| `scale(x, y)` | 缩放 | `scale(1.5)` 放大1.5倍 |
+| `rotate(deg)` | 旋转 | `rotate(45deg)` |
+| `skew(x, y)` | 倾斜 | `skew(20deg, 10deg)` |
+| `matrix(...)` | 矩阵变换（综合以上） | 较少直接使用 |
+
+### 3D 变换
+
+```css
+.parent { perspective: 1000px; }       /* 开启3D空间 */
+
+.card {
+  transform: rotateY(180deg);          /* 绕Y轴翻转 */
+  transform: translateZ(100px);        /* Z轴位移 */
+  transform: rotate3d(1, 1, 0, 45deg);
+}
+```
+
+### transform-origin
+
+控制变形基准点，默认为元素中心 `50% 50%`：
+
+```css
+.rotate-corner {
+  transform-origin: top left;  /* 以左上角为基准旋转 */
+  transform: rotate(45deg);
+}
+```
+
+---
+
+## Q: animation 关键帧动画有哪 8 个属性？
+
+**A:**
+
+`animation` 配合 `@keyframes` 实现完全自定义、无需触发、可循环的动画。
+
+### @keyframes 定义动画序列
+
+```css
+@keyframes slideIn {
+  from {                        /* 等同 0% */
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  50% { opacity: 0.5; }
+  to {                          /* 等同 100% */
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+```
+
+### 8 个属性详解
+
+```css
+.box {
+  animation-name: slideIn;                /* 对应 @keyframes 名称 */
+  animation-duration: 1s;                 /* 持续时间 */
+  animation-timing-function: ease-in-out; /* 缓动 */
+  animation-delay: 0.5s;                  /* 延迟 */
+  animation-iteration-count: infinite;    /* 次数：数字 | infinite */
+  animation-direction: alternate;         /* normal | reverse | alternate | alternate-reverse */
+  animation-fill-mode: forwards;          /* none | forwards | backwards | both */
+  animation-play-state: running;          /* running | paused */
+}
+
+/* 简写 */
+animation: slideIn 1s ease-in-out 0.5s infinite alternate forwards;
+```
+
+| 属性 | 关键作用 |
+|------|---------|
+| `animation-direction: alternate` | 实现往返动画 |
+| `animation-fill-mode: forwards` | 让动画停在最后一帧 |
+| `animation-play-state` | JS 可控制暂停：`el.style.animationPlayState = 'paused'` |
+
+---
+
+## Q: transition 与 animation 的区别？
+
+**A:**
+
+| 对比维度 | `transition` | `animation` |
+|---------|-------------|-------------|
+| 触发方式 | 需要状态变化触发（hover、class 切换） | 自动执行，无需触发 |
+| 关键帧 | 只有起止两个状态 | 可定义多个关键帧（`%` 控制） |
+| 循环播放 | ❌ 不支持 | ✅ 支持（`infinite`） |
+| 暂停控制 | ❌ 不支持 | ✅ `animation-play-state: paused` |
+| 方向控制 | ❌ 不支持 | ✅ `animation-direction: alternate` |
+| 适用场景 | 简单 hover、状态切换 | 复杂动画、自动播放、loading |
+
+---
+
+## Q: 常用 CSS 动画效果如何实现？
+
+**A:**
+
+```css
+/* 1. 淡入淡出 */
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+.fade-in { animation: fadeIn 0.5s ease forwards; }
+
+/* 2. 骨架屏 Shimmer */
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position:  200% 0; }
+}
+.skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+/* 3. 旋转 Loading */
+@keyframes spin { to { transform: rotate(360deg); } }
+.loader {
+  width: 40px; height: 40px;
+  border: 4px solid #eee;
+  border-top-color: #3498db;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+/* 4. 弹跳 */
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); animation-timing-function: ease-in; }
+  50%      { transform: translateY(-30px); animation-timing-function: ease-out; }
+}
+.bounce { animation: bounce 0.8s infinite; }
+```
+
+---
+
+## Q: CSS 动画如何做性能优化？
+
+**A:**
+
+### 核心原则：触发 GPU 合成层，避免回流重绘
+
+**✅ 推荐使用（走合成层，不触发回流）：**
+- `transform`（translate / scale / rotate）
+- `opacity`
+- `filter`
+
+**❌ 避免使用（触发回流）：**
+- `top` / `left` / `margin` / `width` / `height`
+
+### will-change 提示浏览器
+
+```css
+.animated {
+  will-change: transform, opacity;
+}
+
+/* 动画结束后还原，避免常驻 GPU 内存 */
+.animated.done {
+  will-change: auto;
+}
+```
+
+> ⚠️ **注意**：`will-change` 不要滥用，会占用额外 GPU 内存，只在**确实有性能瓶颈**时使用。
+
+### 动画 API 性能对比
+
+| 方式 | 优点 | 缺点 |
+|------|------|------|
+| CSS animation | 自动走 GPU 合成层，性能最优 | 逻辑控制弱 |
+| JS + `requestAnimationFrame` | 逻辑灵活，可精细控制 | 需手动优化性能 |
+| JS + `setTimeout/setInterval` | ❌ 不推荐 | 不与屏幕刷新率同步，卡顿明显 |
+
+---
+
+## Q: 媒体查询与响应式布局有哪些方案？
+
+**A:**
+
+### 媒体查询语法
+
+```css
+@media [媒体类型] [and/not/only] (条件) {
+  /* 样式规则 */
+}
+
+@media (max-width: 768px) { .nav { display: none; } }
+@media (min-width: 769px) and (max-width: 1024px) { /* 平板 */ }
+@media (min-width: 1025px) { /* PC */ }
+```
+
+### 移动端优先 vs PC 端优先
+
+```css
+/* ✅ 移动端优先：用 min-width 向上覆盖 */
+.container { width: 100%; }
+@media (min-width: 768px)  { .container { width: 750px; } }
+@media (min-width: 1200px) { .container { width: 1170px; } }
+
+/* PC 端优先：用 max-width 向下覆盖 */
+.container { width: 1170px; }
+@media (max-width: 1199px) { .container { width: 750px; } }
+@media (max-width: 767px)  { .container { width: 100%; } }
+```
+
+### 常用断点（参考 Bootstrap）
+
+| 断点 | 宽度区间 | 典型设备 |
+|------|---------|--------|
+| xs | `< 576px` | 手机竖屏 |
+| sm | `≥ 576px` | 手机横屏 |
+| md | `≥ 768px` | 平板 |
+| lg | `≥ 992px` | 小屏 PC |
+| xl | `≥ 1200px` | 大屏 PC |
+
+### 其他响应式方案
+
+```css
+/* viewport 单位 */
+.hero { height: 100vh; }
+h1   { font-size: clamp(16px, 4vw, 32px); }
+
+/* rem 相对根元素 */
+html { font-size: 16px; }
+.box { width: 20rem; /* = 320px */ }
+
+/* clamp() 流式响应 */
+.title { font-size: clamp(1rem, 2.5vw, 2rem); }
+```
+
+---
+
+## Q: CSS 自定义属性（CSS 变量）有什么优势？
+
+**A:**
+
+### 基本语法
+
+```css
+:root {
+  --primary-color: #3498db;
+  --spacing-md: 16px;
+}
+
+.btn {
+  background-color: var(--primary-color);
+  padding: var(--spacing-md);
+  font-size: var(--font-size, 14px); /* 第二个参数为兜底默认值 */
+}
+```
+
+### 局部覆盖（遵循 DOM 继承）
+
+```css
+:root        { --color: blue; }
+.dark-theme  { --color: white; }   /* 在深色主题下覆盖 */
+.text        { color: var(--color); }
+```
+
+### JS 动态修改 → 实现主题切换
+
+```css
+:root            { --bg: #fff; --text: #333; }
+[data-theme="dark"] { --bg: #1a1a1a; --text: #f0f0f0; }
+body             { background: var(--bg); color: var(--text); }
+```
+
+```js
+// 读取
+const value = getComputedStyle(document.documentElement)
+  .getPropertyValue('--primary-color').trim();
+
+// 修改 / 切换主题
+document.documentElement.style.setProperty('--primary-color', '#e74c3c');
+document.documentElement.setAttribute('data-theme', 'dark');
+```
+
+### CSS 变量 vs Sass/Less 变量
+
+| 对比 | CSS 变量 | Sass/Less 变量 |
+|------|---------|--------------|
+| 作用域 | 动态，遵循 DOM 层级 | 静态，编译时确定 |
+| 运行时修改 | ✅ 可以（JS 修改） | ❌ 不能（编译期） |
+| 浏览器支持 | IE11 不支持 | 编译后全支持 |
+| 继承 | ✅ 随 DOM 继承 | ❌ 不继承 |
+
+---
+
+## Q: 伪类与伪元素的区别？常见有哪些？
 
 **A:**
 
@@ -924,29 +940,27 @@ thead th {
 
 ```css
 /* 状态类 */
-a:hover   { color: red; }    /* 悬停 */
-a:active  { color: blue; }   /* 激活（点击中） */
-a:visited { color: purple; } /* 已访问链接 */
-input:focus { outline: 2px solid blue; } /* 聚焦 */
+a:hover   { color: red; }
+a:active  { color: blue; }
+a:visited { color: purple; }
+input:focus    { outline: 2px solid blue; }
 input:disabled { opacity: 0.5; }
 input:checked  { /* 复选框选中 */ }
 
 /* 结构类 */
-li:first-child  { font-weight: bold; }  /* 第一个子元素 */
-li:last-child   { margin-bottom: 0; }
-li:nth-child(2n)    { background: #f5f5f5; } /* 偶数行 */
-li:nth-child(2n+1)  { background: white; }   /* 奇数行 */
-li:nth-child(-n+3)  { color: red; }          /* 前3个 */
-p:not(.special) { color: gray; }  /* 排除某类 */
+li:first-child       { font-weight: bold; }
+li:last-child        { margin-bottom: 0; }
+li:nth-child(2n)     { background: #f5f5f5; }
+li:nth-child(2n+1)   { background: white; }
+li:nth-child(-n+3)   { color: red; }       /* 前 3 个 */
+li:nth-last-child(-n+3) { color: blue; }   /* 后 3 个 */
+p:not(.special)      { color: gray; }
 ```
 
 ### 常见伪元素
 
 ```css
-/* ::before / ::after — 最常用，必须有 content 属性 */
-.btn::before {
-  content: '→ ';
-}
+.btn::before { content: '→ '; }
 
 .clearfix::after {
   content: '';
@@ -954,186 +968,260 @@ p:not(.special) { color: gray; }  /* 排除某类 */
   clear: both;
 }
 
-/* ::placeholder — 输入框占位符样式 */
 input::placeholder { color: #aaa; }
-
-/* ::selection — 文字选中样式 */
-::selection { background: #3498db; color: white; }
-
-/* ::first-line / ::first-letter */
-p::first-letter { font-size: 2em; float: left; margin-right: 4px; }
-p::first-line   { font-weight: bold; }
+::selection        { background: #3498db; color: white; }
+p::first-letter    { font-size: 2em; float: left; }
+p::first-line      { font-weight: bold; }
 ```
 
 ---
 
-## 响应式布局篇
-
-## Q: 媒体查询与响应式响应式布局有哪些方案？
+## Q: CSS 浮动是什么？如何清除？
 
 **A:**
 
-### 媒体查询语法
+### 浮动是什么
+
+`float` 最初设计用于**文字环绕图片**，后被广泛用于布局。设置 `float` 的元素**脱离正常文档流**，向左或向右浮动直到遇到父容器边界或另一个浮动元素。
+
+### 浮动带来的问题
+
+1. **父元素高度塌陷**（最常见，子元素脱离流，父元素感知不到高度）
+2. **影响后续兄弟块级元素**（占据浮动元素原本的位置）
+3. **行内元素围绕浮动元素排列**（文字环绕效果）
+
+### 清除浮动的方法
+
+#### 方法一：clearfix 伪元素（✅ 最主流）
 
 ```css
-/* 基本语法 */
-@media [媒体类型] [and/not/only] (条件) {
-  /* 样式规则 */
-}
-
-/* 常见示例 */
-@media (max-width: 768px) {
-  /* 小于 768px（移动端）时生效 */
-  .nav { display: none; }
-}
-
-@media (min-width: 769px) and (max-width: 1024px) {
-  /* 平板端 */
-}
-
-@media (min-width: 1025px) {
-  /* PC 端 */
+.clearfix::after {
+  content: '';
+  display: block;
+  clear: both;
+  height: 0;
+  visibility: hidden;
 }
 ```
 
-### 移动端优先 vs PC 端优先
+#### 方法二：触发 BFC（✅ 推荐）
 
 ```css
-/* 移动端优先：默认写移动端样式，用 min-width 向上覆盖 ✅ 推荐 */
-.container { width: 100%; }
-
-@media (min-width: 768px)  { .container { width: 750px; } }
-@media (min-width: 1200px) { .container { width: 1170px; } }
-
-/* PC 端优先：默认写 PC 样式，用 max-width 向下覆盖 */
-.container { width: 1170px; }
-
-@media (max-width: 1199px) { .container { width: 750px; } }
-@media (max-width: 767px)  { .container { width: 100%; } }
-```
-
-### 常用断点（参考Bootstrap）
-
-| 断点名 | 宽度区间 | 典型设备 |
-|-------|---------|--------|
-| xs | `< 576px` | 手机竖屏 |
-| sm | `≥ 576px` | 手机横屏 |
-| md | `≥ 768px` | 平板 |
-| lg | `≥ 992px` | 小屏 PC |
-| xl | `≥ 1200px` | 大屏 PC |
-
-### 其他响应式布局方案
-
-**1. viewport 单位**
-
-```css
-/* vw/vh：视口宽/高的百分比（1vw = 视口宽度的 1%） */
-.hero { height: 100vh; }             /* 全屏高度 */
-h1   { font-size: clamp(16px, 4vw, 32px); } /* 自适应字号，有最小最大限制 */
-```
-
-**2. 相对单位 rem / em**
-
-```css
-/* rem：相对根元素 font-size（常用于移动端适配） */
-html { font-size: 16px; }
-.box { width: 20rem; /* = 320px */ }
-
-/* em：相对父元素 font-size */
-.parent { font-size: 16px; }
-.child  { padding: 1em; /* = 16px */ }
-```
-
-**3. clamp() — 流式响应**
-
-```css
-/* clamp(最小值, 首选值, 最大值) */
-.title {
-  font-size: clamp(1rem, 2.5vw, 2rem);  /* 不小于1rem，不大于2rem，中间随视口变化 */
-}
-.container {
-  width: clamp(300px, 80%, 1200px);
+.parent {
+  overflow: hidden;   /* 最常用，但会裁剪溢出 */
+  /* 或 */
+  display: flow-root; /* CSS3 专设，无副作用 */
 }
 ```
+
+#### 方法三：父元素固定高度（❌ 不推荐）
+
+内容动态时不可控。
+
+#### 方法四：末尾空标签 `<div style="clear:both"></div>`（❌ 不推荐）
+
+语义差。
+
+### clear 属性
+
+| 值 | 说明 |
+|----|------|
+| `left` | 左侧不允许浮动元素 |
+| `right` | 右侧不允许浮动元素 |
+| `both` | 两侧都不允许（最常用） |
+| `none` | 默认 |
 
 ---
 
-## CSS 变量篇
-
-## Q: CSS 自定义属性有什么优势？
+## Q: Sass 和 Less 有什么区别？
 
 **A:**
 
-### 基本语法
+| 对比维度 | Sass / SCSS | Less |
+|---------|-------------|------|
+| 语法 | SCSS（类 CSS）+ Sass（缩进语法） | 类 CSS，学习成本更低 |
+| 编译环境 | Ruby（早期）/ Node.js（Dart Sass） | Node.js |
+| 功能丰富度 | ✅ 更强（控制指令、自定义函数完整） | 较基础 |
+| 社区活跃度 | ✅ 更活跃（Bootstrap 5、Vue3 默认） | Bootstrap 3 / 4、Ant Design 使用 |
+| 与 CSS 兼容 | SCSS 语法完全兼容 CSS | 语法更接近 CSS |
+| 变量前缀 | `$primary` | `@primary` |
 
-```css
-/* 定义：变量名必须以 -- 开头，通常定义在 :root（全局作用域） */
-:root {
-  --primary-color: #3498db;
-  --font-size-base: 16px;
-  --spacing-md: 16px;
-  --border-radius: 8px;
-}
-
-/* 使用：var() 函数，第二个参数为默认值 */
-.btn {
-  background-color: var(--primary-color);
-  padding: var(--spacing-md);
-  border-radius: var(--border-radius);
-  font-size: var(--font-size-base, 14px); /* 14px 为兜底默认值 */
-}
-```
-
-### 局部变量（覆盖作用域）
-
-CSS 变量遵循**级联继承**，子元素会继承父元素的变量，也可在局部覆盖：
-
-```css
-:root { --color: blue; }
-
-.dark-theme {
-  --color: white;  /* 在深色主题下覆盖 */
-}
-
-.text { color: var(--color); } /* 在 .dark-theme 内自动用 white */
-```
-
-### JS 动态修改 CSS 变量
-
-```js
-// 读取
-const value = getComputedStyle(document.documentElement)
-  .getPropertyValue('--primary-color').trim();
-
-// 修改（实现主题切换）
-document.documentElement.style.setProperty('--primary-color', '#e74c3c');
-```
-
-### 实现主题切换
-
-```css
-:root { --bg: #fff; --text: #333; }
-
-[data-theme="dark"] {
-  --bg: #1a1a1a;
-  --text: #f0f0f0;
-}
-
-body { background: var(--bg); color: var(--text); }
-```
-
-```js
-// 切换主题
-document.documentElement.setAttribute('data-theme', 'dark');
-```
-
-### CSS 变量 vs Sass/Less 变量
-
-| 对比 | CSS 变量 | Sass/Less 变量 |
-|------|---------|--------------|
-| 作用域 | 动态，遵循 DOM 层级 | 静态，编译时确定 |
-| 运行时修改 | ✅ 可以（JS 修改） | ❌ 不能（编译期） |
-| 浏览器支持 | IE11 不支持 | 编译后全支持 |
-| 继承 | ✅ 随 DOM 继承 | ❌ 不继承 |
+> 💡 **推荐选择 SCSS**：功能更完整，生态更好，大多数现代项目使用。
 
 ---
+
+## Q: Sass 中常用的函数和指令有哪些？
+
+**A:**
+
+### 颜色函数
+
+```scss
+$color: #3498db;
+.light { color: lighten($color, 20%); }
+.dark  { color: darken($color, 20%); }
+.mix   { color: mix(#ff0000, #0000ff, 50%); }
+.alpha { background: rgba($color, 0.5); }
+```
+
+### 数学 / 字符串函数
+
+```scss
+.half { width: percentage(1/2); }   // 50%
+$size: round(3.7px);                // 4px
+$max:  max(10px, 20px, 30px);       // 30px
+unquote("Arial");                   // Arial（去引号）
+to-upper-case("hello");             // "HELLO"
+```
+
+### 控制指令（Sass 独有，Less 较弱）
+
+```scss
+// @each 遍历
+@each $color in red, green, blue {
+  .text-#{$color} { color: $color; }
+}
+
+// @for 循环
+@for $i from 1 through 5 {
+  .col-#{$i} { width: 20% * $i; }
+}
+
+// @if 条件
+@mixin theme($mode) {
+  @if $mode == dark { background: #333; color: #fff; }
+  @else            { background: #fff; color: #333; }
+}
+```
+
+### Mixin vs Function
+
+```scss
+// mixin：生成 CSS 代码块
+@mixin flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.container { @include flex-center; }
+
+// function：返回一个值
+@function rem($px, $base: 16px) {
+  @return $px / $base * 1rem;
+}
+.title { font-size: rem(24px); } // 1.5rem
+```
+
+---
+
+## Q: Less 有哪些常用语法？
+
+**A:**
+
+### 变量与混入
+
+```less
+@primary-color: #3498db;
+@font-size: 16px;
+
+.flex-center() {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.container { .flex-center(); }
+
+// 带参数 Mixin
+.border-radius(@r: 4px) {
+  -webkit-border-radius: @r;
+  border-radius: @r;
+}
+.btn { .border-radius(8px); }
+```
+
+### 颜色函数
+
+```less
+@primary: #3498db;
+.light  { color: lighten(@primary, 20%); }
+.dark   { color: darken(@primary, 20%); }
+.faded  { color: fade(@primary, 50%); }
+.rotate { color: spin(@primary, 30); }   // 色相旋转 30°
+```
+
+### & 引用父选择器（与 Sass 一致）
+
+```less
+.button {
+  color: blue;
+  &:hover     { color: darkblue; }     /* .button:hover */
+  &-primary   { background: blue; }    /* .button-primary（BEM） */
+  .disabled & { opacity: 0.5; }        /* .disabled .button */
+}
+```
+
+### 命名空间（Less 独有）
+
+```less
+#utils() {
+  .clearfix() {
+    &::after { content: ''; display: block; clear: both; }
+  }
+}
+.container { #utils.clearfix(); }
+```
+
+---
+
+## Q: 如何选择前 N 个或后 N 个元素？
+
+**A:**
+
+```css
+/* 前 20 个 li */
+ul li:nth-child(-n+20) { background: yellow; }
+
+/* 后 20 个 li */
+ul li:nth-last-child(-n+20) { background: yellow; }
+
+/* 前 20 个特定类型的 div（跳过其他类型兄弟节点） */
+div:nth-of-type(-n+20) { background: yellow; }
+```
+
+**`-n+20` 含义**：`n` 取 0,1,2,...，公式结果为 20,19,18,...,1，即匹配前 20 个。当 `n ≥ 20` 时结果 ≤ 0，超出有效范围，停止匹配。
+
+---
+
+## Q: CSS 中常见的符号都有什么含义？
+
+**A:**
+
+| 符号 | 含义 | 示例 |
+|------|------|------|
+| `>` | 直接子元素 | `ul > li` |
+| `+` | 紧邻的下一个兄弟元素 | `h1 + p` |
+| `~` | 后面所有兄弟元素 | `h1 ~ p` |
+| ` `（空格） | 后代元素 | `div span` |
+| `,` | 群组选择器 | `div, p` |
+| `*` | 通配符 | `* { margin: 0 }` |
+| `&` | Sass/Less 父选择器引用 | `&:hover` |
+| `:` | 伪类 | `:hover` / `:nth-child()` |
+| `::` | 伪元素 | `::before` / `::after` |
+| `#` | ID 选择器 | `#main` |
+| `.` | 类选择器 | `.btn` |
+| `[attr]` | 属性选择器 | `input[type="text"]` |
+| `[attr=value]` | 属性值精确匹配 | `a[href="#top"]` |
+
+---
+
+## Q: DOCTYPE 声明的作用是什么？
+
+**A:**
+
+`<!DOCTYPE html>` 声明文档类型，告诉浏览器使用哪种规范解析文档。
+
+- **`<!DOCTYPE html>`**（HTML5）：触发**标准模式**（Standards Mode）
+- **缺失或非法 DOCTYPE**：触发**怪异模式**（Quirks Mode），盒模型变为 IE 怪异盒模型，CSS 行为兼容老 IE
+
+> 📌 DOCTYPE 必须放在文档**第一行**，否则可能仍触发怪异模式。

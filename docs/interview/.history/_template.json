@@ -1,0 +1,32 @@
+{
+  "_comment": "Template for per-user history archive. Copy this file to {username}.json before first write.",
+  "schemaVersion": "1.0.0",
+  "user": {
+    "username": "<username>",
+    "displayName": "<display-name>",
+    "createdAt": "2026-06-01T00:00:00+08:00",
+    "updatedAt": "2026-06-01T00:00:00+08:00"
+  },
+  "summary": {
+    "totalEvents": 0,
+    "interviewPracticeCount": 0,
+    "tsLevel": 0,
+    "lastPracticeAt": null
+  },
+  "tags": [
+    "interview",
+    "typescript",
+    "learning"
+  ],
+  "events": [],
+  "custom": {
+    "_comment": "Free-form extension area for future categories.",
+    "interviewProgress": {
+      "completedQuestions": []
+    },
+    "learningPlan": {
+      "activePlan": null,
+      "checkpoints": []
+    }
+  }
+}

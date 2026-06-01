@@ -74,3 +74,24 @@
 - 所有回复使用**中文**
 - 代码块必须标注语言类型
 - 不得删除或覆盖已有内容（除非用户明确要求）
+
+---
+
+## 统一历史档案机制（强制）
+
+为避免多套并行存档规则，项目统一使用：
+
+- 档案目录：`docs/interview/.history/`
+- 用户文件：`docs/interview/.history/{用户名}.json`
+- 写入策略：**追加 events 为主**，禁止覆盖历史记录
+
+适用范围：
+- 面试官模式（interviewer）
+- 学习计划技能（learn-plan）
+- 知识点注入技能（kb-inject）
+- 其他后续涉及“进度/存档/记录”的 Agent 或 Skill
+
+约束要求：
+- 不再新增其他进度存档形态（如 `docs/interview/.progress/*.md`、独立 txt/csv 进度文件）
+- 若发现旧机制文件，优先迁移到 `.history/{用户名}.json` 后再继续写入
+- 所有与用户进度相关的状态更新，都要同步更新 `summary` 与 `user.updatedAt`

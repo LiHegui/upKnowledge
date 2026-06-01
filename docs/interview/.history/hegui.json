@@ -1,0 +1,79 @@
+﻿{
+    "_comment":  "Per-user history archive. Keep this file append-only as much as possible.",
+    "schemaVersion":  "1.0.0",
+    "user":  {
+                 "username":  "hegui",
+                 "displayName":  "hegui",
+                 "createdAt":  "2026-06-01T00:00:00+08:00",
+                 "updatedAt":  "2026-06-01T11:44:28+08:00"
+             },
+    "summary":  {
+                    "totalEvents":  3,
+                    "interviewPracticeCount":  1,
+                    "tsLevel":  1,
+                    "lastPracticeAt":  "2026-06-01T11:44:28+08:00"
+                },
+    "tags":  [
+                 "interview",
+                 "typescript",
+                 "learning"
+             ],
+    "events":  [
+                   {
+                       "_comment":  "Append new records here. Do not overwrite old events.",
+                       "id":  "evt-20260601-0001",
+                       "type":  "system.init",
+                       "topic":  "history",
+                       "title":  "Initialize personal history archive",
+                       "score":  null,
+                       "level":  0,
+                       "status":  "done",
+                       "source":  "system",
+                       "details":  {
+                                       "note":  "Archive file created from default template"
+                                   },
+                       "createdAt":  "2026-06-01T00:00:00+08:00"
+                   },
+                   {
+                       "id":  "evt-20260601-114427-181",
+                       "type":  "interview.practice",
+                       "topic":  "TypeScript",
+                       "title":  "TS guard basics",
+                       "status":  "done",
+                       "source":  "interviewer",
+                       "createdAt":  "2026-06-01T11:44:27+08:00",
+                       "score":  9,
+                       "level":  1,
+                       "details":  {
+                                       "question":  "Q: 什么是类型守卫"
+                                   }
+                   },
+                   {
+                       "id":  "evt-20260601-114428-395",
+                       "type":  "kb.inject",
+                       "topic":  "TypeScript",
+                       "title":  "Inject narrowing answer",
+                       "status":  "done",
+                       "source":  "kb-inject",
+                       "createdAt":  "2026-06-01T11:44:28+08:00",
+                       "details":  {
+                                       "target":  "docs/interview/Ts/index.md",
+                                       "operation":  "enhance"
+                                   }
+                   }
+               ],
+    "custom":  {
+                   "_comment":  "Free-form extension area for future categories.",
+                   "interviewProgress":  {
+                                             "completedQuestions":  [
+
+                                                                    ]
+                                         },
+                   "learningPlan":  {
+                                        "activePlan":  null,
+                                        "checkpoints":  [
+
+                                                        ]
+                                    }
+               }
+}

@@ -1,0 +1,180 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "upknowledge/history-archive.schema.json",
+  "title": "UpKnowledge User History Archive",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "user",
+    "summary",
+    "events"
+  ],
+  "properties": {
+    "_comment": {
+      "type": "string"
+    },
+    "schemaVersion": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "user": {
+      "type": "object",
+      "required": [
+        "username",
+        "createdAt",
+        "updatedAt"
+      ],
+      "properties": {
+        "username": {
+          "type": "string",
+          "minLength": 1
+        },
+        "displayName": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "additionalProperties": false
+    },
+    "summary": {
+      "type": "object",
+      "required": [
+        "totalEvents",
+        "interviewPracticeCount",
+        "tsLevel",
+        "lastPracticeAt"
+      ],
+      "properties": {
+        "totalEvents": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "interviewPracticeCount": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "tsLevel": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "lastPracticeAt": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "date-time"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "additionalProperties": true
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "events": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/event"
+      }
+    },
+    "custom": {
+      "type": "object",
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": false,
+  "definitions": {
+    "event": {
+      "type": "object",
+      "required": [
+        "id",
+        "type",
+        "topic",
+        "title",
+        "status",
+        "source",
+        "createdAt"
+      ],
+      "properties": {
+        "_comment": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "type": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_.-]*$"
+        },
+        "topic": {
+          "type": "string",
+          "minLength": 1
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "score": {
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 10
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "level": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "todo",
+            "in_progress",
+            "done",
+            "skipped",
+            "failed"
+          ]
+        },
+        "source": {
+          "type": "string",
+          "enum": [
+            "manual",
+            "interviewer",
+            "learn-plan",
+            "kb-inject",
+            "migration",
+            "system"
+          ]
+        },
+        "details": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

@@ -44,6 +44,11 @@ const frontendSidebar = [
     collapsed: false,
     items: [
       { text: '笔试系列', link: '/interview/笔试系列' },
+      { text: '📌 待复习（10题）', link: '/interview/待整理/面试题整理-待复习' },
+      { text: '📌 待复习 II（4题）', link: '/interview/待整理/面试题整理-待复习2' },
+      { text: '📌 高德地图模块设计', link: '/interview/待整理/gaodemap-design' },
+      { text: '📌 信号实时可视化设计', link: '/interview/待整理/signal-view-design' },
+      { text: '📌 开环验证模块设计', link: '/interview/待整理/special-verification-design' },
     ],
   },
   {

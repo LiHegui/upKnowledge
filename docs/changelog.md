@@ -4,6 +4,7 @@
 
 ## 2026-05-22
 
+- feat: 更新面试官文档，增加进度管理系统和面试规则，完善 ECharts 技术要点，添加 JavaScript 变量提升注意事项，更新技术要点收录方向 `09a165a`
 - docs: add comprehensive guide for AMap JS API 2.0, covering key concepts, initialization, rendering mechanisms, performance optimization, common functionalities, framework integration, and troubleshooting tips `eb1273b`
 - feat: add AI Agent and Workflow documentation `626b0e7`
 - feat: 更新部署脚本以支持在子目录中执行 git 命令并恢复工作目录 `e563ec4`

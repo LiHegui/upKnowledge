@@ -8,10 +8,10 @@
                  "updatedAt":  "2026-06-01T11:44:28+08:00"
              },
     "summary":  {
-                    "totalEvents":  3,
+                    "totalEvents":  4,
                     "interviewPracticeCount":  1,
                     "tsLevel":  1,
-                    "lastPracticeAt":  "2026-06-01T11:44:28+08:00"
+                    "lastPracticeAt":  "2026-06-02T00:00:00+08:00"
                 },
     "tags":  [
                  "interview",
@@ -59,6 +59,20 @@
                        "details":  {
                                        "target":  "docs/interview/Ts/index.md",
                                        "operation":  "enhance"
+                                   }
+                   },
+                   {
+                       "id":  "evt-20260602-ts-inject-as",
+                       "type":  "kb.inject",
+                       "topic":  "TypeScript",
+                       "title":  "Inject as remap + mapped type patterns",
+                       "status":  "done",
+                       "source":  "kb-inject",
+                       "createdAt":  "2026-06-02T00:00:00+08:00",
+                       "details":  {
+                                       "target":  "docs/interview/Ts/index.md",
+                                       "operation":  "enhance",
+                                       "note":  "Added as remapping syntax, key filtering via never, mapped type result cheatsheet"
                                    }
                    }
                ],

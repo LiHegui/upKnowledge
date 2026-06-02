@@ -104,7 +104,7 @@ type case_Q24 = Expect<Equal<
 // Q25. PromiseAll 的类型
 // promiseAll([1, Promise.resolve(2), 3])  推断为 Promise<[1, 2, 3]>
 // ------------------------------------------------------------
-declare function promiseAll_q25<T extends readonly any[]>(values: readonly [...T]): any
+declare function promiseAll_q25<T extends readonly any[]>(values: readonly [...T]): Promise<{ [K in keyof T]: T[K] extends Promise<infer R> ? R : T[K] }>
 // 修改返回值类型部分
 const r_q25 = promiseAll_q25([1, 2, Promise.resolve(3)] as const)
 type case_Q25 = Expect<Equal<typeof r_q25, Promise<[1, 2, 3]>>>
@@ -117,7 +117,7 @@ type case_Q25 = Expect<Equal<typeof r_q25, Promise<[1, 2, 3]>>>
 // g: (a: A) => B
 // 返回：(a: A) => C
 // ------------------------------------------------------------
-type Compose2<F, G> = any
+type Compose2<F, G> = F extends (b: infer B) => infer C ? G extends (a: infer A) => B ? (a: A) => C : never : never
 type case_Q26 = Expect<Equal<
   Compose2<(b: string) => number, (a: boolean) => string>,
   (a: boolean) => number
@@ -128,7 +128,7 @@ type case_Q26 = Expect<Equal<
 // Q27. 把元组转成函数参数
 // 输入：[string, number]    输出：(a: string, b: number) => void
 // ------------------------------------------------------------
-type TupleToFn<T extends readonly any[]> = any
+type TupleToFn<T extends readonly any[]> = (...args: T) => void
 type case_Q27 = Expect<Equal<
   TupleToFn<[string, number]>,
   (args_0: string, args_1: number) => void
@@ -140,7 +140,9 @@ type case_Q27 = Expect<Equal<
 // 输入：{ a: () => void; b: string; c: () => number; d: number }
 // 输出：'a' | 'c'
 // ------------------------------------------------------------
-type MethodKeys<T> = any
+type MethodKeys<T> = {
+  [K in keyof T]: T[K] extends (...args: any[]) => any ? K : never
+}[keyof T]
 type case_Q28 = Expect<Equal<
   MethodKeys<{ a: () => void; b: string; c: () => number; d: number }>,
   'a' | 'c'
@@ -152,7 +154,7 @@ type case_Q28 = Expect<Equal<
 // 直接对字符串字面量起效，不依赖内置 Capitalize
 // 提示：使用模板字面量 + 内置 Uppercase
 // ------------------------------------------------------------
-type MyCapitalize<S extends string> = any
+type MyCapitalize<S extends string> = S extends `${infer F}${infer R}` ? `${Uppercase<F>}${R}` : S
 type case_Q29_1 = Expect<Equal<MyCapitalize<'hello'>, 'Hello'>>
 type case_Q29_2 = Expect<Equal<MyCapitalize<'foo bar'>, 'Foo bar'>>
 
@@ -161,7 +163,7 @@ type case_Q29_2 = Expect<Equal<MyCapitalize<'foo bar'>, 'Foo bar'>>
 // Q30. 函数类型变更：在原参数前追加一个 user: string
 // (a: number) => boolean   →   (user: string, a: number) => boolean
 // ------------------------------------------------------------
-type AppendArgument<F, A> = any
+type AppendArgument<F, A> = F extends (...args: infer B) => infer R ? (...args: [A, ...B]) => R : never
 type case_Q30 = Expect<Equal<
   AppendArgument<(a: number) => boolean, string>,
   (user: string, a: number) => boolean

@@ -490,6 +490,77 @@ type ReadonlyPerson = Readonly<Person>
 // { readonly name: string; readonly age: number }
 ```
 
+### `as` 重映射 — 映射时重命名或过滤 key（TS 4.1+）
+
+映射类型里的 `as` **不是类型断言**，而是对 key 的**重映射**。完整模板：
+
+```ts
+{ [K in keyof T as 新Key]: T[K] }
+```
+
+**用法 1：重命名 key**
+
+```ts
+// key 全部变大写
+type UppercaseKeys<T> = {
+  [K in keyof T as Uppercase<K & string>]: T[K]
+}
+type R1 = UppercaseKeys<{ name: string; age: number }>
+// { NAME: string; AGE: number }
+```
+
+**用法 2：过滤 key（返回 never 即删除）**
+
+```ts
+// 只保留值为 string 类型的属性
+type FilterStringProps<T> = {
+  [K in keyof T as T[K] extends string ? K : never]: T[K]
+}
+type R2 = FilterStringProps<{ a: string; b: number; c: string }>
+// { a: string; c: string }
+```
+
+> ⚠️ **注意**：`as` 后面返回 `never` 时，该 key 会被**真正删除**，而不是保留为 `never` 值。这与把值设为 `never` 完全不同：
+>
+> ```ts
+> // 值为 never → key 还在
+> { a: string; b: never }        // b 仍然存在
+> // as never → key 被删掉
+> { [K in 'a' | 'b' as ...] }    // b 完全消失
+> ```
+
+**映射类型结果对照：**
+
+| 写法 | 结果类型 |
+|------|---------|
+| `{ [K in keyof T]: T[K] }` | **对象**（遍历重建） |
+| `{ [K in keyof T]: ... }[keyof T]` | **联合类型**（取出所有值） |
+| `{ [K in keyof T as 新Key]: T[K] }` | **对象**（key 被重命名/过滤） |
+
+**映射类型核心心智模型：冒号左边管 key，冒号右边管 value**
+
+```ts
+{ [K in keyof T  as 处理key ]:  处理value }
+//  ←←← 冒号左边 ←←←    →→→ 冒号右边 →→→
+//       管 key                管 value
+```
+
+几个常见变换：
+
+```ts
+// 原样复制：key 不变，值不变
+{ [K in keyof T]: T[K] }
+
+// 改 key，值不变（加前缀 on + 首字母大写）
+{ [K in keyof T as `on${Capitalize<K & string>}`]: T[K] }
+
+// key 不变，改值（全变 string）
+{ [K in keyof T]: string }
+
+// key 和 value 互换（翻转对象）
+{ [K in keyof T as T[K]]: K }
+```
+
 ### `infer` — 在条件类型中推断类型
 
 ```ts
@@ -498,10 +569,12 @@ type ReturnType<T> = T extends (...args: any[]) => infer R ? R : never
 
 type R = ReturnType<() => string>  // string
 
-// 提取 Promise 内部类型
+// 提取 Promise 内部类型（只描述 resolve 的结果类型，不描述 reject）
 type Awaited<T> = T extends Promise<infer U> ? U : T
 type A = Awaited<Promise<number>>  // number
 ```
+
+> ⚠️ **注意**：`Promise<T>` 里的 `T` 表示 **resolve 成功时的结果类型**，`reject` 的原因不在这个泛型里建模。
 
 ---
 
@@ -706,6 +779,18 @@ T extends Promise<infer V> ? V : never           // 抠 Promise 值
 ```
 
 **关键认知**：`extends 模板` 的"模板"可以是任何类型形状 —— 元组、数组、函数、对象、Promise、自定义泛型...
+
+再补一刀：`extends` 在不同位置语义不一样。
+
+```ts
+// 左边：泛型约束，只负责限定 T 必须是函数
+type MyReturnType<T extends (...args: any[]) => any> =
+  T extends (...args: any[]) => infer R ? R : never
+
+// 右边：条件类型匹配，负责真正“抠”出返回值 R
+```
+
+所以你可以这样记：**左边是门槛，右边是提取。**
 
 ### 必须澄清的 3 个误区
 

@@ -14,14 +14,14 @@ interface User_Q3 {
 // ------------------------------------------------------------
 // Q31. 提取 User_Q3 的所有 key（联合）
 // ------------------------------------------------------------
-type Q31 = any
+type Q31 = keyof User_Q3
 type case_Q31 = Expect<Equal<Q31, 'id' | 'name' | 'age' | 'email'>>
 
 
 // ------------------------------------------------------------
 // Q32. 提取 User_Q3 的所有 value 类型（联合）
 // ------------------------------------------------------------
-type Q32 = any
+type Q32 = User_Q3[keyof User_Q3]
 type case_Q32 = Expect<Equal<Q32, string | number | undefined>>
 
 
@@ -30,7 +30,7 @@ type case_Q32 = Expect<Equal<Q32, string | number | undefined>>
 // 输入对象：{ a: string; b: { c: number } }，要取 b.c → number
 // ------------------------------------------------------------
 type Obj_Q33 = { a: string; b: { c: number } }
-type Q33 = any
+type Q33 = Obj_Q33['b']['c']
 type case_Q33 = Expect<Equal<Q33, number>>
 
 
@@ -39,7 +39,7 @@ type case_Q33 = Expect<Equal<Q33, number>>
 // 提示：T[number]
 // ------------------------------------------------------------
 const arr_q34 = ['red', 'green', 'blue'] as const
-type Q34 = any  // 期望：'red' | 'green' | 'blue'
+type Q34 = typeof arr_q34[number]
 type case_Q34 = Expect<Equal<Q34, 'red' | 'green' | 'blue'>>
 
 
@@ -49,7 +49,7 @@ type case_Q34 = Expect<Equal<Q34, 'red' | 'green' | 'blue'>>
 // 写出 Q35 = typeof config
 // ------------------------------------------------------------
 const config_q35 = { port: 8080, host: 'localhost' }
-type Q35 = any
+type Q35 = typeof config_q35
 type case_Q35 = Expect<Equal<Q35, { port: number; host: string }>>
 
 
@@ -59,14 +59,14 @@ type case_Q35 = Expect<Equal<Q35, { port: number; host: string }>>
 // 提取 kind 类型 → 'circle'（而不是 string）
 // ------------------------------------------------------------
 const shape_q36 = { kind: 'circle', radius: 10 } as const
-type Q36 = any
+type Q36 = typeof shape_q36['kind']
 type case_Q36 = Expect<Equal<Q36, 'circle'>>
 
 
 // ------------------------------------------------------------
 // Q37. 自己实现 Pick<T, K>
 // ------------------------------------------------------------
-type MyPick<T, K extends keyof T> = any
+type MyPick<T, K extends keyof T> = { [R in K]: T[R] }
 type case_Q37 = Expect<Equal<
   MyPick<User_Q3, 'id' | 'name'>,
   { id: number; name: string }
@@ -76,7 +76,7 @@ type case_Q37 = Expect<Equal<
 // ------------------------------------------------------------
 // Q38. 自己实现 Omit<T, K>
 // ------------------------------------------------------------
-type MyOmit<T, K extends keyof any> = any
+type MyOmit<T, K extends keyof any> = Pick<T, Exclude<keyof T, K>>
 type case_Q38 = Expect<Equal<
   MyOmit<User_Q3, 'email' | 'age'>,
   { id: number; name: string }
@@ -88,7 +88,9 @@ type case_Q38 = Expect<Equal<
 // 输入：{ a: string; b: number; c: string; d: boolean }
 // 输出：'a' | 'c'
 // ------------------------------------------------------------
-type StringKeys<T> = any
+type StringKeys<T> = {
+  [K in keyof T]: T[K] extends string ? K : never
+}[keyof T]
 type case_Q39 = Expect<Equal<
   StringKeys<{ a: string; b: number; c: string; d: boolean }>,
   'a' | 'c'
@@ -100,7 +102,7 @@ type case_Q39 = Expect<Equal<
 // 输入：{ a: string; b: number; c: string }
 // 输出：{ a: string; c: string }
 // ------------------------------------------------------------
-type FilterStringProps<T> = any
+type FilterStringProps<T> = { [R in keyof T as T[R] extends string ? R : never]: T[R] }
 type case_Q40 = Expect<Equal<
   FilterStringProps<{ a: string; b: number; c: string }>,
   { a: string; c: string }
@@ -111,7 +113,7 @@ type case_Q40 = Expect<Equal<
 // Q41. 把 key 改为大写
 // { name: string; age: number }  →  { NAME: string; AGE: number }
 // ------------------------------------------------------------
-type UppercaseKeys<T> = any
+type UppercaseKeys<T> = { [K in keyof T as Uppercase<K & string>]: T[K] }
 type case_Q41 = Expect<Equal<
   UppercaseKeys<{ name: string; age: number }>,
   { NAME: string; AGE: number }
@@ -123,7 +125,9 @@ type case_Q41 = Expect<Equal<
 // { a: 'x'; b: 'y' }  →  { x: 'a'; y: 'b' }
 // 提示：as 重映射
 // ------------------------------------------------------------
-type Flip<T extends Record<string, string>> = any
+type Flip<T extends Record<string, string>> = {
+  [K in keyof T as T[K]]: K
+}
 type case_Q42 = Expect<Equal<
   Flip<{ a: 'x'; b: 'y' }>,
   { x: 'a'; y: 'b' }
@@ -135,7 +139,9 @@ type case_Q42 = Expect<Equal<
 // { click: () => void; hover: () => void }
 // → { onClick: () => void; onHover: () => void }
 // ------------------------------------------------------------
-type Eventify<T> = any
+type Eventify<T> = {
+  [K in keyof T as `on${Capitalize<K & string>}`]: T[K]
+}
 type case_Q43 = Expect<Equal<
   Eventify<{ click: () => void; hover: () => void }>,
   { onClick: () => void; onHover: () => void }
@@ -148,7 +154,7 @@ type case_Q43 = Expect<Equal<
 // 输入 typeof Foo，输出 Foo
 // 提示：自己实现 InstanceType
 // ------------------------------------------------------------
-type MyInstanceType<T extends abstract new (...args: any) => any> = any
+type MyInstanceType<T extends abstract new (...args: any) => any> = T extends abstract new (...args: any) => infer R ? R : never
 class Foo_q44 { name = 'foo' }
 type case_Q44 = Expect<Equal<MyInstanceType<typeof Foo_q44>, Foo_q44>>
 

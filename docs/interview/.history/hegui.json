@@ -5,13 +5,13 @@
                  "username":  "hegui",
                  "displayName":  "hegui",
                  "createdAt":  "2026-06-01T00:00:00+08:00",
-                 "updatedAt":  "2026-06-01T11:44:28+08:00"
+                 "updatedAt":  "2026-06-04T00:00:00+08:00"
              },
     "summary":  {
-                    "totalEvents":  4,
+                    "totalEvents":  16,
                     "interviewPracticeCount":  1,
                     "tsLevel":  1,
-                    "lastPracticeAt":  "2026-06-02T00:00:00+08:00"
+                    "lastPracticeAt":  "2026-06-04T00:00:00+08:00"
                 },
     "tags":  [
                  "interview",
@@ -73,6 +73,174 @@
                                        "target":  "docs/interview/Ts/index.md",
                                        "operation":  "enhance",
                                        "note":  "Added as remapping syntax, key filtering via never, mapped type result cheatsheet"
+                                   }
+                   },
+                   {
+                       "id":  "evt-20260603-ts-inject-required-modifier",
+                       "type":  "kb.inject",
+                       "topic":  "TypeScript",
+                       "title":  "Inject mapped modifier -? for Required",
+                       "status":  "done",
+                       "source":  "kb-inject",
+                       "createdAt":  "2026-06-03T00:00:00+08:00",
+                       "details":  {
+                                       "target":  "docs/interview/Ts/index.md",
+                                       "operation":  "enhance",
+                                       "note":  "Added +? and -? explanation with MyPartial/MyRequired examples"
+                                   }
+                   },
+                   {
+                       "id":  "evt-20260603-ts-inject-distribute-conditional",
+                       "type":  "kb.inject",
+                       "topic":  "TypeScript",
+                       "title":  "Inject distributive conditional types",
+                       "status":  "done",
+                       "source":  "kb-inject",
+                       "createdAt":  "2026-06-03T09:00:00+08:00",
+                       "details":  {
+                                       "target":  "docs/interview/Ts/index.md",
+                                       "operation":  "enhance",
+                                       "note":  "Added Exclude/Extract distribution behavior, no-distribute tuple trick, and T-vs-U clarification"
+                                   }
+                   },
+                   {
+                       "id":  "evt-20260603-ts-inject-as-key-slot",
+                       "type":  "kb.inject",
+                       "topic":  "TypeScript",
+                       "title":  "Inject as key-slot rules and pitfalls",
+                       "status":  "done",
+                       "source":  "kb-inject",
+                       "createdAt":  "2026-06-03T10:00:00+08:00",
+                       "details":  {
+                                       "target":  "docs/interview/Ts/index.md",
+                                       "operation":  "enhance",
+                                       "note":  "Added as-position mental model, PropertyKey requirement, and common wrong patterns"
+                                   }
+                   },
+                   {
+                       "id":  "evt-20260603-ts-inject-as-boundary-clarify",
+                       "type":  "kb.inject",
+                       "topic":  "TypeScript",
+                       "title":  "Clarify as key boundary and exceptions",
+                       "status":  "done",
+                       "source":  "kb-inject",
+                       "createdAt":  "2026-06-03T10:30:00+08:00",
+                       "details":  {
+                                       "target":  "docs/interview/Ts/index.md",
+                                       "operation":  "enhance",
+                                       "note":  "Added when T[K] can be key (constrained case), and corrected OmitByValue false branch rule"
+                                   }
+                   },
+                   {
+                       "id":  "evt-20260603-ts-inject-requiredkeys-formula",
+                       "type":  "kb.inject",
+                       "topic":  "TypeScript",
+                       "title":  "Inject RequiredKeys filtering formula",
+                       "status":  "done",
+                       "source":  "kb-inject",
+                       "createdAt":  "2026-06-03T11:00:00+08:00",
+                       "details":  {
+                                       "target":  "docs/interview/Ts/index.md",
+                                       "operation":  "enhance",
+                                       "note":  "Added {} extends Pick<T,K> optional-vs-required rule and mapped-loop explanation"
+                                   }
+                   },
+                   {
+                       "id":  "evt-20260603-ts-inject-keyof-vs-index-access",
+                       "type":  "kb.inject",
+                       "topic":  "TypeScript",
+                       "title":  "Clarify keyof vs T[keyof T]",
+                       "status":  "done",
+                       "source":  "kb-inject",
+                       "createdAt":  "2026-06-03T11:30:00+08:00",
+                       "details":  {
+                                       "target":  "docs/interview/Ts/index.md",
+                                       "operation":  "enhance",
+                                       "note":  "Added key-union vs value-union distinction and why [keyof T] extracts values"
+                                   }
+                   },
+                   {
+                       "id":  "evt-20260603-ts-inject-partial-family-compare",
+                       "type":  "kb.inject",
+                       "topic":  "TypeScript",
+                       "title":  "Inject Partial family comparison",
+                       "status":  "done",
+                       "source":  "kb-inject",
+                       "createdAt":  "2026-06-03T12:00:00+08:00",
+                       "details":  {
+                                       "target":  "docs/interview/Ts/index.md",
+                                       "operation":  "enhance",
+                                       "note":  "Added Partial/Required and ByKeys pair comparison with memory table"
+                                   }
+                   },
+                   {
+                       "id":  "evt-20260604-ts-inject-four-line-memory",
+                       "type":  "kb.inject",
+                       "topic":  "TypeScript",
+                       "title":  "Inject four-line utility memory",
+                       "status":  "done",
+                       "source":  "kb-inject",
+                       "createdAt":  "2026-06-04T00:00:00+08:00",
+                       "details":  {
+                                       "target":  "docs/interview/Ts/index.md",
+                                       "operation":  "enhance",
+                                       "note":  "Added Pick/Omit/Required/Partial four-line mnemonic for quick recall"
+                                   }
+                   },
+                   {
+                       "id":  "evt-20260604-ts-inject-first-rest-infer",
+                       "type":  "kb.inject",
+                       "topic":  "TypeScript",
+                       "title":  "Inject First infer rest-pattern explanation",
+                       "status":  "done",
+                       "source":  "kb-inject",
+                       "createdAt":  "2026-06-04T00:00:00+08:00",
+                       "details":  {
+                                       "target":  "docs/interview/Ts/index.md",
+                                       "operation":  "enhance",
+                                       "note":  "Added why ...infer Rest is used in tuple matching and clarified non-fixed naming"
+                                   }
+                   },
+                   {
+                       "id":  "evt-20260604-ts-inject-generic-constraint-mindset",
+                       "type":  "kb.inject",
+                       "topic":  "TypeScript",
+                       "title":  "Inject generic-constraint-first mindset",
+                       "status":  "done",
+                       "source":  "kb-inject",
+                       "createdAt":  "2026-06-04T00:00:00+08:00",
+                       "details":  {
+                                       "target":  "docs/interview/Ts/index.md",
+                                       "operation":  "enhance",
+                                       "note":  "Added why generic left-side constraints are preferred to prevent silent fallback errors"
+                                   }
+                   },
+                   {
+                       "id":  "evt-20260604-ts-inject-template-literal-matching",
+                       "type":  "kb.inject",
+                       "topic":  "TypeScript",
+                       "title":  "Inject template literal matching rules",
+                       "status":  "done",
+                       "source":  "kb-inject",
+                       "createdAt":  "2026-06-04T00:00:00+08:00",
+                       "details":  {
+                                       "target":  "docs/interview/Ts/index.md",
+                                       "operation":  "enhance",
+                                       "note":  "Added StartsWith/EndsWith/Contains pattern matching cheatsheet for first-time learners"
+                                   }
+                   },
+                   {
+                       "id":  "evt-20260604-ts-inject-runtime-vs-type-prefix",
+                       "type":  "kb.inject",
+                       "topic":  "TypeScript",
+                       "title":  "Inject runtime vs type-level prefix comparison",
+                       "status":  "done",
+                       "source":  "kb-inject",
+                       "createdAt":  "2026-06-04T00:00:00+08:00",
+                       "details":  {
+                                       "target":  "docs/interview/Ts/index.md",
+                                       "operation":  "enhance",
+                                       "note":  "Added runtime startsWith vs type-level StartsWith comparison table and examples"
                                    }
                    }
                ],

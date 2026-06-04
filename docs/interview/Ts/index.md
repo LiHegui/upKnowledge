@@ -4,6 +4,28 @@
 
 ---
 
+## 阅读导航（先看这个）
+
+### 1. 面试速刷（30 分钟）
+
+1. 先看「TS 基础踩坑速查」里的 1~9 条。
+2. 再看「TS 内置工具类型有哪些？」里的对照表与四句速记。
+3. 最后看「类型操作符 keyof / typeof / in / infer」与「条件类型怎么用？」里的口诀。
+
+### 2. 训练配套（按你当前进度）
+
+1. 强化训练当前建议从 Q86 继续（Replace）。
+2. 第 06 阶段核心：模板字面量匹配 + 字符串递归。
+3. 第 07 阶段核心：链式 API 累积、路径解析、事件映射、递归联合约束。
+
+### 3. 阅读顺序建议（避免反复跳读）
+
+1. 先看「基础速查」打地基。
+2. 再看「工具类型 / 操作符 / 条件类型」建模板。
+3. 最后看「infer 专题」做深入理解与误区纠偏。
+
+---
+
 ## Q: TS 基础踩坑速查（字面量 / 可选 / readonly / 索引访问 / Exclude）
 
 **A:**
@@ -176,9 +198,37 @@ type Y2 = colors[number]                // ❌ colors 是值，不是类型
 | `first` ← 给值起名 | `infer F` ← 给类型起名 |
 | `...rest` ← 接住剩下的值 | `...any[]` ← 接住剩下的类型（不关心） |
 
+**为什么常写 `...infer Rest`，它是固定写法吗？**
+
+- 不是固定名字：`Rest` 可以改成 `R`、`Tail`、`_Rest`。
+- 但在“取首元素”场景里，通常要有 rest 模式：`[infer F, ...infer Rest]`。
+- 原因是要匹配“至少一个元素”的元组；如果写成 `[infer F]`，只会匹配长度恰好为 1 的元组。
+- 如果你不关心剩余部分，常用 `_Rest` 表示“故意不使用”。
+
+**为什么左边常写约束（`T extends readonly any[]`）？**
+
+- 这不是语法强制，但在类型体操里是推荐默认：先约束输入域。
+- 约束版会在调用点尽早报错，避免把错误输入悄悄“吞掉”。
+- 无约束版虽然更宽松，但常见副作用是非数组输入也能通过，并落到兜底分支，形成静默错误。
+
+```ts
+// 约束版：错误尽早暴露（推荐）
+type PopSafe<T extends readonly unknown[]> =
+  T extends readonly [...infer R, unknown] ? R : []
+
+// 无约束版：容易吞错（不推荐）
+type PopLoose<T> = T extends [...infer R, unknown] ? R : []
+
+type A = PopSafe<[1, 2, 3]> // [1, 2]
+// type B = PopSafe<string>  // ❌ 直接报错：string 不满足数组约束
+type C = PopLoose<string>    // []  静默落入兜底分支
+```
+
+> ⚠️ **注意**：设计工具类型时，优先让“非法输入直接报错”，而不是返回一个看似可用的结果。
+
 ```ts
 // 取首
-type First<T extends readonly any[]> = T extends [infer F, ...any[]] ? F : never
+type First<T extends readonly any[]> = T extends readonly [infer F, ...infer _Rest] ? F : never
 
 // 取末（镜像）
 type Last<T extends readonly any[]> = T extends [...any[], infer L] ? L : never
@@ -188,6 +238,45 @@ type Pop<T extends readonly any[]> = T extends [...infer Rest, any] ? Rest : []
 ```
 
 **为什么不直接 `T[0]`？** 因为 `[][0]` 得到 `undefined`，无法优雅处理空元组；用 `infer` 配条件类型，**不匹配直接走 `:never` 分支**，更严谨。
+
+### 9. 模板字面量匹配规则（头次接触必背）
+
+`S extends \`...\` ? A : B` 的本质是：**S 能不能匹配这个字符串模式**。
+
+| 目标 | 模式 | 例子 |
+|------|------|------|
+| 以前缀开头 | `` `${P}${string}` `` | `StartsWith<'hello', 'he'>` → `true` |
+| 以后缀结尾 | `` `${string}${P}` `` | `EndsWith<'hello', 'lo'>` → `true` |
+| 包含子串 | `` `${string}${P}${string}` `` | `Includes<'abc', 'b'>` → `true` |
+
+```ts
+type StartsWith<S extends string, P extends string> =
+  S extends `${P}${string}` ? true : false
+
+type EndsWith<S extends string, P extends string> =
+  S extends `${string}${P}` ? true : false
+
+type Contains<S extends string, P extends string> =
+  S extends `${string}${P}${string}` ? true : false
+```
+
+> ⚠️ **注意**：这里是“模式匹配”，不是运行时字符串操作；完全发生在类型系统里。
+
+| 对比维度 | 运行时字符串方法 | 类型层模板匹配 |
+|------|------|------|
+| 写法 | `str.startsWith('he')` | `` S extends `${P}${string}` ? true : false `` |
+| 执行时机 | JavaScript 运行时 | TypeScript 编译期 |
+| 输入对象 | 真实字符串值 | 字符串类型（字面量类型） |
+| 返回结果 | `boolean` 值 | `true`/`false` 类型 |
+| 典型用途 | 业务逻辑判断 | 类型体操与类型约束 |
+
+```ts
+// 运行时：值判断
+const ok = 'hello'.startsWith('he') // boolean
+
+// 类型层：类型判断
+type Ok = StartsWith<'hello', 'he'> // true
+```
 
 ---
 
@@ -329,6 +418,48 @@ TS 提供了一批开箱即用的**泛型工具类型**，高频考点：
 | `Required<T>` | 所有属性变为必选 | `Required<User>` |
 | `Readonly<T>` | 所有属性变为只读 | `Readonly<User>` |
 
+`Partial<T>` / `Required<T>` 的底层本质是**映射修饰符**：
+
+```ts
+// +?：加可选（+ 可省略）
+type MyPartial<T> = { [K in keyof T]+?: T[K] }
+
+// -?：去可选（把 a?: string 变回 a: string）
+type MyRequired<T> = { [K in keyof T]-?: T[K] }
+```
+
+> ⚠️ **注意**：`[K in keyof T]: T[K]` 会保留原始可选性；只有写 `-?` 才会强制去掉可选。
+
+**Partial 系列对照速记（建议背这个表）**
+
+| 目标 | 推荐写法 | 记忆句 |
+|------|---------|--------|
+| 全部可选 | `Partial<T>` | 全开问号 |
+| 全部必填 | `Required<T>` | 全去问号 |
+| 指定 K 可选 | `Partial<Pick<T, K>> & Omit<T, K>` | 先挑再可选，再拼回去 |
+| 指定 K 必填 | `Required<Pick<T, K>> & Omit<T, K>` | 先挑再必填，再拼回去 |
+
+```ts
+type PartialByKeys<T, K extends keyof T = keyof T> =
+  Omit<T, K> & Partial<Pick<T, K>>
+
+type RequiredByKeys<T, K extends keyof T = keyof T> =
+  Omit<T, K> & Required<Pick<T, K>>
+```
+
+对称关系：
+
+- `Partial`  vs `Required`
+- `PartialByKeys` vs `RequiredByKeys`
+- 都是“先定位字段（Pick），再改修饰符，最后与剩余字段（Omit）合并”
+
+四句速记（面试口播版）：
+
+- `Pick` = 选这些
+- `Omit` = 删这些
+- `Required` = 去问号
+- `Partial` = 加问号
+
 ### 属性筛选类
 
 | 工具类型 | 作用 | 示例 |
@@ -354,6 +485,32 @@ TS 提供了一批开箱即用的**泛型工具类型**，高频考点：
 | `Extract<T, U>` | 提取 T 中可赋值给 U 的类型 |
 | `NonNullable<T>` | 从 T 中排除 null 和 undefined |
 
+`Exclude` / `Extract` 的关键是**分发条件类型**：
+
+```ts
+type MyExclude<T, U> = T extends U ? never : T
+type MyExtract<T, U> = T extends U ? T : never
+```
+
+当 `T` 是联合类型时，`T extends U ? X : Y` 会把 `T` **逐成员分发**后再合并：
+
+```ts
+type R = MyExclude<'a' | 'b' | 'c', 'a'>
+// 等价于：
+// ('a' extends 'a' ? never : 'a') |
+// ('b' extends 'a' ? never : 'b') |
+// ('c' extends 'a' ? never : 'c')
+// => 'b' | 'c'
+```
+
+如果不想分发，可以包一层元组：
+
+```ts
+type NoDistribute<T, U> = [T] extends [U] ? never : T
+```
+
+> ⚠️ **注意**：分发是对 `T` 的联合成员逐个判断，不是对 `U` 做双重遍历。
+
 ```ts
 type User = { name: string; age: number; password: string }
 
@@ -366,7 +523,17 @@ type PartialUser = Partial<User>
 type Roles = 'admin' | 'editor' | 'viewer'
 type AdminOrEditor = Extract<Roles, 'admin' | 'editor'>  // 'admin' | 'editor'
 type NonAdmin = Exclude<Roles, 'admin'>                  // 'editor' | 'viewer'
+
+// 过滤必填 key：空对象能赋值 => 可选；不能赋值 => 必填
+type RequiredKeys<T> = {
+  [K in keyof T]: {} extends Pick<T, K> ? never : K
+}[keyof T]
+
+type RK = RequiredKeys<{ a: string; b?: number; c: boolean; d?: string }>
+// 'a' | 'c'
 ```
+
+> ⚠️ 注意：这里是映射遍历逐项判断。每一轮的 K 都会带入 Pick<T, K> 和条件分支中计算。
 
 ---
 
@@ -537,6 +704,17 @@ type R2 = FilterStringProps<{ a: string; b: number; c: string }>
 | `{ [K in keyof T]: ... }[keyof T]` | **联合类型**（取出所有值） |
 | `{ [K in keyof T as 新Key]: T[K] }` | **对象**（key 被重命名/过滤） |
 
+最容易混的点（这次纠偏重点）：
+
+```ts
+type M = { a: 'A'; b: 'B' }
+
+type Keys = keyof M      // 'a' | 'b'  （拿 key）
+type Values = M[keyof M] // 'A' | 'B'  （拿 value）
+```
+
+`[keyof T]` 是索引访问，作用在对象类型上时会把 **value** 取出来形成联合，不会取 key。
+
 **映射类型核心心智模型：冒号左边管 key，冒号右边管 value**
 
 ```ts
@@ -544,6 +722,30 @@ type R2 = FilterStringProps<{ a: string; b: number; c: string }>
 //  ←←← 冒号左边 ←←←    →→→ 冒号右边 →→→
 //       管 key                管 value
 ```
+
+`as` 后面必须产出 **PropertyKey**（`string | number | symbol`）或 `never`，不能放 value 类型：
+
+```ts
+// ✅ 正确：as 后面是 key 表达式
+{ [K in keyof T as K]: T[K] }
+{ [K in keyof T as T[K] extends V ? K : never]: T[K] }
+
+// ✅ 特例：若已约束 value 本身就是 key 类型，则 T[K] 也可作为新 key
+type Flip<T extends Record<string, string>> = {
+  [K in keyof T as T[K]]: K
+}
+
+// ❌ 常见误写
+{ [K in typeof T as V]: T[K] }     // T 是类型参数，不能 typeof
+{ [K in keyof T as V]: T[K] }      // V 是值类型，不是 key
+{ [K in keyof T as T[K] extends V ? never : T[K]]: T[K] } // 常见错法：false 分支应返回 K，不是 T[K]
+```
+
+口诀：
+
+- 想保留当前 key：返回 `K`
+- 想删除当前 key：返回 `never`
+- 想改名：返回“新的 key 表达式”（且必须是 PropertyKey）
 
 几个常见变换：
 
@@ -649,54 +851,9 @@ type IsNever<T> = [T] extends [never] ? true : false
 type IsExactString<T> = [T] extends [string] ? true : false
 ```
 
-### ✨ `infer` 使用规则（3 条必记）
-
-```ts
-T extends [infer F, ...any[]] ? F : never
-```
-
-**规则 1：`infer X` 只能写在 `extends` 后面的"匹配模式"里**
-```ts
-// ✅ 合法
-type First<T> = T extends [infer F, ...any[]] ? F : never
-
-// ❌ 全部非法
-type X<T> = infer U                                    // 不在条件类型里
-type Y<T> = T extends [infer F, ...any[]] ? infer F : never  // 结果分支不能 infer
-type Z<T> = T extends [F, ...any[]] ? F : never        // F 没声明
-```
-
-**规则 2：结果分支只能**引用**名字，不能再 `infer`**
-```ts
-type First<T> = T extends (infer U)[] ? U : never   // ✅ 直接用 U
-//                                      ▲
-type First<T> = T extends (infer U)[] ? infer U : never  // ❌
-```
-
-**规则 3：`infer X` ≈ JS 解构 + 命名**
-
-| JS 值解构 | TS 类型解构 |
-|-----------|------------|
-| `const [first, ...rest] = arr` | `T extends [infer F, ...any[]]` |
-| `first` ← 给值起名 | `infer F` ← 给类型起名 |
-| `...rest` ← 接住剩余值 | `...any[]` ← 接住剩余类型 |
-| `const { user } = obj` | `T extends { user: infer U }` |
-
-### ✨ 所有 `infer` 套路一览（背熟即可应付大半题）
-
-| 想拿什么 | 模式 |
-|---------|------|
-| 数组元素 | `T extends (infer U)[] ? U : never` |
-| 元组首 | `T extends [infer F, ...any[]] ? F : never` |
-| 元组末 | `T extends [...any[], infer L] ? L : never` |
-| 元组除首（尾部） | `T extends [any, ...infer Rest] ? Rest : []` |
-| 元组除末（头部） | `T extends [...infer Init, any] ? Init : []` |
-| 函数参数 | `T extends (...args: infer P) => any ? P : never` |
-| 函数返回 | `T extends (...args: any[]) => infer R ? R : never` |
-| Promise 内值 | `T extends Promise<infer U> ? U : never` |
-| 对象某属性 | `T extends { a: infer A } ? A : never` |
-| 构造函数实例 | `T extends new (...args: any) => infer I ? I : never` |
-| 字符串首字符 | `` T extends `${infer F}${string}` ? F : never `` |
+> 💡 `infer` 的完整规则、误区和常用模板已合并到后面的专题：**Q: `infer` 怎么用？为什么这么反人类？**
+>
+> 建议阅读顺序：先掌握本节的「分发/禁分发」，再看 `infer` 专题的「模板匹配与提取」。
 
 ### ✨ 泛型约束的"宽窄"原则
 

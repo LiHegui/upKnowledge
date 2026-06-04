@@ -9,7 +9,9 @@ import type { Expect, Equal } from './_utils'
 // { name: string; age: number }
 // → { getName: string; getAge: number }
 // ------------------------------------------------------------
-type GettersOfShape<T> = any
+type GettersOfShape<T> = {
+  [K in keyof T as `get${Capitalize<string & K>}`]: T[K]
+}
 type case_Q81 = Expect<Equal<
   GettersOfShape<{ name: string; age: number }>,
   { getName: string; getAge: number }
@@ -21,7 +23,9 @@ type case_Q81 = Expect<Equal<
 // { name: string; age: number }
 // → { getName: () => string; getAge: () => number }
 // ------------------------------------------------------------
-type Getters<T> = any
+type Getters<T> = {
+  [K in keyof T as `get${Capitalize<string & K>}`]: () => T[K]
+}
 type case_Q82 = Expect<Equal<
   Getters<{ name: string; age: number }>,
   { getName: () => string; getAge: () => number }
@@ -32,7 +36,9 @@ type case_Q82 = Expect<Equal<
 // Q83. 移除某些 key（as 重映射 + never 过滤）
 // 移除 key 'a' 和 'b'
 // ------------------------------------------------------------
-type RemoveKeys<T, K extends keyof any> = any
+type RemoveKeys<T, K extends keyof any> = {
+  [P in keyof T as P extends K ? never : P]: T[P]
+}
 type case_Q83 = Expect<Equal<
   RemoveKeys<{ a: 1; b: 2; c: 3 }, 'a' | 'b'>,
   { c: 3 }
@@ -42,7 +48,7 @@ type case_Q83 = Expect<Equal<
 // ------------------------------------------------------------
 // Q84. StartsWith<S, P>：S 是否以 P 开头
 // ------------------------------------------------------------
-type StartsWith<S extends string, P extends string> = any
+type StartsWith<S extends string, P extends string> = S extends `${P}${string}` ? true : false
 type case_Q84_1 = Expect<Equal<StartsWith<'hello world', 'hello'>, true>>
 type case_Q84_2 = Expect<Equal<StartsWith<'hello world', 'world'>, false>>
 
@@ -50,7 +56,7 @@ type case_Q84_2 = Expect<Equal<StartsWith<'hello world', 'world'>, false>>
 // ------------------------------------------------------------
 // Q85. EndsWith<S, P>：S 是否以 P 结尾
 // ------------------------------------------------------------
-type EndsWith<S extends string, P extends string> = any
+type EndsWith<S extends string, P extends string> = S extends `${string}${P}` ? true : false
 type case_Q85 = Expect<Equal<EndsWith<'hello world', 'world'>, true>>
 
 
@@ -58,7 +64,12 @@ type case_Q85 = Expect<Equal<EndsWith<'hello world', 'world'>, true>>
 // Q86. Replace<S, From, To>：替换第一次出现
 // Replace<'abc', 'b', 'X'>  →  'aXc'
 // ------------------------------------------------------------
-type Replace<S extends string, From extends string, To extends string> = any
+type Replace<S extends string, From extends string, To extends string> =
+  From extends ''
+    ? S
+    : S extends `${infer L}${From}${infer R}`
+      ? `${L}${To}${R}`
+      : S
 type case_Q86_1 = Expect<Equal<Replace<'abc', 'b', 'X'>, 'aXc'>>
 type case_Q86_2 = Expect<Equal<Replace<'abc', '', 'X'>, 'abc'>>
 

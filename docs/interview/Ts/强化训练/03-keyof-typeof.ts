@@ -163,8 +163,7 @@ type case_Q44 = Expect<Equal<MyInstanceType<typeof Foo_q44>, Foo_q44>>
 // Q45. 获取构造函数的参数
 // class Person { constructor(name: string, age: number) {} }
 // 自己实现 ConstructorParameters
-// ------------------------------------------------------------
-type MyConstructorParameters<T extends abstract new (...args: any) => any> = any
+type MyConstructorParameters<T extends abstract new (...args: any) => any> = T extends abstract new (...args: infer P) => any ? P : never
 class Person_q45 { constructor(public name: string, public age: number) {} }
 type case_Q45 = Expect<Equal<
   MyConstructorParameters<typeof Person_q45>,

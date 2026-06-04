@@ -1,1 +1,0 @@
-import{c as a,Q as r,j as i,m as t}from"./chunks/framework.98YfN0hp.js";const c=JSON.parse('{"title":"升级打怪 🎯","description":"","frontmatter":{},"headers":[],"relativePath":"index.md","filePath":"index.md"}'),h={name:"index.md"};function n(o,e,l,f,s,d){return r(),i("div",null,[...e[0]||(e[0]=[t("",34)])])}const v=a(h,[["render",n]]);export{c as __pageData,v as default};

@@ -1,29 +1,62 @@
 const { execSync } = require('child_process')
 const path = require('path')
 const fs = require('fs')
+const crypto = require('crypto')
 
 const run = (cmd) => execSync(cmd, { stdio: 'inherit' })
+
+// 作者 → GitHub 用户名映射（命中则加载 GitHub 头像，否则用邮箱生成 Gravatar 兜底）
+// 后续新增贡献者，在这里补一行即可
+const AUTHOR_GITHUB = {
+  'Hegui Li': 'LiHegui',
+  'Hegui L': 'LiHegui',
+  'LiHegui': 'LiHegui',
+}
+
+// 根据作者名 / 邮箱生成头像 URL
+const avatarUrl = (author, email) => {
+  const user = AUTHOR_GITHUB[author]
+  if (user) return `https://github.com/${user}.png?size=48`
+  // 未映射的作者用 Gravatar identicon 兜底（基于邮箱 md5，永远有图）
+  const hash = crypto.createHash('md5').update((email || '').trim().toLowerCase()).digest('hex')
+  return `https://www.gravatar.com/avatar/${hash}?d=identicon&s=48`
+}
 
 // 1. 生成更新日志
 const changelogPath = path.resolve(__dirname, 'changelog.md')
 try {
+  // 用不可见字符 \x1f 作为字段分隔符，避免 commit message 中的 | 干扰切分
   const raw = execSync(
-    'git log --pretty=format:"%ad|%s|%H" --date=format:"%Y-%m-%d"',
+    'git log --pretty=format:"%ad%x1f%an%x1f%ae%x1f%s%x1f%H" --date=format:"%Y-%m-%d"',
     { encoding: 'utf8', env: { ...process.env, PYTHONIOENCODING: 'utf-8', LANG: 'en_US.UTF-8' } }
   )
   const lines = raw.trim().split('\n')
 
+  // 提交类型 → emoji 映射，让 changelog 更直观
+  const typeEmoji = {
+    feat: '✨',
+    fix: '🐛',
+    docs: '📝',
+    refactor: '♻️',
+    perf: '⚡',
+    style: '💄',
+    test: '✅',
+    chore: '🔧',
+    build: '📦',
+    ci: '👷',
+    revert: '⏪',
+    delete: '🗑️',
+  }
+
   // 按日期分组
   const groups = {}
   for (const line of lines) {
-    const idx1 = line.indexOf('|')
-    const idx2 = line.lastIndexOf('|')
-    const date = line.slice(0, idx1)
-    const msg = line.slice(idx1 + 1, idx2)
-    const hash = line.slice(idx2 + 1)
+    const [date, author, email, msg, hash] = line.split('\x1f')
     if (!date || !msg) continue
+    // 过滤 merge / deploy 等噪音提交
+    if (/^Merge branch|^Merge pull request|^deploy$/i.test(msg)) continue
     if (!groups[date]) groups[date] = []
-    groups[date].push({ msg, hash })
+    groups[date].push({ author, email, msg, hash })
   }
 
   const content = [
@@ -34,11 +67,19 @@ try {
   ]
 
   for (const date of Object.keys(groups).sort().reverse()) {
+    const commits = groups[date]
     content.push(`## ${date}`)
     content.push('')
-    for (const { msg, hash } of groups[date]) {
+    for (const { author, email, msg, hash } of commits) {
       const shortHash = hash.slice(0, 7)
-      content.push(`- ${msg} \`${shortHash}\``)
+      // 提取 conventional commit 类型前缀（如 feat: xxx）
+      const m = msg.match(/^(\w+)(\(.+?\))?:\s*(.+)$/)
+      const type = m ? m[1].toLowerCase() : ''
+      const emoji = typeEmoji[type] || '📌'
+      const desc = m ? m[3] : msg
+      // 头像（加载失败时自动隐藏）
+      const avatar = `<img src="${avatarUrl(author, email)}" width="18" height="18" style="border-radius:50%;vertical-align:text-bottom" onerror="this.style.display='none'" />`
+      content.push(`- ${emoji} ${desc} —— ${avatar} ${author || '-'} \`${shortHash}\``)
     }
     content.push('')
   }

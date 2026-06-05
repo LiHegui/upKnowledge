@@ -113,3 +113,25 @@ body,
     display: none !important;
   }
 }
+
+/* ── 文档底部「贡献者」区块：缩小头像与文字，紧凑展示 ── */
+.upk-contributors {
+  margin-top: 24px;
+}
+
+.upk-contributors .vp-nolebase-git-changelog-contributors {
+  padding-top: 0;
+  font-size: 12px;
+  gap: 8px;
+}
+
+.upk-contributors .vp-nolebase-git-changelog-contributors-avatar,
+.upk-contributors img {
+  width: 22px !important;
+  height: 22px !important;
+}
+
+.upk-contributors .vp-nolebase-git-changelog-contributors-username,
+.upk-contributors span {
+  font-size: 12px;
+}

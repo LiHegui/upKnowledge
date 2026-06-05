@@ -1,4 +1,5 @@
 import { defineConfig } from 'vitepress'
+import { GitChangelog } from '@nolebase/vitepress-plugin-git-changelog/vite'
 
 // ────────── 后端侧边栏（复用于 /backend/ 及后端专属的 /interview/xxx/ 路径）──────────
 const backendSidebar = [
@@ -192,6 +193,20 @@ export default defineConfig({
   description: '升职加薪',
   base: '/upKnowledge/',
   ignoreDeadLinks: true,
+  lastUpdated: true,
+
+  vite: {
+    plugins: [
+      GitChangelog({
+        // 仓库地址，用于头像与提交链接跳转
+        repoURL: () => 'https://github.com/LiHegui/upKnowledge',
+        // git 作者名 → GitHub 用户名映射（命中后显示 GitHub 头像并跳转）
+        mapAuthors: [
+          { name: 'Hegui Li', username: 'LiHegui', mapByNameAliases: ['Hegui L', 'LiHegui'] },
+        ],
+      }),
+    ],
+  },
 
   markdown: {
     theme: {
@@ -275,6 +290,14 @@ export default defineConfig({
     docFooter: {
       prev: '上一页',
       next: '下一页',
+    },
+
+    lastUpdated: {
+      text: '最后更新于',
+      formatOptions: {
+        dateStyle: 'short',
+        timeStyle: 'short',
+      },
     },
 
     returnToTopLabel: '回到顶部',

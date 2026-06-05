@@ -39,18 +39,18 @@ const backendSidebar = [
 
 // ────────── 前端侧边栏（仅前端相关内容）──────────
 const frontendSidebar = [
-  {
-    text: '📝 必刷特辑',
-    collapsed: false,
-    items: [
-      { text: '笔试系列', link: '/interview/笔试系列' },
-      { text: '📌 待复习（10题）', link: '/interview/待整理/面试题整理-待复习' },
-      { text: '📌 待复习 II（4题）', link: '/interview/待整理/面试题整理-待复习2' },
-      { text: '📌 高德地图模块设计', link: '/interview/待整理/gaodemap-design' },
-      { text: '📌 信号实时可视化设计', link: '/interview/待整理/signal-view-design' },
-      { text: '📌 开环验证模块设计', link: '/interview/待整理/special-verification-design' },
-    ],
-  },
+  // {
+  //   text: '📝 必刷特辑',
+  //   collapsed: false,
+  //   items: [
+  //     { text: '笔试系列', link: '/interview/笔试系列' },
+  //     { text: '📌 待复习（10题）', link: '/interview/待整理/面试题整理-待复习' },
+  //     { text: '📌 待复习 II（4题）', link: '/interview/待整理/面试题整理-待复习2' },
+  //     { text: '📌 高德地图模块设计', link: '/interview/待整理/gaodemap-design' },
+  //     { text: '📌 信号实时可视化设计', link: '/interview/待整理/signal-view-design' },
+  //     { text: '📌 开环验证模块设计', link: '/interview/待整理/special-verification-design' },
+  //   ],
+  // },
   {
     text: '🤖 AI × 前端',
     collapsed: true,
@@ -76,6 +76,7 @@ const frontendSidebar = [
     items: [
       { text: 'TypeScript 概览', link: '/interview/Ts/' },
       { text: 'TS 与项目结合', link: '/interview/Ts/与项目结合/' },
+      { text: '类型体操 100 题', link: '/interview/Ts/强化训练-100题' },
     ],
   },
   {

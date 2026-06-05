@@ -9,28 +9,28 @@
 ### 📝 必刷 & AI
 [笔试系列](./interview/笔试系列.md) | [LeetCode 150](https://leetcode.cn/studyplan/top-interview-150/) ↗ | [AI × 前端](./interview/AI/index.md) | [构建 AI Agent](./interview/AI/agent.md) | [构建 AI Workflow](./interview/AI/workflow.md)
 
-### 基础三件套
+### 🧱 基础三件套
 [HTML](./interview/HTML/html相关.md) | [CSS](./interview/CSS/index.md) | [styled-components](./interview/CSS/style-components.md) | [JavaScript](./interview/JavaScript/index.md)
 
-### TypeScript
-[TS 总览](./interview/Ts/index.md) | [TS 与项目结合](./interview/Ts/与项目结合/index.md)
+### 🔷 TypeScript
+[TS 总览](./interview/Ts/index.md) | [TS 与项目结合](./interview/Ts/与项目结合/index.md) | [类型体操 100 题](./interview/Ts/强化训练-100题.md)
 
-### Vue 生态
+### 💚 Vue 生态
 [Vue2](./interview/Vue/vue.md) | [权限管理](./interview/Vue/AuthorityManagement.md) | [Vue3](./interview/Vue3/index.md) | [Diff 算法](./interview/Vue3/diff/index.md) | [性能提升](./interview/Vue3/性能提升/index.md) | [Tree-shaking](./interview/Vue3/Treeshaking/index.md) | [Pinia 完全指南](./interview/Vue3/pinia/index.md)
 
-### React 生态
+### ⚛️ React 生态
 [React](./interview/React/index.md) | [渲染行为完全指南](./interview/React/react-rendering-behavior.md) | [Fiber & Diff 深度解析](./interview/React/fiber-diff.md) | [Redux 完全指南](./interview/React/redux.md) | [MobX 完全指南](./interview/React/mobx.md)
 
-### 工程化
+### 🛠️ 工程化
 [Webpack](./interview/Webpack/index.md) | [基础配置](./interview/Webpack/webpack基础配置.md) | [模块化](./interview/Webpack/模块化/history.md) | [Rollup](./interview/Webpack/模块化/Rollup.md) | [搭建组件库](./interview/Webpack/模块化/进阶-搭建组件库.md) | [Vite](./interview/Vite/index.md) | [Git](./interview/git/index.md) | [CI/CD](./interview/CICD/index.md) | [Docker](./interview/Docker/index.md)
 
-### 浏览器 & 网络
+### 🌐 浏览器 & 网络
 [HTTP / TCP](./interview/网络/index.md) | [WebSocket 专题](./interview/网络/WebSocket.md) | [浏览器原理](./interview/浏览器/index.md) | [操作系统](./interview/操作系统/index.md)
 
-### 性能 & 解决方案
+### 🚀 性能 & 解决方案
 [性能优化](./interview/性能优化/index.md) | [虚拟列表](./interview/解决方案/虚拟列表/index.md) | [大文件断点续传](./interview/解决方案/大文件断点续传/index.md) | [移动端适配](./interview/解决方案/移动端适配/index.md) | [实时协同 CRDT](./interview/解决方案/实时协同系统/index.md) | [前端工程化方案](./interview/解决方案/前端工程化/index.md) | [JWT 登录方案](./interview/解决方案/JWT登录方案/index.md) | [前端登录](./interview/前端登录/登录的实现.md)
 
-### 设计模式 & 进阶
+### 🎨 设计模式 & 进阶
 [设计模式](./interview/设计模式/index.md) | [微前端](./interview/微前端/index.md) | [Three.js / Web3D](./interview/Web3D/three.md) | [Ant Design](./interview/AnTd/index.md) | [微信小程序](./interview/微信小程序（原生）/route.md) | [ECharts 可视化](./interview/ECharts/index.md)
 
 ---

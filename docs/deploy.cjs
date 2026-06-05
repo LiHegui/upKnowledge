@@ -77,9 +77,10 @@ try {
       const type = m ? m[1].toLowerCase() : ''
       const emoji = typeEmoji[type] || '📌'
       const desc = m ? m[3] : msg
-      // 头像（加载失败时自动隐藏）
-      const avatar = `<img src="${avatarUrl(author, email)}" width="18" height="18" style="border-radius:50%;vertical-align:text-bottom" onerror="this.style.display='none'" />`
-      content.push(`- ${emoji} ${desc} —— ${avatar} ${author || '-'} \`${shortHash}\``)
+      // 作者信息块：头像 + 名字 + hash，整体不允许内部换行，避免东一截西一截
+      const avatar = `<img src="${avatarUrl(author, email)}" width="16" height="16" style="border-radius:50%;vertical-align:text-bottom" onerror="this.style.display='none'" />`
+      const meta = `<span style="white-space:nowrap;opacity:.6;font-size:.85em">${avatar} ${author || '-'} \`${shortHash}\`</span>`
+      content.push(`- ${emoji} ${desc} ${meta}`)
     }
     content.push('')
   }
@@ -88,6 +89,12 @@ try {
   console.log('📋 已生成 changelog.md')
 } catch (e) {
   console.warn('⚠️  生成 changelog.md 失败：', e.message)
+}
+
+// 仅生成 changelog（node deploy.cjs --changelog-only），跳过构建与部署
+if (process.argv.includes('--changelog-only')) {
+  console.log('✅ 仅生成 changelog，已跳过构建与部署')
+  process.exit(0)
 }
 
 // 2. 清理旧缓存

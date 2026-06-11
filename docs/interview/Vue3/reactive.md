@@ -22,7 +22,11 @@
 
 ## 完整源码
 
-```js
+```ts
+// --------------- 类型定义 ---------------
+type Dep = Set<ReactiveEffect>
+type KeyToDepMap = Map<string | symbol, Dep>
+
 // --------------- reactive 模块 ---------------
 /**
  * 收集所有依赖的 WeakMap 实例：
@@ -31,12 +35,12 @@
  *    1. key：响应性对象的指定属性
  *    2. value：指定对象的指定属性的 执行函数 (dep, 用 Set 去重)
  */
-const targetMap = new WeakMap()
+const targetMap = new WeakMap<object, KeyToDepMap>()
 
 /**
  * 收集依赖
  */
-function track(target, key) {
+function track(target: object, key: string | symbol): void {
   if (!activeEffect) return
   let depsMap = targetMap.get(target)
   if (!depsMap) {
@@ -52,10 +56,10 @@ function track(target, key) {
 /**
  * 触发依赖
  */
-function trigger(target, key) {
+function trigger(target: object, key: string | symbol): void {
   const depsMap = targetMap.get(target)
   if (!depsMap) return
-  let dep = depsMap.get(key)
+  const dep = depsMap.get(key)
   if (!dep) return
   triggerEffects(dep)
 }
@@ -63,7 +67,7 @@ function trigger(target, key) {
 /**
  * 依次触发 dep 中保存的依赖
  */
-function triggerEffects(dep) {
+function triggerEffects(dep: Dep | ReactiveEffect[]): void {
   const effects = Array.isArray(dep) ? dep : [...dep]
   for (const effect of effects) {
     effect.run()
@@ -73,48 +77,46 @@ function triggerEffects(dep) {
 /**
  * Proxy 的 handler
  */
-const baseHandlers = {
-  get: (target, key, receiver) => {
+const baseHandlers: ProxyHandler<object> = {
+  get(target, key, receiver) {
     const res = Reflect.get(target, key, receiver)
     track(target, key)            // 收集依赖
     return res
   },
-  set: (target, key, value, receiver) => {
+  set(target, key, value, receiver) {
     const result = Reflect.set(target, key, value, receiver)
     trigger(target, key)          // 触发依赖
     return result
   }
 }
 
-function reactive(target) {
-  return new Proxy(target, baseHandlers)
+function reactive<T extends object>(target: T): T {
+  return new Proxy(target, baseHandlers) as T
 }
 
 // --------------- effect 模块 ---------------
-let activeEffect
+let activeEffect: ReactiveEffect | undefined
 
 class ReactiveEffect {
-  constructor(fn) {
-    this.fn = fn
-  }
-  run() {
+  constructor(public fn: () => void) {}
+
+  run(): void {
     activeEffect = this           // 标记当前正在收集的副作用
-    return this.fn()              // 执行 fn，触发 proxy 的 get → track
+    this.fn()                     // 执行 fn，触发 proxy 的 get → track
+    activeEffect = undefined
   }
 }
 
-function effect(fn) {
+function effect(fn: () => void): void {
   const _effect = new ReactiveEffect(fn)
   _effect.run()
 }
 
 // --------------- 测试 reactive ---------------
-const obj = reactive({
-  name: '张三'
-})
+const obj = reactive({ name: '张三' })
 
 effect(() => {
-  document.querySelector('#app').innerText = obj.name
+  document.querySelector('#app')!.textContent = obj.name
 })
 
 setTimeout(() => {

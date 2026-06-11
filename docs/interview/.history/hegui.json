@@ -5,13 +5,13 @@
                  "username":  "hegui",
                  "displayName":  "hegui",
                  "createdAt":  "2026-06-01T00:00:00+08:00",
-                 "updatedAt":  "2026-06-04T00:00:00+08:00"
+                 "updatedAt":  "2026-06-11T00:00:00+08:00"
              },
     "summary":  {
-                    "totalEvents":  16,
-                    "interviewPracticeCount":  1,
+                    "totalEvents":  25,
+                    "interviewPracticeCount":  2,
                     "tsLevel":  1,
-                    "lastPracticeAt":  "2026-06-04T00:00:00+08:00"
+                    "lastPracticeAt":  "2026-06-11T00:00:00+08:00"
                 },
     "tags":  [
                  "interview",
@@ -242,6 +242,129 @@
                                        "operation":  "enhance",
                                        "note":  "Added runtime startsWith vs type-level StartsWith comparison table and examples"
                                    }
+                   },
+                   {
+                       "id":  "evt-20260608-vue3-plan-created",
+                       "type":  "learning.plan.created",
+                       "topic":  "Vue3",
+                       "title":  "Create Vue3 5-day mastery learning plan",
+                       "status":  "in-progress",
+                       "source":  "learn-plan",
+                       "createdAt":  "2026-06-08T00:00:00+08:00",
+                       "details":  {
+                                       "target":  "docs/learning-plan/Vue3精通/index.md",
+                                       "operation":  "create",
+                                       "durationDays":  5,
+                                       "note":  "5-day plan: reactivity, composition API, compile optimization, ecosystem(Pinia/Router/TS), performance & practice"
+                                   }
+                   },
+                   {
+                       "id":  "evt-20260608-vue3-inject-proxy-traps-array",
+                       "type":  "kb.inject",
+                       "topic":  "Vue3",
+                       "title":  "Clarify Proxy 13 traps and Vue2 array opt-out",
+                       "status":  "done",
+                       "source":  "kb-inject",
+                       "createdAt":  "2026-06-08T00:00:00+08:00",
+                       "details":  {
+                                       "target":  "docs/interview/Vue3/index.md",
+                                       "operation":  "enhance",
+                                       "note":  "Added note: Proxy intercepts 13 traps (not any behavior); Vue2 deliberately opts out of array index/length tracking and overrides 7 mutation methods"
+                                   }
+                   },
+                   {
+                       "id":  "evt-20260608-vue3-inject-dep-collection",
+                       "type":  "kb.inject",
+                       "topic":  "Vue3",
+                       "title":  "Add dependency collection Q&A (3-layer structure + activeEffect)",
+                       "status":  "done",
+                       "source":  "kb-inject",
+                       "createdAt":  "2026-06-08T00:00:00+08:00",
+                       "details":  {
+                                       "target":  "docs/interview/Vue3/index.md",
+                                       "operation":  "add",
+                                       "note":  "New Q&A: dep = effect fn; WeakMap->Map->Set three layers with per-key isolation; only outer is WeakMap; activeEffect collection timing and effect stack for nesting"
+                                   }
+                   },
+                   {
+                       "id":  "evt-20260609-agent-plan-created",
+                       "type":  "learning.plan.created",
+                       "topic":  "AI-Agent",
+                       "title":  "Create AI Agent 7-day hands-on learning plan",
+                       "status":  "in-progress",
+                       "source":  "learn-plan",
+                       "createdAt":  "2026-06-09T00:00:00+08:00",
+                       "details":  {
+                                       "target":  "docs/learning-plan/AI-Agent实战/index.md",
+                                       "operation":  "create",
+                                       "durationDays":  7,
+                                       "note":  "7-day plan: Agent core concepts(2d), minimal Agent from scratch(2d), memory+streaming+orchestration(2d), final project(1d)"
+                                   }
+                   },
+                   {
+                       "id":  "evt-20260609-fullsite-plan-created",
+                       "type":  "learning.plan.created",
+                       "topic":  "全站知识体系",
+                       "title":  "Create full-site 8-week systematic learning plan",
+                       "status":  "in-progress",
+                       "source":  "learn-plan",
+                       "createdAt":  "2026-06-09T00:00:00+08:00",
+                       "details":  {
+                                       "target":  "docs/learning-plan/全站知识体系/index.md",
+                                       "operation":  "create",
+                                       "durationDays":  58,
+                                       "note":  "8-week plan covering 26+ topics, 350+ Q&A: JS/CSS/TS(2w) → Vue/React(2w) → Network/Browser/Perf(1w) → Engineering(0.5w) → Backend/DB(1w) → AI/Advanced(1w) → Mock interviews(0.5w). Node.js fast-tracked due to existing basics."
+                                   }
+                   },
+                   {
+                       "id":  "evt-20260611-vue3-day3-cleanup",
+                       "type":  "learning.progress",
+                       "topic":  "Vue3",
+                       "title":  "Day 3 cleanup: merge 性能提升, consolidate diff source code, add LIS Q&A",
+                       "status":  "done",
+                       "source":  "learn-plan",
+                       "createdAt":  "2026-06-11T00:00:00+08:00",
+                       "details":  {
+                                       "note":  "Deleted redundant 性能提升/ dir. Consolidated 3 diff source files into code/index.md. Added LIS algorithm Q&A to JavaScript/index.md."
+                                   }
+                   },
+                   {
+                       "id":  "evt-20260611-vue3-day4-pinia",
+                       "type":  "interview.practice",
+                       "topic":  "Vue3-Pinia",
+                       "title":  "Pinia Q1: mutation removal + $subscribe",
+                       "status":  "done",
+                       "source":  "learn-plan",
+                       "createdAt":  "2026-06-11T00:00:00+08:00",
+                       "score":  5,
+                       "level":  1,
+                       "details":  {
+                                       "note":  "Knew why mutation existed but not why Pinia can remove it. Pinia skipped for self-study."
+                                   }
+                   },
+                   {
+                       "id":  "evt-20260611-vue3-day4-router",
+                       "type":  "learning.lecture",
+                       "topic":  "Vue-Router-4",
+                       "title":  "Vue Router 4: guards, lazy loading, execution order",
+                       "status":  "done",
+                       "source":  "learn-plan",
+                       "createdAt":  "2026-06-11T00:00:00+08:00",
+                       "details":  {
+                                       "note":  "Lecture: beforeEach/beforeEnter/onBeforeRouteLeave, execution order, route lazy loading."
+                                   }
+                   },
+                   {
+                       "id":  "evt-20260611-vue3-day4-ts-vite",
+                       "type":  "learning.lecture",
+                       "topic":  "Vue3-TS-Vite",
+                       "title":  "defineProps two styles + Vite vs Webpack",
+                       "status":  "done",
+                       "source":  "learn-plan",
+                       "createdAt":  "2026-06-11T00:00:00+08:00",
+                       "details":  {
+                                       "note":  "Lecture: defineProps runtime vs type declaration, withDefaults, compiler macros. Vite native ESM + esbuild pre-bundling + Rollup production."
+                                   }
                    }
                ],
     "custom":  {
@@ -252,7 +375,13 @@
                                                                     ]
                                          },
                    "learningPlan":  {
-                                        "activePlan":  null,
+                                        "activePlan":  {
+                                                            "topic":  "AI-Agent",
+                                                            "path":  "docs/learning-plan/AI-Agent实战/index.md",
+                                                            "durationDays":  7,
+                                                            "currentDay":  1,
+                                                            "startedAt":  "2026-06-09T00:00:00+08:00"
+                                                        },
                                         "checkpoints":  [
 
                                                         ]

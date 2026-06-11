@@ -16,7 +16,10 @@
 [TS 总览](./interview/Ts/index.md) | [TS 与项目结合](./interview/Ts/与项目结合/index.md) | [类型体操 100 题](./interview/Ts/强化训练-100题.md)
 
 ### 💚 Vue 生态
-[Vue2](./interview/Vue/vue.md) | [权限管理](./interview/Vue/AuthorityManagement.md) | [Vue3](./interview/Vue3/index.md) | [Diff 算法](./interview/Vue3/diff/index.md) | [性能提升](./interview/Vue3/性能提升/index.md) | [Tree-shaking](./interview/Vue3/Treeshaking/index.md) | [Pinia 完全指南](./interview/Vue3/pinia/index.md)
+
+**Vue2**：[Vue2 核心](./interview/Vue/vue.md) | [权限管理](./interview/Vue/AuthorityManagement.md)
+
+**Vue3**：[Vue3 核心](./interview/Vue3/index.md) | [Diff 算法](./interview/Vue3/diff/index.md) | [性能提升](./interview/Vue3/性能提升/index.md) | [Tree-shaking](./interview/Vue3/Treeshaking/index.md) | [Pinia 完全指南](./interview/Vue3/pinia/index.md)
 
 ### ⚛️ React 生态
 [React](./interview/React/index.md) | [渲染行为完全指南](./interview/React/react-rendering-behavior.md) | [Fiber & Diff 深度解析](./interview/React/fiber-diff.md) | [Redux 完全指南](./interview/React/redux.md) | [MobX 完全指南](./interview/React/mobx.md)

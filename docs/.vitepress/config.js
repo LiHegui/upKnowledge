@@ -84,13 +84,24 @@ const frontendSidebar = [
     text: 'Vue 生态',
     collapsed: true,
     items: [
-      { text: 'Vue2', link: '/interview/Vue/vue' },
-      { text: '权限管理', link: '/interview/Vue/AuthorityManagement' },
-      { text: 'Vue3', link: '/interview/Vue3/' },
-      { text: 'Vue3 Diff 算法', link: '/interview/Vue3/diff/' },
-      { text: 'Vue3 性能提升', link: '/interview/Vue3/性能提升/' },
-      { text: 'Tree-shaking', link: '/interview/Vue3/Treeshaking/' },
-      { text: 'Pinia 完全指南', link: '/interview/Vue3/pinia/' },
+      {
+        text: 'Vue2',
+        collapsed: true,
+        items: [
+          { text: 'Vue2 核心', link: '/interview/Vue/vue' },
+          { text: '权限管理', link: '/interview/Vue/AuthorityManagement' },
+        ],
+      },
+      {
+        text: 'Vue3',
+        collapsed: true,
+        items: [
+          { text: 'Vue3 核心', link: '/interview/Vue3/' },
+          { text: 'Diff 算法', link: '/interview/Vue3/diff/' },
+          { text: 'Tree-shaking', link: '/interview/Vue3/Treeshaking/' },
+          { text: 'Pinia 完全指南', link: '/interview/Vue3/pinia/' },
+        ],
+      },
     ],
   },
   {

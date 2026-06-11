@@ -21,7 +21,11 @@
 
 ## 完整源码
 
-```js
+```ts
+// --------------- 类型定义 ---------------
+type Dep = Set<ReactiveEffect>
+type KeyToDepMap = Map<string | symbol, Dep>
+
 // --------------- reactive 模块 ---------------
 /**
  * 收集所有依赖的 WeakMap 实例：
@@ -30,12 +34,12 @@
  *    1. key：响应性对象的指定属性
  *    2. value：指定对象的指定属性的 执行函数
  */
-const targetMap = new WeakMap()
+const targetMap = new WeakMap<object, KeyToDepMap>()
 
 /**
  * 收集依赖
  */
-function track(target, key) {
+function track(target: object, key: string | symbol): void {
   if (!activeEffect) return
   let depsMap = targetMap.get(target)
   if (!depsMap) {
@@ -51,10 +55,10 @@ function track(target, key) {
 /**
  * 触发依赖
  */
-function trigger(target, key) {
+function trigger(target: object, key: string | symbol): void {
   const depsMap = targetMap.get(target)
   if (!depsMap) return
-  let dep = depsMap.get(key)
+  const dep = depsMap.get(key)
   if (!dep) return
   triggerEffects(dep)
 }
@@ -62,7 +66,7 @@ function trigger(target, key) {
 /**
  * 依次触发 dep 中保存的依赖
  */
-function triggerEffects(dep) {
+function triggerEffects(dep: Dep | ReactiveEffect[]): void {
   const effects = Array.isArray(dep) ? dep : [...dep]
   for (const effect of effects) {
     effect.run()
@@ -72,30 +76,30 @@ function triggerEffects(dep) {
 /**
  * Proxy 的 handler
  */
-const baseHandlers = {
-  get: (target, key, receiver) => {
+const baseHandlers: ProxyHandler<object> = {
+  get(target, key, receiver) {
     const res = Reflect.get(target, key, receiver)
     track(target, key)
     return res
   },
-  set: (target, key, value, receiver) => {
+  set(target, key, value, receiver) {
     const result = Reflect.set(target, key, value, receiver)
     trigger(target, key)
     return result
   }
 }
 
-function reactive(target) {
-  return new Proxy(target, baseHandlers)
+function reactive<T extends object>(target: T): T {
+  return new Proxy(target, baseHandlers) as T
 }
 
 // --------------- ref 模块 ---------------
-class RefImpl {
-  _rawValue
-  _value
-  dep
+class RefImpl<T = any> {
+  private _rawValue: T
+  private _value: T
+  dep: Dep | undefined
 
-  constructor(value) {
+  constructor(value: T) {
     this._rawValue = value
     this._value = value
   }
@@ -103,9 +107,9 @@ class RefImpl {
   /**
    * xxx.value 时触发：收集依赖
    */
-  get value() {
+  get value(): T {
     if (activeEffect) {
-      const dep = ref.dep || (ref.dep = new Set())
+      const dep = this.dep || (this.dep = new Set())
       dep.add(activeEffect)
     }
     return this._value
@@ -114,33 +118,33 @@ class RefImpl {
   /**
    * xxx.value = newVal 时触发：派发依赖
    */
-  set value(newVal) {
+  set value(newVal: T) {
     this._rawValue = newVal
     this._value = newVal
-    if (ref.dep) {
-      triggerEffects(ref.dep)
+    if (this.dep) {
+      triggerEffects(this.dep)
     }
   }
 }
 
-function ref(value) {
+function ref<T>(value: T): RefImpl<T> {
   return new RefImpl(value)
 }
 
 // --------------- effect 模块 ---------------
-let activeEffect
+let activeEffect: ReactiveEffect | undefined
 
 class ReactiveEffect {
-  constructor(fn) {
-    this.fn = fn
-  }
-  run() {
+  constructor(public fn: () => void) {}
+
+  run(): void {
     activeEffect = this
-    return this.fn()
+    this.fn()
+    activeEffect = undefined
   }
 }
 
-function effect(fn) {
+function effect(fn: () => void): void {
   const _effect = new ReactiveEffect(fn)
   _effect.run()
 }
@@ -149,7 +153,7 @@ function effect(fn) {
 const name = ref('张三')
 
 effect(() => {
-  document.querySelector('#app').innerText = name.value
+  document.querySelector('#app')!.textContent = name.value
 })
 
 setTimeout(() => {

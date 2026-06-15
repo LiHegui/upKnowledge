@@ -1,4 +1,4 @@
-﻿# Vue3 技术要点
+# Vue3 技术要点
 
 ## Q: Vue3 相比 Vue2 有哪些核心变化？
 
@@ -457,6 +457,58 @@ function computed<T>(getter: () => T) {
 
 ---
 
+## Q: Vue3 一次更新的完整流程是什么？（从修改数据到 DOM 更新）
+
+**A:**
+
+```
+count.value = 5
+    │
+    ▼
+① Proxy set 拦截 → trigger() 找到 count 对应的所有 effect
+    ▼
+② 推入调度队列 queueJob()（Promise.then 微任务，同一 effect 去重 = 合并更新）
+    ▼
+③ 当前同步代码全部执行完
+    ▼
+④ 微任务执行 flushJobs → 执行组件的 renderEffect
+    ▼
+⑤ render 函数生成新 VNode 树（编译优化：静态提升 + PatchFlag + Block Tree）
+    ▼
+⑥ patch 新旧 VNode 树（Diff 五步：前缀→后缀→新增→删除→乱序 LIS）
+    ▼
+⑦ 最小化真实 DOM 操作（insertBefore / removeChild / textContent）
+    ▼
+⑧ nextTick 回调执行
+```
+
+**面试一句话版**：
+
+> Proxy set → trigger 收集 effect → 推入微任务队列（去重合并）→ 同步代码结束 → 微任务执行 render → 生成新 VNode 树（静态提升 + PatchFlag + Block）→ patch diff（快速 Diff 五步 + LIS）→ 最小化 DOM 操作 → nextTick 回调
+
+**每一步的关键细节：**
+
+| 步骤 | 关键机制 |
+|------|---------|
+| trigger | `WeakMap → Map → Set` 三层结构找到所有依赖的 effect |
+| 调度 | `queueJob` 用 `Set` 去重，`Promise.then` 推入微任务 |
+| 合并更新 | 同步代码内多次修改 → 只触发一次渲染 |
+| 编译优化 | 静态节点提升到 render 外，PatchFlag 标记动态内容，Block Tree 收集动态节点为扁平数组 |
+| Diff | 不做全树遍历，只比 Block 中的动态节点，乱序部分用 LIS 最小化移动 |
+| nextTick | 本质就是 `Promise.then`，在 DOM 更新后执行回调 |
+
+### nextTick 的作用
+
+Vue 会把同一轮状态变更合并到异步更新队列。`nextTick` 用于等待这轮 DOM 更新完成后再执行逻辑：
+
+```ts
+show.value = true
+await nextTick()
+inputRef.value?.focus()  // DOM 已更新，可以安全操作
+```
+
+---
+
 ## Q: `<script setup>` 和 `setup()` 是什么关系？defineProps 有几种写法？
 
 **A:**
@@ -570,6 +622,66 @@ const props = withDefaults(defineProps<{
 
 ---
 
+## Q: 组合式函数（composable）和 mixin 有什么区别？
+
+**A:**
+
+一句话：**mixin 有命名冲突、来源不清、隐式依赖三大问题；composable 通过普通函数 + 显式返回值全部解决。**
+
+### mixin 的三大问题
+
+| 问题 | 说明 |
+|------|------|
+| **命名冲突** | 多个 mixin 都定义了 `data.x`，静默覆盖，很难排查 |
+| **来源不清** | 模板里 `this.x`，不知道从哪个 mixin 来的 |
+| **隐式依赖** | mixin A 依赖 mixin B 的某个 data，代码里看不出来 |
+
+### composable 怎么解决
+
+```ts
+import { ref, onMounted, onUnmounted } from 'vue'
+
+export function useMouse() {
+  const x = ref(0)
+  const y = ref(0)
+
+  const update = (e: MouseEvent) => {
+    x.value = e.pageX
+    y.value = e.pageY
+  }
+
+  onMounted(() => window.addEventListener('mousemove', update))
+  onUnmounted(() => window.removeEventListener('mousemove', update))
+
+  return { x, y }    // 明确返回什么
+}
+
+// 使用：来源一目了然，命名可自定义
+const { x: mouseX, y: mouseY } = useMouse()
+```
+
+### 对比
+
+| | mixin | composable |
+|--|-------|-----------|
+| 命名冲突 | ❌ 静默覆盖 | ✅ 解构时自定义命名 |
+| 数据来源 | ❌ `this.x` 不知哪来 | ✅ `useMouse()` 返回，一目了然 |
+| 依赖关系 | ❌ 隐式 | ✅ 函数参数和返回值，显式 |
+| 类型推导 | ❌ TS 推不动 | ✅ 天然支持泛型 |
+| 灵活性 | ❌ 只能整个混入 | ✅ 可传参、条件调用 |
+
+### composable vs React 自定义 Hook
+
+| | Vue composable | React Hook |
+|--|---------------|------------|
+| 执行次数 | **只执行一次**（setup 只跑一次） | **每次渲染都执行** |
+| 响应式机制 | Proxy 依赖收集 | 闭包 + setState 触发重渲染 |
+| 调用限制 | 无特殊限制 | 不能在条件/循环里调用（Hook 规则） |
+
+> ⚠️ **注意**：Vue3 没有「废弃」mixin（还能用），但官方强烈推荐用 composable 替代。命名规范以 `use` 开头，放在 `composables/` 或 `hooks/` 目录。
+
+---
+
 ## Q: Vue3 组件通信方式有哪些？provide/inject 怎么保持响应式？
 
 **A:**
@@ -637,66 +749,6 @@ const toggleTheme = inject('toggleTheme') // 拿到修改方法
 
 ---
 
-## Q: 组合式函数（composable）和 mixin 有什么区别？
-
-**A:**
-
-一句话：**mixin 有命名冲突、来源不清、隐式依赖三大问题；composable 通过普通函数 + 显式返回值全部解决。**
-
-### mixin 的三大问题
-
-| 问题 | 说明 |
-|------|------|
-| **命名冲突** | 多个 mixin 都定义了 `data.x`，静默覆盖，很难排查 |
-| **来源不清** | 模板里 `this.x`，不知道从哪个 mixin 来的 |
-| **隐式依赖** | mixin A 依赖 mixin B 的某个 data，代码里看不出来 |
-
-### composable 怎么解决
-
-```ts
-import { ref, onMounted, onUnmounted } from 'vue'
-
-export function useMouse() {
-  const x = ref(0)
-  const y = ref(0)
-
-  const update = (e: MouseEvent) => {
-    x.value = e.pageX
-    y.value = e.pageY
-  }
-
-  onMounted(() => window.addEventListener('mousemove', update))
-  onUnmounted(() => window.removeEventListener('mousemove', update))
-
-  return { x, y }    // 明确返回什么
-}
-
-// 使用：来源一目了然，命名可自定义
-const { x: mouseX, y: mouseY } = useMouse()
-```
-
-### 对比
-
-| | mixin | composable |
-|--|-------|-----------|
-| 命名冲突 | ❌ 静默覆盖 | ✅ 解构时自定义命名 |
-| 数据来源 | ❌ `this.x` 不知哪来 | ✅ `useMouse()` 返回，一目了然 |
-| 依赖关系 | ❌ 隐式 | ✅ 函数参数和返回值，显式 |
-| 类型推导 | ❌ TS 推不动 | ✅ 天然支持泛型 |
-| 灵活性 | ❌ 只能整个混入 | ✅ 可传参、条件调用 |
-
-### composable vs React 自定义 Hook
-
-| | Vue composable | React Hook |
-|--|---------------|------------|
-| 执行次数 | **只执行一次**（setup 只跑一次） | **每次渲染都执行** |
-| 响应式机制 | Proxy 依赖收集 | 闭包 + setState 触发重渲染 |
-| 调用限制 | 无特殊限制 | 不能在条件/循环里调用（Hook 规则） |
-
-> ⚠️ **注意**：Vue3 没有「废弃」mixin（还能用），但官方强烈推荐用 composable 替代。命名规范以 `use` 开头，放在 `composables/` 或 `hooks/` 目录。
-
----
-
 ## Q: Pinia vs Vuex 的区别是什么？
 
 **A:**
@@ -712,56 +764,6 @@ const { x: mouseX, y: mouseY } = useMouse()
 Pinia 取消 mutation 的原因：Vue 3 的 Proxy 能自动拦截所有 state 变更，DevTools 不再需要 mutation 作为显式钩子来追踪状态；Pinia 提供 `$subscribe()` 监听变更 + `$patch()` 批量更新作为替代。
 
 > 详细内容见 [Pinia 完全指南](./pinia/index.md)
-
----
-
-## Q: Vue3 项目中如何更好地结合 TypeScript？
-
-**A:**
-
-核心思路是先约束组件边界，再约束工程链路：组件层保证 Props、Emits、v-model、Store 都有明确类型；工程层用严格配置和持续类型检查兜底。
-
-**推荐落地顺序：**
-
-1. 统一使用 `<script setup lang="ts">`，减少 `this` 推断问题。
-2. 先定义组件边界类型：`defineProps`、`defineEmits`、`defineModel`、`defineExpose`。
-3. 组合式函数使用泛型（如 `useRequest<T>()`），让复用逻辑天然类型安全。
-4. 状态管理（Pinia）显式声明 `state/getters/actions` 类型，避免隐式 `any`。
-5. 构建链路中强制执行 `vue-tsc`，把类型检查纳入 CI。
-
-**组件类型示例：**
-
-```vue
-<script setup lang="ts">
-interface User {
-    id: number
-    name: string
-}
-
-const props = withDefaults(defineProps<{
-    list: User[]
-    pageSize?: number
-}>(), {
-    pageSize: 10
-})
-
-const emit = defineEmits<{
-    change: [id: number]
-    remove: [user: User]
-}>()
-
-const onSelect = (id: number) => emit('change', id)
-</script>
-```
-
-| 维度 | 不推荐 | 推荐 |
-|------|--------|------|
-| Props 定义 | 运行时对象 + 弱约束 | `defineProps<T>()` + `withDefaults` |
-| 事件定义 | 字符串随意触发 | `defineEmits` 元组类型 |
-| 复用逻辑 | 返回 `any` | 泛型 `useXxx<T>()` |
-| 类型检查 | 仅依赖 IDE | `vue-tsc --build` + CI |
-
-> ⚠️ **注意**：TypeScript 只能保证编译期安全，服务端返回数据仍可能不可信；接口边界建议配合运行时校验（如 Zod）。
 
 ---
 
@@ -831,55 +833,53 @@ const routes = [
 
 ---
 
-## Q: Vue3 一次更新的完整流程是什么？（从修改数据到 DOM 更新）
+## Q: Vue3 项目中如何更好地结合 TypeScript？
 
 **A:**
 
+核心思路是先约束组件边界，再约束工程链路：组件层保证 Props、Emits、v-model、Store 都有明确类型；工程层用严格配置和持续类型检查兜底。
+
+**推荐落地顺序：**
+
+1. 统一使用 `<script setup lang="ts">`，减少 `this` 推断问题。
+2. 先定义组件边界类型：`defineProps`、`defineEmits`、`defineModel`、`defineExpose`。
+3. 组合式函数使用泛型（如 `useRequest<T>()`），让复用逻辑天然类型安全。
+4. 状态管理（Pinia）显式声明 `state/getters/actions` 类型，避免隐式 `any`。
+5. 构建链路中强制执行 `vue-tsc`，把类型检查纳入 CI。
+
+**组件类型示例：**
+
+```vue
+<script setup lang="ts">
+interface User {
+    id: number
+    name: string
+}
+
+const props = withDefaults(defineProps<{
+    list: User[]
+    pageSize?: number
+}>(), {
+    pageSize: 10
+})
+
+const emit = defineEmits<{
+    change: [id: number]
+    remove: [user: User]
+}>()
+
+const onSelect = (id: number) => emit('change', id)
+</script>
 ```
-count.value = 5
-    │
-    ▼
-① Proxy set 拦截 → trigger() 找到 count 对应的所有 effect
-    ▼
-② 推入调度队列 queueJob()（Promise.then 微任务，同一 effect 去重 = 合并更新）
-    ▼
-③ 当前同步代码全部执行完
-    ▼
-④ 微任务执行 flushJobs → 执行组件的 renderEffect
-    ▼
-⑤ render 函数生成新 VNode 树（编译优化：静态提升 + PatchFlag + Block Tree）
-    ▼
-⑥ patch 新旧 VNode 树（Diff 五步：前缀→后缀→新增→删除→乱序 LIS）
-    ▼
-⑦ 最小化真实 DOM 操作（insertBefore / removeChild / textContent）
-    ▼
-⑧ nextTick 回调执行
-```
 
-**面试一句话版**：
+| 维度 | 不推荐 | 推荐 |
+|------|--------|------|
+| Props 定义 | 运行时对象 + 弱约束 | `defineProps<T>()` + `withDefaults` |
+| 事件定义 | 字符串随意触发 | `defineEmits` 元组类型 |
+| 复用逻辑 | 返回 `any` | 泛型 `useXxx<T>()` |
+| 类型检查 | 仅依赖 IDE | `vue-tsc --build` + CI |
 
-> Proxy set → trigger 收集 effect → 推入微任务队列（去重合并）→ 同步代码结束 → 微任务执行 render → 生成新 VNode 树（静态提升 + PatchFlag + Block）→ patch diff（快速 Diff 五步 + LIS）→ 最小化 DOM 操作 → nextTick 回调
-
-**每一步的关键细节：**
-
-| 步骤 | 关键机制 |
-|------|---------|
-| trigger | `WeakMap → Map → Set` 三层结构找到所有依赖的 effect |
-| 调度 | `queueJob` 用 `Set` 去重，`Promise.then` 推入微任务 |
-| 合并更新 | 同步代码内多次修改 → 只触发一次渲染 |
-| 编译优化 | 静态节点提升到 render 外，PatchFlag 标记动态内容，Block Tree 收集动态节点为扁平数组 |
-| Diff | 不做全树遍历，只比 Block 中的动态节点，乱序部分用 LIS 最小化移动 |
-| nextTick | 本质就是 `Promise.then`，在 DOM 更新后执行回调 |
-
-### nextTick 的作用
-
-Vue 会把同一轮状态变更合并到异步更新队列。`nextTick` 用于等待这轮 DOM 更新完成后再执行逻辑：
-
-```ts
-show.value = true
-await nextTick()
-inputRef.value?.focus()  // DOM 已更新，可以安全操作
-```
+> ⚠️ **注意**：TypeScript 只能保证编译期安全，服务端返回数据仍可能不可信；接口边界建议配合运行时校验（如 Zod）。
 
 ---
 

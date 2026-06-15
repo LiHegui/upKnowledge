@@ -2,6 +2,10 @@
 
 > 本页由部署脚本根据 git 提交记录自动生成。
 
+## 2026-06-15
+
+- ✨ update Vue3 interview documentation with new insights and examples <span style="white-space:nowrap;opacity:.6;font-size:.85em"><img src="https://github.com/LiHegui.png?size=48" width="16" height="16" style="border-radius:50%;vertical-align:text-bottom" onerror="this.style.display='none'" /> Hegui Li `437d53f`</span>
+
 ## 2026-06-11
 
 - ✨ Add comprehensive learning plans for AI Agents and Vue3 mastery; remove outdated performance optimization document <span style="white-space:nowrap;opacity:.6;font-size:.85em"><img src="https://github.com/LiHegui.png?size=48" width="16" height="16" style="border-radius:50%;vertical-align:text-bottom" onerror="this.style.display='none'" /> Hegui Li `91ff38c`</span>

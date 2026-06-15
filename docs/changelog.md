@@ -2,8 +2,13 @@
 
 > 本页由部署脚本根据 git 提交记录自动生成。
 
+## 2026-06-11
+
+- ✨ Add comprehensive learning plans for AI Agents and Vue3 mastery; remove outdated performance optimization document <span style="white-space:nowrap;opacity:.6;font-size:.85em"><img src="https://github.com/LiHegui.png?size=48" width="16" height="16" style="border-radius:50%;vertical-align:text-bottom" onerror="this.style.display='none'" /> Hegui Li `91ff38c`</span>
+
 ## 2026-06-05
 
+- ✨ enhance changelog generation with author metadata and support for changelog-only mode <span style="white-space:nowrap;opacity:.6;font-size:.85em"><img src="https://github.com/LiHegui.png?size=48" width="16" height="16" style="border-radius:50%;vertical-align:text-bottom" onerror="this.style.display='none'" /> Hegui Li `4c5acff`</span>
 - 📌 ✨ integrate GitChangelog plugin for enhanced changelog generation and contributor display 📝 update VitePress config to include last updated timestamps and GitChangelog plugin 🎨 enhance layout to display contributors in the document footer 📦 add necessary dependencies for GitChangelog and VueUse 🐛 fix deploy script to include author mapping for avatars in changelog <span style="white-space:nowrap;opacity:.6;font-size:.85em"><img src="https://github.com/LiHegui.png?size=48" width="16" height="16" style="border-radius:50%;vertical-align:text-bottom" onerror="this.style.display='none'" /> Hegui Li `85fc0f9`</span>
 - 🗑️ remove TypeScript interview challenge files and utility functions <span style="white-space:nowrap;opacity:.6;font-size:.85em"><img src="https://github.com/LiHegui.png?size=48" width="16" height="16" style="border-radius:50%;vertical-align:text-bottom" onerror="this.style.display='none'" /> Hegui Li `8af7294`</span>
 

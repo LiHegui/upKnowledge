@@ -5,13 +5,13 @@
                  "username":  "hegui",
                  "displayName":  "hegui",
                  "createdAt":  "2026-06-01T00:00:00+08:00",
-                 "updatedAt":  "2026-06-11T00:00:00+08:00"
+                 "updatedAt":  "2026-06-15T00:00:00+08:00"
              },
     "summary":  {
-                    "totalEvents":  25,
-                    "interviewPracticeCount":  2,
+                    "totalEvents":  28,
+                    "interviewPracticeCount":  4,
                     "tsLevel":  1,
-                    "lastPracticeAt":  "2026-06-11T00:00:00+08:00"
+                    "lastPracticeAt":  "2026-06-15T00:00:00+08:00"
                 },
     "tags":  [
                  "interview",
@@ -364,6 +364,46 @@
                        "createdAt":  "2026-06-11T00:00:00+08:00",
                        "details":  {
                                        "note":  "Lecture: defineProps runtime vs type declaration, withDefaults, compiler macros. Vite native ESM + esbuild pre-bundling + Rollup production."
+                                   }
+                   },
+                   {
+                       "id":  "evt-20260615-vue3-day5-pinia-review",
+                       "type":  "interview.practice",
+                       "topic":  "Vue3-Pinia",
+                       "title":  "Pinia review: defineStore styles + storeToRefs",
+                       "status":  "done",
+                       "source":  "learn-plan",
+                       "createdAt":  "2026-06-15T00:00:00+08:00",
+                       "score":  8,
+                       "level":  2,
+                       "details":  {
+                                       "note":  "Self-studied Pinia, passed review. Q1 6/10 (knew private state, missed $reset). Q2 9/10 (storeToRefs correct). Understood getter caching, this circular inference."
+                                   }
+                   },
+                   {
+                       "id":  "evt-20260615-vue3-day5-perf",
+                       "type":  "interview.practice",
+                       "topic":  "Vue3-Performance",
+                       "title":  "Day 5: v-once/v-memo/shallowRef + keep-alive + update flow",
+                       "status":  "done",
+                       "source":  "learn-plan",
+                       "createdAt":  "2026-06-15T00:00:00+08:00",
+                       "score":  5,
+                       "level":  1,
+                       "details":  {
+                                       "note":  "v-once/v-memo partially known, shallowRef lectured. keep-alive 7/10. Update full flow 3/10 (only Proxy part, missed scheduler/render/diff/nextTick)."
+                                   }
+                   },
+                   {
+                       "id":  "evt-20260615-vue3-plan-complete",
+                       "type":  "learning.progress",
+                       "topic":  "Vue3",
+                       "title":  "Vue3 5-day learning plan completed + fused to knowledge base",
+                       "status":  "done",
+                       "source":  "learn-plan",
+                       "createdAt":  "2026-06-15T00:00:00+08:00",
+                       "details":  {
+                                       "note":  "All 5 days complete. Fused: defineProps two styles, Router guards, Vite principle, v-once/v-memo/shallowRef, keep-alive, update full flow. Weak points: update full chain, Diff 5 steps, defineProps."
                                    }
                    }
                ],

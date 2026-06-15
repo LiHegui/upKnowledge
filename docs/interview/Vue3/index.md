@@ -1,14 +1,12 @@
 ﻿# Vue3 技术要点
 
-## Q: Vue3 相比 Vue2 有哪些核心变化 / 新特性？
+## Q: Vue3 相比 Vue2 有哪些核心变化？
 
 **A:**
 
 一句话：**响应式重写（Proxy）+ Composition API + 编译器优化 + 新组件能力 + 更好的 TS 支持。**
 
-Vue3 的核心升级可以从**响应式、API 设计、编译器、组件能力、工程支持**五个维度来梳理：
-
-**1. 响应式系统重写：Proxy 替代 Object.defineProperty**
+### 1. 响应式系统重写：Proxy 替代 Object.defineProperty
 
 | 能力 | Vue 2（defineProperty）| Vue 3（Proxy）|
 |------|----------------------|--------------|
@@ -21,7 +19,7 @@ Vue3 的核心升级可以从**响应式、API 设计、编译器、组件能力
 > 1. **Proxy 不是「能劫持任何行为」，而是能拦截 13 种基本操作（trap）**：`get` / `set` / `has` / `deleteProperty` / `ownKeys` / `defineProperty` / `getOwnPropertyDescriptor` / `getPrototypeOf` / `setPrototypeOf` / `isExtensible` / `preventExtensions` / `apply` / `construct`。说「13 种 trap」比「任何行为」更严谨。
 > 2. **Vue2 数组问题的本质不是「defineProperty 监听不了数组索引」**，而是**出于性能考虑 Vue2 主动放弃了对数组索引/length 的监听**，改为重写 7 个变更方法（`push` / `pop` / `shift` / `unshift` / `splice` / `sort` / `reverse`）来拦截数组变化。所以 `arr[0] = x`、`arr.length = 0` 不会触发更新，需用 `Vue.set` 或 `splice`。
 
-**2. Composition API（组合式 API）**
+### 2. Composition API（组合式 API）
 
 ```vue
 <script setup>
@@ -39,7 +37,7 @@ onMounted(() => console.log('挂载完成'))
 - `computed` / `watch` / `watchEffect`：衍生状态与副作用
 - 逻辑可抽为**组合函数（composable）**，比 mixin 更清晰无冲突
 
-**3. 新组件：Fragment、Teleport、Suspense**
+### 3. 新组件：Fragment、Teleport、Suspense
 
 ```vue
 <!-- Fragment：模板不再需要单个根节点 -->
@@ -60,7 +58,7 @@ onMounted(() => console.log('挂载完成'))
 </Suspense>
 ```
 
-**4. 编译器优化（性能大幅提升）**
+### 4. 编译器优化（性能大幅提升）
 
 | 优化手段 | 说明 |
 |---------|------|
@@ -69,22 +67,46 @@ onMounted(() => console.log('挂载完成'))
 | Block Tree | 按动态块组织 VNode，跳过静态节点 |
 | Tree-shaking | 运行时模块化，按需引入（`createApp` 等），核心仅 ~10KB gzip |
 
-**5. 更好的 TypeScript 支持**
+### 5. 更好的 TypeScript 支持
 
 - 完全用 TypeScript 重写，内置类型定义更精确
 - `defineProps<T>()` / `defineEmits<T>()` 支持泛型
 - `<script setup lang="ts">` 配合 `vue-tsc` 实现编译期类型检查
 
-**6. 其他重要变化**
+### 6. 其他重要变化
 
-- `v-model` 升级：支持多个 `v-model:xxx`，默认 prop 由 `value` 改为 `modelValue`
-- 状态管理推荐 **Pinia**（轻量、无 mutation、更好的 TS 支持）
-- 生命周期重命名：`beforeDestroy` → `onBeforeUnmount`，`destroyed` → `onUnmounted`
-- `emits` 选项显式声明组件事件，避免与原生事件冲突
+**生命周期重命名：**
+
+| Vue2 | Vue3 Options | Vue3 Composition |
+|------|-------------|-----------------|
+| `beforeCreate` | `beforeCreate` | 写在 `setup()` 里即可 |
+| `created` | `created` | 写在 `setup()` 里即可 |
+| `beforeMount` | `beforeMount` | `onBeforeMount` |
+| `mounted` | `mounted` | `onMounted` |
+| `beforeUpdate` | `beforeUpdate` | `onBeforeUpdate` |
+| `updated` | `updated` | `onUpdated` |
+| `beforeDestroy` | **`beforeUnmount`** | `onBeforeUnmount` |
+| `destroyed` | **`unmounted`** | `onUnmounted` |
+
+父子挂载顺序：父 `beforeMount` → 子 `beforeMount` → 子 `mounted` → 父 `mounted`
+
+**v-model 升级：**
+
+- 默认从 `value/input` 改为 `modelValue/update:modelValue`
+- 支持多个 `v-model`：`v-model:title`、`v-model:visible`
+- 自定义修饰符能力更清晰
+
+```vue
+<UserForm v-model:name="name" v-model:age="age" />
+```
+
+**状态管理**：推荐 **Pinia**（轻量、无 mutation、更好的 TS 支持）
+
+**`emits` 选项**：显式声明组件事件，避免与原生事件冲突
 
 ---
 
-## Q: Vue3 为什么比 Vue2 快？Diff 做了哪些关键优化？
+## Q: Vue3 为什么比 Vue2 快？
 
 **A:**
 
@@ -152,27 +174,11 @@ Vue3 diff：只对比 Block 里的动态节点数组（跳过所有静态节点�
 
 > ⚠️ **注意**：列表渲染要使用稳定、唯一的 `key`，避免复用错误，否则 Block + LIS 优化都会失效。
 
----
-
-## Q: Vue3 每次更新都新建 VNode 树，为什么不像 React 用双缓冲 Fiber 树？
-
-**A:**
+### 追问：为什么不像 React 用双缓冲 Fiber 树？
 
 一句话：**Vue 有响应式 + 编译器优化，能精确定位更新范围，不需要时间切片，也就不需要双缓冲。**
 
-### Vue3 的渲染流程
-
-```
-数据变化 → 响应式精确定位到组件 → 该组件 render() → 生成新 VNode 树 → diff → patch DOM
-```
-
-每次确实是新建 VNode 树，但只有**变化的组件**才会重新 render。
-
-### React 为什么需要双缓冲？
-
-React 没有响应式系统，`setState` 后**不知道谁用了这个 state**，只能从触发组件开始整个子树重新 render。子树很大时同步 render 会阻塞主线程 → 需要 Fiber 把渲染拆成可中断的小任务（时间切片）→ 中断/恢复需要保存中间状态 → 需要两棵 Fiber 树（current + workInProgress）交替使用。
-
-### Vue 为什么不需要？
+Vue3 每次更新只重新 render **变化的组件**（响应式精确追踪），而 React `setState` 后不知道谁用了这个 state，只能从触发组件开始整个子树重新 render → 子树大时需要 Fiber 时间切片 → 需要双缓冲保存中间状态。
 
 | 维度 | React | Vue3 |
 |------|-------|------|
@@ -186,21 +192,7 @@ React 没有响应式系统，`setState` 后**不知道谁用了这个 state**�
 
 ---
 
-## Q: Vue3 生命周期与 Vue2 的主要映射关系是什么？
-
-**A:**
-
-1. `beforeDestroy` -> `beforeUnmount`
-2. `destroyed` -> `unmounted`
-3. 组合式 API 对应为 `onMounted`、`onUpdated`、`onUnmounted` 等。
-
-父子挂载顺序（常见）：
-
-父 `beforeMount` -> 子 `beforeMount` -> 子 `mounted` -> 父 `mounted`
-
----
-
-## Q: Vue3 响应式的依赖收集是怎么实现的？依赖存在哪里？
+## Q: Vue3 响应式原理：依赖收集是怎么实现的？
 
 **A:**
 
@@ -278,6 +270,40 @@ function effect(fn) {
 
 > ⚠️ 真实源码中 `activeEffect` 配合**effect 栈**处理嵌套 effect（父 effect 里嵌子 effect），执行完子 effect 要恢复成父 effect，而不是简单置 null。
 
+### 5. 响应式全局总结（面试串讲用）
+
+**核心机制：track / trigger**
+
+```
+读数据（get）→ track → 把当前 effect 存进 dep
+写数据（set）→ trigger → 遍历 dep，逐个触发
+```
+
+**四个 API 全部复用同一套机制：**
+
+| API | 本质 | trigger 时的行为 |
+|-----|------|-----------------|
+| **reactive** | Proxy 拦截 get/set | get→track，set→trigger |
+| **ref** | RefImpl 的 `.value` getter/setter | 同上，只是入口不同 |
+| **effect** | 把函数接入响应式系统的基础设施 | 依赖变了 → 直接重跑 fn |
+| **computed** | effect + dirty 缓存 | 依赖变了 → 跑 scheduler（只标脏） |
+| **watch/watchEffect** | 也是 effect 的变体 | 依赖变了 → 跑用户的回调 |
+
+**effect 是基础设施，其他都是上层建筑：**
+
+```
+            effect（基础设施）
+           ┌──────┼──────────┐
+           │      │          │
+       普通 effect  computed    watch/watchEffect
+           │      │          │
+     无 scheduler  有 scheduler  也有 scheduler
+           │      │          │
+     依赖变→重跑  依赖变→标脏  依赖变→跑回调
+```
+
+> 💡 **面试串讲口诀**：Vue3 响应式的一切都建立在 track/trigger 上。reactive 和 ref 负责拦截读写，effect 负责把函数接入系统，computed 是 effect + dirty 缓存，watch 是 effect + 用户回调——**全家共用同一套依赖收集机制**。
+
 ---
 
 ## Q: ref vs reactive 怎么选？
@@ -286,7 +312,7 @@ function effect(fn) {
 
 一句话：**ref 啥都能装，靠 `.value` 触发；reactive 只能装对象，靠 Proxy 拦截 —— 解构会丢响应式，所以保守起见统一用 `ref` 心智最低。**
 
-> 📖 源码实现参考（手写简化版）：[ref.md](./diff/源码解析/ref.md) · [reactive.md](./diff/源码解析/reactive.md)
+> 📖 源码实现参考（手写简化版）：[ref.md](./ref.md) · [reactive.md](./reactive.md)
 
 ### 1. 底层实现差异
 
@@ -335,24 +361,15 @@ obj.value.a = 2                    // ✅ 也是响应式（内部用 reactive �
   - 想省心避坑：**统一全用 `ref`**（业界主流趋势）
   - 想读起来更顺手：用 `reactive`，但要时刻警惕解构 / 替换问题
 
-```ts
-const count = ref(0)
-const state = reactive({ user: { name: 'Tom' } })
-```
-
 ---
 
-> ⚠️ **注意**：列表渲染要使用稳定、唯一的 `key`，避免复用错误，否则 Block + LIS 优化都会失效。
-
----
-
-## Q: `watch` 和 `watchEffect` 的区别是什么？
+## Q: watch vs watchEffect 的区别？computed 的缓存机制是什么？
 
 **A:**
 
-一句话：**watch 手动指定监听谁、能拿新旧值、默认懒执行；watchEffect 自动收集依赖、拿不到新旧值、创建时立即执行一次。**
+### watch vs watchEffect
 
-### 对比
+一句话：**watch 手动指定监听谁、能拿新旧值、默认懒执行；watchEffect 自动收集依赖、拿不到新旧值、创建时立即执行一次。**
 
 | | `watch` | `watchEffect` |
 |--|---------|---------------|
@@ -360,8 +377,6 @@ const state = reactive({ user: { name: 'Tom' } })
 | 新旧值 | ✅ `(newVal, oldVal)` | ❌ 拿不到 |
 | 首次执行 | ❌ 默认不执行（lazy） | ✅ 立即执行一次（顺便收集依赖） |
 | 适合场景 | 精准监听某个值、需要旧值 | 多个依赖联动的副作用 |
-
-### 代码对比
 
 ```ts
 const count = ref(0)
@@ -376,11 +391,9 @@ watch(count, (newVal, oldVal) => {
 watchEffect(() => {
   console.log(`count=${count.value}, name=${name.value}`)
 })
-// 立即打印：count=0, name=Tom
-// count 或 name 变了都会重新打印
 ```
 
-### 实际场景
+**实际场景：**
 
 ```ts
 // watch 适合：精准监听 + 需要旧值
@@ -396,15 +409,9 @@ watchEffect(() => {
 
 > ⚠️ **注意**：`watchEffect` 只追踪**同步阶段**访问到的依赖。如果在 `await` 之后才访问某个 ref，那个 ref 不会被收集。
 
----
+### computed 缓存原理：dirty 标志位
 
-## Q: computed vs watch 怎么选？computed 的缓存机制是什么？
-
-**A:**
-
-一句话选型：**需要「派生状态」用 computed（有缓存、纯函数）；需要「副作用」用 watch（请求、日志、DOM 操作）。**
-
-### computed 的缓存原理：dirty 标志位
+选型一句话：**需要「派生状态」用 computed（有缓存、纯函数）；需要「副作用」用 watch（请求、日志、DOM 操作）。**
 
 computed 本质是一个带缓存的 effect，靠 `dirty` 标志位控制「要不要重新算」：
 
@@ -413,10 +420,6 @@ function computed<T>(getter: () => T) {
   let value: T
   let dirty = true
 
-  // effect 做了三件事：
-  // 1. 把 getter 包成 ReactiveEffect，接入响应式系统
-  // 2. lazy: true → 现在不执行，等第一次读 .value 才执行
-  // 3. scheduler → 依赖变化时不重跑 getter，而是只标脏
   const runner = effect(getter, {
     lazy: true,
     scheduler() {
@@ -436,20 +439,13 @@ function computed<T>(getter: () => T) {
 }
 ```
 
-### dirty 三步走
+**dirty 三步走：**
 
 ```
 ① 首次读 .value → dirty=true → 执行 getter → 缓存结果 → dirty=false
 ② 再读 .value  → dirty=false → 直接返回缓存（不重算，这就是缓存）
 ③ 依赖变了     → trigger → 调 scheduler → dirty=true → 下次读才重算
 ```
-
-### 为什么比 method 高效
-
-- **method**：每次调用都重新执行函数体，调 10 次算 10 次
-- **computed**：依赖不变时，读 10 次只算 1 次
-
-### 三个关键词
 
 | 关键词 | 一句话 |
 |--------|--------|
@@ -461,62 +457,15 @@ function computed<T>(getter: () => T) {
 
 ---
 
-## Q: Vue3 响应式系统全局总结（面试串讲用）
+## Q: `<script setup>` 和 `setup()` 是什么关系？defineProps 有几种写法？
 
 **A:**
 
-### 核心机制：track / trigger
-
-```
-读数据（get）→ track → 把当前 effect 存进 dep
-写数据（set）→ trigger → 遍历 dep，逐个触发
-```
-
-### 四个 API 全部复用同一套机制
-
-| API | 本质 | trigger 时的行为 |
-|-----|------|-----------------|
-| **reactive** | Proxy 拦截 get/set | get→track，set→trigger |
-| **ref** | RefImpl 的 `.value` getter/setter | 同上，只是入口不同 |
-| **effect** | 把函数接入响应式系统的基础设施 | 依赖变了 → 直接重跑 fn |
-| **computed** | effect + dirty 缓存 | 依赖变了 → 跑 scheduler（只标脏） |
-| **watch/watchEffect** | 也是 effect 的变体 | 依赖变了 → 跑用户的回调 |
-
-### effect 是基础设施，其他都是上层建筑
-
-```
-            effect（基础设施）
-           ┌──────┼──────────┐
-           │      │          │
-       普通 effect  computed    watch/watchEffect
-           │      │          │
-     无 scheduler  有 scheduler  也有 scheduler
-           │      │          │
-     依赖变→重跑  依赖变→标脏  依赖变→跑回调
-```
-
-> 💡 **面试串讲口诀**：Vue3 响应式的一切都建立在 track/trigger 上。reactive 和 ref 负责拦截读写，effect 负责把函数接入系统，computed 是 effect + dirty 缓存，watch 是 effect + 用户回调——**全家共用同一套依赖收集机制**。
-
----
-
-## Q: Pinia vs Vuex 的区别是什么？
-
-**A:**
-
-1. API 更轻量：没有强制 mutation 层。
-2. 与 Composition API 更贴合。
-3. TypeScript 推导体验更好。
-4. store 拆分更自然，心智负担更低。
-
----
-
-## Q: `<script setup>` 为什么开发体验更好？`defineProps`/`defineEmits` 为什么不用 import？
-
-**A:**
+### `<script setup>` — 编译时语法糖
 
 一句话：**`<script setup>` 是 `setup()` 的编译时语法糖，顶层变量自动暴露给模板；`defineProps`/`defineEmits` 是编译宏，不是运行时函数，编译完就消失了，所以不需要 import。**
 
-### 编译前后对比
+**编译前后对比：**
 
 ```vue
 <!-- 你写的 -->
@@ -531,7 +480,7 @@ const count = ref(0)
 ```
 
 ```ts
-// 编译后自动变成（你不用写这些）
+// 编译后自动变成
 export default {
   props: { msg: String },
   emits: ['change'],
@@ -542,7 +491,7 @@ export default {
 }
 ```
 
-### 四个优势
+**四个优势：**
 
 | 优势 | 说明 |
 |------|------|
@@ -551,65 +500,25 @@ export default {
 | **更好的类型推导** | `defineProps<T>()` 直接用 TS 泛型定义 props 类型 |
 | **编译期优化** | 编译器能做更多优化，运行时开销更低 |
 
-### 编译宏（compiler macros）
+**编译宏（compiler macros）：**
 
-`defineProps`/`defineEmits` 不是真正的函数，而是**编译宏**——Vue 编译器在构建时识别它们并转换成 props/emits 选项声明，编译完就不存在了：
-
-- 不用 import（import 了反而报警告）
-- 不能赋值给变量传来传去
-- 不能在 `<script setup>` 之外使用
+`defineProps`/`defineEmits` 不是真正的函数，而是**编译宏**——Vue 编译器在构建时识别它们并转换成 props/emits 选项声明，编译完就不存在了。不用 import（import 了反而报警告），不能在 `<script setup>` 之外使用。
 
 > 类似的编译宏还有：`defineExpose`、`defineModel`、`withDefaults`
 
----
+### `setup()` 的执行时机
 
-## Q: `setup()` 的执行时机是什么？为什么不能用 `this`？
-
-**A:**
-
-一句话：**setup 在 `beforeCreate` 之前执行，是组件初始化最早的入口，此时组件实例还没创建完成，所以 `this` 是 `undefined`。**
-
-### 执行顺序
+**setup 在 `beforeCreate` 之前执行**，是组件初始化最早的入口，此时组件实例还没创建完成，所以 `this` 是 `undefined`。
 
 ```
-setup()          ← 最先执行
+setup()          ← 最先执行（替代 beforeCreate + created）
   ↓
 beforeCreate     ← setup 之后（Vue3 中这两个钩子几乎没用了）
   ↓
-created
-  ↓
-onBeforeMount
-  ↓
-onMounted
+created → onBeforeMount → onMounted
 ```
 
-> ⚠️ **注意**：setup **替代了** `beforeCreate` 和 `created` 这两个钩子，不是「等于 created」——它比 created 还早。在 Composition API 中，直接在 setup 里写的代码就相当于以前 created 里的逻辑。
-
-### 为什么不能用 `this`
-
-Options API 里 `this` 指向组件实例，但 setup 执行时实例还没绑定好。Composition API 的设计意图就是**不依赖 `this`，用函数参数和返回值代替**：
-
-```ts
-// Options API：靠 this
-export default {
-  data() { return { count: 0 } },
-  methods: {
-    add() { this.count++ }
-  }
-}
-
-// Composition API：不需要 this
-export default {
-  setup(props, { emit, attrs, slots, expose }) {
-    const count = ref(0)
-    const add = () => count.value++
-    onMounted(() => console.log('mounted'))
-    return { count, add }
-  }
-}
-```
-
-### setup 可以使用的参数
+**setup 可以使用的参数：**
 
 | 参数 | 说明 |
 |------|------|
@@ -618,42 +527,66 @@ export default {
 | `context.attrs` | 未声明为 props 的属性 |
 | `context.slots` | 插槽 |
 | `context.expose` | 暴露给父组件的方法/属性 |
-```
 
----
+### defineProps 两种声明方式
 
-## Q: Vue3 的 `v-model` 有哪些升级？
-
-**A:**
-
-1. 默认从 `value/input` 改为 `modelValue/update:modelValue`。
-2. 支持多个 `v-model`：`v-model:title`、`v-model:visible`。
-3. 自定义修饰符能力更清晰。
+**1. 运行时声明**（JS / TS 都能用）：
 
 ```vue
-<UserForm v-model:name="name" v-model:age="age" />
+<script setup>
+const props = defineProps({
+  title: { type: String, required: true },
+  count: { type: Number, default: 0 }
+})
+</script>
 ```
 
+- 在**浏览器运行时**校验类型，传错会控制台报 warning
+
+**2. 类型声明**（TS 专属，推荐）：
+
+```vue
+<script setup lang="ts">
+const props = withDefaults(defineProps<{
+  title: string
+  count?: number
+}>(), {
+  count: 0
+})
+</script>
+```
+
+- 在**编码时** IDE 红线报错，编译后类型被擦除，运行时不校验
+
+| 维度 | 运行时声明 | 类型声明 |
+|------|-----------|---------|
+| 写法 | `defineProps({ ... })` 传对象 | `defineProps<{ ... }>()` 传泛型 |
+| 语言 | JS / TS | 仅 TS |
+| IDE 类型推导 | 一般 | **完美** |
+| 默认值 | 直接写 `default` | 需要 `withDefaults()` |
+| 运行时校验 | ✅ 有 | ❌ 无（类型擦除） |
+
+> **结论**：TS 项目用**类型声明 + withDefaults**，JS 项目用**运行时声明**。
+
 ---
 
-## Q: Vue3 组件通信方式有哪些？
+## Q: Vue3 组件通信方式有哪些？provide/inject 怎么保持响应式？
 
 **A:**
 
-1. 父子：`props` / `emit`。
-2. 跨层：`provide` / `inject`。
-3. 组件暴露：`defineExpose`。
-4. 全局共享：Pinia。
+### 通信方式总览
 
----
+| 方式 | 场景 | 说明 |
+|------|------|------|
+| `props` / `emit` | 父子 | 最常用，单向数据流 |
+| `v-model` | 父子双向绑定 | `modelValue` + `update:modelValue` 语法糖 |
+| `provide` / `inject` | 跨层级 | 祖先组件提供，任意后代注入 |
+| `defineExpose` | 父访问子 | 暴露子组件方法/属性给父组件通过 ref 调用 |
+| **Pinia** | 全局共享 | 任意组件间共享状态 |
 
-## Q: `provide`/`inject` 怎么保持响应式？传 ref 还是传 .value？
-
-**A:**
+### provide / inject 响应式规则
 
 一句话：**必须传 ref 或 reactive 本身，不能传 `.value`——传值就断了响应式。**
-
-### 核心规则
 
 | 传什么 | 子组件响应式？ | 推荐？ |
 |--------|---------------|--------|
@@ -668,7 +601,7 @@ provide('count', count)         // ✅ 传 ref 对象，子组件响应式
 provide('count', count.value)   // ❌ 传了 0，断了响应式
 ```
 
-### 完整示例
+**完整示例：**
 
 ```vue
 <!-- 父组件 -->
@@ -692,8 +625,6 @@ import { inject } from 'vue'
 
 const theme = inject('theme')           // 拿到只读 ref
 const toggleTheme = inject('toggleTheme') // 拿到修改方法
-
-// 父组件改了 theme，这里自动更新 ✅
 </script>
 
 <template>
@@ -706,7 +637,7 @@ const toggleTheme = inject('toggleTheme') // 拿到修改方法
 
 ---
 
-## Q: 组合式函数（composable）和 mixin 有什么区别？为什么推荐用 composable？
+## Q: 组合式函数（composable）和 mixin 有什么区别？
 
 **A:**
 
@@ -756,29 +687,31 @@ const { x: mouseX, y: mouseY } = useMouse()
 
 ### composable vs React 自定义 Hook
 
-两者思路几乎一样（`use` 命名、函数封装、返回值暴露），区别在底层机制：
-
 | | Vue composable | React Hook |
 |--|---------------|------------|
 | 执行次数 | **只执行一次**（setup 只跑一次） | **每次渲染都执行** |
 | 响应式机制 | Proxy 依赖收集 | 闭包 + setState 触发重渲染 |
 | 调用限制 | 无特殊限制 | 不能在条件/循环里调用（Hook 规则） |
 
-> ⚠️ **注意**：Vue3 没有「废弃」mixin（还能用），但官方强烈推荐用 composable 替代。composable 命名规范以 `use` 开头，放在 `composables/` 或 `hooks/` 目录。
+> ⚠️ **注意**：Vue3 没有「废弃」mixin（还能用），但官方强烈推荐用 composable 替代。命名规范以 `use` 开头，放在 `composables/` 或 `hooks/` 目录。
 
 ---
 
-## Q: `nextTick` 的作用是什么？
+## Q: Pinia vs Vuex 的区别是什么？
 
 **A:**
 
-Vue 会把同一轮状态变更合并到异步更新队列。`nextTick` 用于等待这轮 DOM 更新完成后再执行逻辑。
+| 维度 | Vuex | Pinia |
+|------|------|-------|
+| mutation | 必须有（强制同步） | **取消**（action 同时支持同步/异步） |
+| TypeScript | 差（需手动声明） | ✅ 完美推导 |
+| 模块化 | 嵌套 modules + namespaced | 扁平 store，按需引入 |
+| 包体积 | ~10KB | ~1KB |
+| Composition API | 一般 | ✅ 原生设计 |
 
-```ts
-show.value = true
-await nextTick()
-inputRef.value?.focus()
-```
+Pinia 取消 mutation 的原因：Vue 3 的 Proxy 能自动拦截所有 state 变更，DevTools 不再需要 mutation 作为显式钩子来追踪状态；Pinia 提供 `$subscribe()` 监听变更 + `$patch()` 批量更新作为替代。
+
+> 详细内容见 [Pinia 完全指南](./pinia/index.md)
 
 ---
 
@@ -829,6 +762,124 @@ const onSelect = (id: number) => emit('change', id)
 | 类型检查 | 仅依赖 IDE | `vue-tsc --build` + CI |
 
 > ⚠️ **注意**：TypeScript 只能保证编译期安全，服务端返回数据仍可能不可信；接口边界建议配合运行时校验（如 Zod）。
+
+---
+
+## Q: Vue Router 4 的导航守卫有哪些？执行顺序是什么？
+
+**A:**
+
+导航守卫 = 路由跳转的**拦截器**，决定放行、拒绝或重定向。
+
+**三个层级：**
+
+| 层级 | 守卫 | 作用范围 | 典型场景 |
+|------|------|---------|---------|
+| **全局** | `beforeEach` / `afterEach` | 所有路由跳转 | 登录检查、页面标题 |
+| **路由独享** | `beforeEnter` | 某条路由 | 权限检查 |
+| **组件内** | `onBeforeRouteLeave` / `onBeforeRouteUpdate` | 当前组件 | 表单未保存提醒 |
+
+**最常用 — `beforeEach`（全局前置守卫）：**
+
+```js
+router.beforeEach((to, from) => {
+  const isLoggedIn = localStorage.getItem('token')
+  if (to.meta.requiresAuth && !isLoggedIn) {
+    return '/login'  // 重定向到登录页
+  }
+})
+```
+
+**组件内守卫（Vue 3 组合式 API）：**
+
+```vue
+<script setup>
+import { onBeforeRouteLeave } from 'vue-router'
+
+onBeforeRouteLeave((to, from) => {
+  if (hasUnsavedChanges) {
+    const ok = confirm('还没保存，确定离开？')
+    if (!ok) return false  // 取消跳转
+  }
+})
+</script>
+```
+
+**完整执行顺序（从 A 页面跳到 B 页面）：**
+
+```
+1. A 组件 onBeforeRouteLeave      ← 离开旧页面
+2. 全局 beforeEach                  ← 全局拦截
+3. B 路由 beforeEnter               ← 进入新路由
+4. B 组件 beforeRouteEnter          ← 进入新组件
+5. 全局 beforeResolve               ← 所有守卫通过
+6. 全局 afterEach                   ← 跳转完成（不能拦截）
+```
+
+> 记忆口诀：**离 → 全 → 路 → 组 → 解 → 后**
+
+**路由懒加载（性能优化）：**
+
+```js
+const routes = [
+  {
+    path: '/about',
+    component: () => import('./views/About.vue')  // 按需加载
+  }
+]
+```
+
+---
+
+## Q: Vue3 一次更新的完整流程是什么？（从修改数据到 DOM 更新）
+
+**A:**
+
+```
+count.value = 5
+    │
+    ▼
+① Proxy set 拦截 → trigger() 找到 count 对应的所有 effect
+    ▼
+② 推入调度队列 queueJob()（Promise.then 微任务，同一 effect 去重 = 合并更新）
+    ▼
+③ 当前同步代码全部执行完
+    ▼
+④ 微任务执行 flushJobs → 执行组件的 renderEffect
+    ▼
+⑤ render 函数生成新 VNode 树（编译优化：静态提升 + PatchFlag + Block Tree）
+    ▼
+⑥ patch 新旧 VNode 树（Diff 五步：前缀→后缀→新增→删除→乱序 LIS）
+    ▼
+⑦ 最小化真实 DOM 操作（insertBefore / removeChild / textContent）
+    ▼
+⑧ nextTick 回调执行
+```
+
+**面试一句话版**：
+
+> Proxy set → trigger 收集 effect → 推入微任务队列（去重合并）→ 同步代码结束 → 微任务执行 render → 生成新 VNode 树（静态提升 + PatchFlag + Block）→ patch diff（快速 Diff 五步 + LIS）→ 最小化 DOM 操作 → nextTick 回调
+
+**每一步的关键细节：**
+
+| 步骤 | 关键机制 |
+|------|---------|
+| trigger | `WeakMap → Map → Set` 三层结构找到所有依赖的 effect |
+| 调度 | `queueJob` 用 `Set` 去重，`Promise.then` 推入微任务 |
+| 合并更新 | 同步代码内多次修改 → 只触发一次渲染 |
+| 编译优化 | 静态节点提升到 render 外，PatchFlag 标记动态内容，Block Tree 收集动态节点为扁平数组 |
+| Diff | 不做全树遍历，只比 Block 中的动态节点，乱序部分用 LIS 最小化移动 |
+| nextTick | 本质就是 `Promise.then`，在 DOM 更新后执行回调 |
+
+### nextTick 的作用
+
+Vue 会把同一轮状态变更合并到异步更新队列。`nextTick` 用于等待这轮 DOM 更新完成后再执行逻辑：
+
+```ts
+show.value = true
+await nextTick()
+inputRef.value?.focus()  // DOM 已更新，可以安全操作
+```
 
 ---
 

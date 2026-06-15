@@ -1,57 +1,56 @@
-﻿# 升级打怪 🎯
+﻿---
+layout: home
 
-> 涵盖前端到全栈的完整知识题库，助你系统备战技术面试。
+hero:
+  name: 升级打怪
+  actions:
+    - theme: brand
+      text: ⚡ 前端技术要点
+      link: /interview/
+    - theme: brand
+      text: 🖥️ 后端 & 全栈
+      link: /backend/
 
+features:
+  - icon: 🤖
+    title: AI × 前端
+    details: AI Agent · Workflow · Prompt Engineering
+    link: /interview/AI/
+  - icon: 📐
+    title: 基础三件套
+    details: HTML · CSS · JavaScript
+    link: /interview/JavaScript/
+  - icon: 🔷
+    title: TypeScript
+    details: 类型体操 · 泛型 · 与项目结合
+    link: /interview/Ts/
+  - icon: 💚
+    title: Vue 生态
+    details: Vue3 核心 · Diff 算法 · Pinia · Composition API
+    link: /interview/Vue3/
+  - icon: ⚛️
+    title: React 生态
+    details: Fiber · Hooks · Redux · MobX · 渲染行为
+    link: /interview/React/
+  - icon: 🔧
+    title: 工程化
+    details: Webpack · Vite · Git · CI/CD · Docker
+    link: /interview/Webpack/
+  - icon: 🌐
+    title: 浏览器 & 网络
+    details: HTTP · TCP · WebSocket · 浏览器原理
+    link: /interview/网络/
+  - icon: 🚀
+    title: 性能 & 解决方案
+    details: 性能优化 · 虚拟列表 · 断点续传 · 实时协同
+    link: /interview/性能优化/
+  - icon: 🎨
+    title: 可视化 & 图形
+    details: Canvas · ECharts · 高德地图 · Three.js
+    link: /interview/Canvas/
+  - icon: 🗄️
+    title: 后端 & 数据库
+    details: Node.js · MySQL · Redis · Nginx · Linux
+    link: /backend/
 ---
-
-## ⚡ 前端
-
-### 📝 必刷 & AI
-[笔试系列](./interview/笔试系列.md) | [LeetCode 150](https://leetcode.cn/studyplan/top-interview-150/) ↗ | [AI × 前端](./interview/AI/index.md) | [构建 AI Agent](./interview/AI/agent.md) | [构建 AI Workflow](./interview/AI/workflow.md)
-
-### 🧱 基础三件套
-[HTML](./interview/HTML/html相关.md) | [CSS](./interview/CSS/index.md) | [styled-components](./interview/CSS/style-components.md) | [JavaScript](./interview/JavaScript/index.md)
-
-### 🔷 TypeScript
-[TS 总览](./interview/Ts/index.md) | [TS 与项目结合](./interview/Ts/与项目结合/index.md) | [类型体操 100 题](./interview/Ts/强化训练-100题.md)
-
-### 💚 Vue 生态
-
-**Vue2**：[Vue2 核心](./interview/Vue/vue.md) | [权限管理](./interview/Vue/AuthorityManagement.md)
-
-**Vue3**：[Vue3 核心](./interview/Vue3/index.md) | [Diff 算法](./interview/Vue3/diff/index.md) | [性能提升](./interview/Vue3/性能提升/index.md) | [Tree-shaking](./interview/Vue3/Treeshaking/index.md) | [Pinia 完全指南](./interview/Vue3/pinia/index.md)
-
-### ⚛️ React 生态
-[React](./interview/React/index.md) | [渲染行为完全指南](./interview/React/react-rendering-behavior.md) | [Fiber & Diff 深度解析](./interview/React/fiber-diff.md) | [Redux 完全指南](./interview/React/redux.md) | [MobX 完全指南](./interview/React/mobx.md)
-
-### 🛠️ 工程化
-[Webpack](./interview/Webpack/index.md) | [基础配置](./interview/Webpack/webpack基础配置.md) | [模块化](./interview/Webpack/模块化/history.md) | [Rollup](./interview/Webpack/模块化/Rollup.md) | [搭建组件库](./interview/Webpack/模块化/进阶-搭建组件库.md) | [Vite](./interview/Vite/index.md) | [Git](./interview/git/index.md) | [CI/CD](./interview/CICD/index.md) | [Docker](./interview/Docker/index.md)
-
-### 🌐 浏览器 & 网络
-[HTTP / TCP](./interview/网络/index.md) | [WebSocket 专题](./interview/网络/WebSocket.md) | [浏览器原理](./interview/浏览器/index.md) | [操作系统](./interview/操作系统/index.md)
-
-### 🚀 性能 & 解决方案
-[性能优化](./interview/性能优化/index.md) | [虚拟列表](./interview/解决方案/虚拟列表/index.md) | [大文件断点续传](./interview/解决方案/大文件断点续传/index.md) | [移动端适配](./interview/解决方案/移动端适配/index.md) | [实时协同 CRDT](./interview/解决方案/实时协同系统/index.md) | [前端工程化方案](./interview/解决方案/前端工程化/index.md) | [JWT 登录方案](./interview/解决方案/JWT登录方案/index.md) | [前端登录](./interview/前端登录/登录的实现.md)
-
-### 🎨 设计模式 & 进阶
-[设计模式](./interview/设计模式/index.md) | [微前端](./interview/微前端/index.md) | [Three.js / Web3D](./interview/Web3D/three.md) | [Ant Design](./interview/AnTd/index.md) | [微信小程序](./interview/微信小程序（原生）/route.md) | [ECharts 可视化](./interview/ECharts/index.md)
-
----
-
-## 🖥️ 后端 & 全栈
-
-### 🗄️ 数据库 & 缓存
-[MySQL](./interview/MySQL/index.md) | [Redis 速通](./interview/Redis/index.md)
-
-### 🟢 Node.js 服务端
-[Node.js 核心](./interview/Node/index.md) | [Nodemailer 邮件](./interview/Node/nodemailer.md) | [Server 准备工作](./interview/Node/server-准备工作.md) | [Server 部署实战](./interview/Node/server-deploy.md)
-
-### 🖥️ 运维 & 基础设施
-[Linux 常用命令](./interview/Linux/index.md) | [Nginx](./interview/Nginx/index.md) | [Docker 速通](./interview/Docker/index.md) | [CI/CD](./interview/CICD/index.md) | [操作系统](./interview/操作系统/index.md)
-
-### 🔐 安全 & 认证
-[JWT 登录方案](./interview/解决方案/JWT登录方案/index.md) | [前端登录实现](./interview/前端登录/登录的实现.md)
-
-### 🏗️ 系统设计
-[大文件断点续传](./interview/解决方案/大文件断点续传/index.md) | [实时协同系统](./interview/解决方案/实时协同系统/index.md) | [前端工程化方案](./interview/解决方案/前端工程化/index.md)
 

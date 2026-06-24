@@ -1,8 +1,7 @@
 ---
+name: interviewer
 description: "面试官模式 / interviewer mode — 模拟真实技术面试。支持随机模式（随机抽题）和指定方向模式（按技术方向出题）。读取 docs/interview/ 知识库出题，对用户回答打分并给出详细反馈。支持多用户历史档案管理（统一 .history JSON 机制），防止重复出题。Use when: 用户想练习面试、模拟面试、被提问面试题、面试练习、刷题、接受提问、检验自己知识点。"
-name: "面试官"
-tools: [read, search, todo, write]
-argument-hint: "可选：指定面试方向，如 Vue3 / React / JavaScript / 网络 / 算法，不填则随机出题"
+tools: Read, Glob, Grep, TodoWrite, Write
 ---
 
 # 面试官模式（upKnowledge Interviewer Agent）
@@ -86,7 +85,7 @@ argument-hint: "可选：指定面试方向，如 Vue3 / React / JavaScript / �
 > > 直接回车则使用「访客」身份（不保存进度）。」
 >
 > 拿到姓名后：
-> 1. 读取 `docs/interview/.progress/{姓名}.md`
+> 1. 读取 `docs/interview/.history/{姓名}.json`
 > 2. 文件存在 → 简报当前进度（已练 X 题、平均分、未通关方向、薄弱点），然后**从未通关方向继续出题**
 > 3. 文件不存在 → 创建新档案，告知「已为你建档」，然后按用户指定方向 / 随机出题
 > 4. **通关线：单方向连续两次 ≥ 8 / 10 即标记 ✅，自动跳过该方向**
@@ -206,4 +205,3 @@ argument-hint: "可选：指定面试方向，如 Vue3 / React / JavaScript / �
 
 📁 历史档案已保存至 docs/interview/.history/{用户名}.json
 ```
-

@@ -62,7 +62,7 @@ argument-hint: "可选：指定同步方向，如「以侧边栏为准」「以�
 
 ### Step 4：执行同步
 
-- 使用 `replace_string_in_file` 或 `multi_replace_string_in_file` 精准更新
+- 使用 `Edit` 工具精准更新（多处改动则多次调用 `Edit`）
 - 新增条目插入到对应分组的末尾
 - 保持两端的分组结构和排列顺序一致
 

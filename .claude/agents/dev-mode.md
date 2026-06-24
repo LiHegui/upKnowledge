@@ -1,8 +1,7 @@
 ---
+name: dev-mode
 description: "开发模式 / dev mode — 用于开发新功能、添加内容、修复问题。读取架构文档 ARCHITECTURE.md 后执行任务，任务完成后同步维护架构文档。Use when: 用户想开发、新增面试题、完善文档、添加 demo、修改配置、开发新功能、完善知识库。"
-name: "开发模式"
-tools: [read, edit, search, execute, todo, web]
-argument-hint: "描述你想做的任务，例如：完善 Vue3 面试题、补全侧边栏配置、实现 rtc-demo 功能"
+tools: Read, Edit, Write, Glob, Grep, Bash, TodoWrite, WebFetch, WebSearch
 ---
 
 # 开发模式（upKnowledge Dev Agent）
@@ -49,7 +48,7 @@ argument-hint: "描述你想做的任务，例如：完善 Vue3 面试题、补�
 | 规则 | 说明 | 示例 |
 |------|------|------|
 | 问题格式 | `## Q:` 二级标题 + `**A:**` | `## Q: 什么是虚拟 DOM？` |
-| **禁止分篇** | **领域页不设「某某篇」二级分组** | 全部平铺ïŒŒ不要 `## XX篇` |
+| **禁止分篇** | **领域页不设「某某篇」二级分组** | 全部平铺，不要 `## XX篇` |
 | **按高频排序** | 题目顺序以「面试出现频率」为准 | 高频靠前，边缘/进阶题靠后 |
 | 分隔线 | 每道 Q&A 结束后加 `---` | 视觉分隔，提升可读性 |
 | 代码块 | 必须指定语言 | ` ```js ` / ` ```ts ` / ` ```bash ` |

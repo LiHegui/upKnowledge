@@ -1,36 +1,47 @@
-# upKnowledge — GitHub Copilot 全局指令
+# upKnowledge — 项目指令（CLAUDE.md）
 
-本文件为 upKnowledge 项目的 Copilot 全局行为规范，适用于所有对话。
+本文件为 upKnowledge 项目的全局行为规范，适用于所有对话。
+
+---
+
+## 项目背景
+
+- 项目名：**upKnowledge** — 前端工程师个人知识库 + 文档站
+- 技术栈：VitePress 1.x + GitHub Pages
+- 架构文档：`ARCHITECTURE.md`（每次开发任务前必须先读取）
+- 面试题库：`docs/interview/` 目录下各技术方向 Markdown 文件
+- 站点配置：`docs/.vitepress/config.js`
 
 ---
 
 ## 主入口规则
 
-**当用户说以下关键词时，必须切换到「主菜单」Agent，展示模式选择菜单：**
+当用户说以下关键词时，切换到「主菜单」模式，展示模式选择菜单：
 
 - `开始` / `开始吧` / `start`
 - `你好` / `hello` / `hi`
 - `帮我` / `帮助` / `help`
 - `菜单` / `选择模式` / `切换模式` / `返回菜单`
 
-详细行为定义见 `.github/agents/main.agent.md`。
+详细行为定义见 `.claude/agents/main-menu.md`。
 
 ---
 
-## 可用模式一览
+## 可用模式（Agent）一览
 
 | 模式 | Agent 文件 | 适用场景 |
 |------|-----------|---------|
-| 🛠️ 开发模式 | `.github/agents/dev-mode.agent.md` | 开发功能、新增内容、修复问题 |
-| 🎤 面试官模式 | `.github/agents/interviewer.agent.md` | 模拟面试、练习题库 |
-| 📚 题库维护模式 | `.github/agents/qa-maintain.agent.md` | 维护题目、更新答案 |
+| 🛠️ 开发模式 | `.claude/agents/dev-mode.md` | 开发功能、新增内容、修复问题 |
+| 🎤 面试官模式 | `.claude/agents/interviewer.md` | 模拟面试、练习题库 |
+| 📚 题库维护模式 | `.claude/agents/qa-maintain.md` | 维护题目、更新答案 |
+
 ## 可用 Skill 一览
 
 | Skill | 文件 | 触发关键词 |
 |-------|------|----------|
-| 📥 知识点注入 | `.github/skills/kb-inject/SKILL.md` | 「加进去」「补充到对应位置」「加一个问题」「融合进来」「写进知识库」「更新知识库」 |
-| 📅 学习计划制定 | `.github/skills/learn-plan/SKILL.md` | 「学习计划」「学习路线」「怎么学」「制定计划」「每天学什么」「规划学习」「帮我学xxx」「今天学什么」 |
-| 🔄 导航同步 | `.github/skills/nav-sync/SKILL.md` | 「同步导航」「同步目录」「同步首页」「同步侧边栏」，或新增内容后导航变更时自动触发 |
+| 📥 知识点注入 | `.claude/skills/kb-inject/SKILL.md` | 「加进去」「补充到对应位置」「加一个问题」「融合进来」「写进知识库」「更新知识库」 |
+| 📅 学习计划制定 | `.claude/skills/learn-plan/SKILL.md` | 「学习计划」「学习路线」「怎么学」「制定计划」「每天学什么」「规划学习」「帮我学xxx」「今天学什么」 |
+| 🔄 导航同步 | `.claude/skills/nav-sync/SKILL.md` | 「同步导航」「同步目录」「同步首页」「同步侧边栏」，或新增内容后导航变更时自动触发 |
 
 ### 📥 知识点注入 — 主动触发规则
 
@@ -43,14 +54,6 @@
 - 分享了踩坑经验或最佳实践
 
 询问格式：「要把这个知识点写入知识库吗？→ 我会将它注入到 `docs/interview/[方向]/index.md` 中。」
----
-
-## 项目背景
-
-- 项目名：**upKnowledge** — 前端工程师个人知识库 + 文档站
-- 技术栈：VitePress 1.x + GitHub Pages
-- 架构文档：`ARCHITECTURE.md`（每次开发任务前必须先读取）
-- 面试题库：`docs/interview/` 目录下各技术方向 Markdown 文件
 
 ---
 
@@ -60,7 +63,7 @@
 
 核心约定：
 - 面试题用 `## Q: xxx？` + `**A:**` 格式，二级标题
-- **领域页不分「篇」**：所有 Q&A 平铺ïŒŒ**按面试高频排序**（高频靠前）
+- **领域页不分「篇」**：所有 Q&A 平铺，**按面试高频排序**（高频靠前）
 - 每道 Q&A 结束后加 `---` 分隔线
 - 代码块必须标注语言（` ```js ` / ` ```ts ` / ` ```vue `）
 - 多方案对比优先用表格，含「维度 / 方案A / 方案B」结构
@@ -89,7 +92,7 @@
 - 面试官模式（interviewer）
 - 学习计划技能（learn-plan）
 - 知识点注入技能（kb-inject）
-- 其他后续涉及“进度/存档/记录”的 Agent 或 Skill
+- 其他后续涉及"进度/存档/记录"的 Agent 或 Skill
 
 约束要求：
 - 不再新增其他进度存档形态（如 `docs/interview/.progress/*.md`、独立 txt/csv 进度文件）

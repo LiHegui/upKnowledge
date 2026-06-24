@@ -36,3 +36,7 @@ docs/.vuepress/dist/*
 # VitePress
 docs/.vitepress/dist
 docs/.vitepress/cache
+
+# Claude Code 个人配置（不提交，skills/ 和 agents/ 仍正常跟踪）
+.claude/settings.json
+.claude/settings.local.json

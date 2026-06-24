@@ -624,6 +624,281 @@ function ajax(options) {
 
 ---
 
+## Q: Fetch vs XMLHttpRequest（XHR）区别与选型
+
+**A:**
+
+`Fetch` 和 `XMLHttpRequest` 都是浏览器提供的 HTTP 请求 API，但在设计理念、错误处理、异步机制上存在本质差异。
+
+### 一、核心差异对比
+
+| 对比维度 | XMLHttpRequest | Fetch |
+|---------|---------------|-------|
+| **返回值** | 无返回值（基于事件回调） | Promise |
+| **错误处理** | 通过状态码判断（`status >= 400`） | **仅网络失败 reject，HTTP 错误走 resolve** ⚠️ |
+| **Cookie 处理** | 同源自动携带 | 默认不携带（需 `credentials: 'include'`） |
+| **超时控制** | 原生支持 `xhr.timeout` | 需 `AbortController` 手动实现 |
+| **进度监听** | ✅ `onprogress` 事件 | ❌ 不支持（需 `ReadableStream`） |
+| **事件循环** | `onload` 回调是**宏任务** | `.then()` 回调是**微任务** |
+| **语法简洁度** | 回调地狱 | Promise 链式调用 ✅ |
+| **请求取消** | `xhr.abort()` | `AbortController.abort()` |
+| **兼容性** | IE5+ | IE 不支持，Edge 14+ |
+
+---
+
+### 二、关键行为差异
+
+#### 1. 错误处理的坑 ⚠️
+
+**Fetch 最大的坑**：`fetch()` 只在**网络彻底断开**时才会 `reject`，HTTP 错误状态码（404、500）不会触发 `catch`！
+
+```js
+// ❌ 错误做法：404/500 不会进 catch
+fetch('/api/user')
+  .then(res => res.json())
+  .catch(err => console.log('这里捕获不到 404！'))
+
+// ✅ 正确做法：手动检查 res.ok
+fetch('/api/user')
+  .then(res => {
+    if (!res.ok) {  // res.ok === (status >= 200 && status < 300)
+      throw new Error(`HTTP ${res.status}: ${res.statusText}`)
+    }
+    return res.json()
+  })
+  .catch(err => console.error(err))  // 现在能捕获了
+```
+
+**XMLHttpRequest 对比：**
+
+```js
+xhr.onload = function() {
+  if (xhr.status >= 200 && xhr.status < 300) {
+    // 成功
+  } else {
+    // HTTP 错误（404、500 等）可以在这里统一处理
+  }
+}
+xhr.onerror = function() {
+  // 网络错误（断网、CORS 等）
+}
+```
+
+---
+
+#### 2. Cookie 默认行为
+
+```js
+// XHR：同源请求自动携带 Cookie
+const xhr = new XMLHttpRequest()
+xhr.open('GET', '/api/data')
+xhr.send()  // ✅ 自动带 Cookie
+
+// Fetch：默认不携带！
+fetch('/api/data')  // ❌ 不带 Cookie
+
+fetch('/api/data', {
+  credentials: 'include'  // ✅ 需要显式指定
+})
+```
+
+| `credentials` 选项 | 含义 |
+|-------------------|------|
+| `omit` | 不携带（默认） |
+| `same-origin` | 同源携带 |
+| `include` | 跨域也携带（需服务端 CORS 配合） |
+
+---
+
+#### 3. 超时控制
+
+**XHR 原生支持：**
+
+```js
+xhr.timeout = 5000  // 5 秒超时
+xhr.ontimeout = () => console.log('timeout')
+```
+
+**Fetch 需要手动实现：**
+
+```js
+const controller = new AbortController()
+const timeoutId = setTimeout(() => controller.abort(), 5000)
+
+fetch('/api', { signal: controller.signal })
+  .then(res => {
+    clearTimeout(timeoutId)
+    return res.json()
+  })
+  .catch(err => {
+    if (err.name === 'AbortError') {
+      console.log('请求超时')
+    }
+  })
+```
+
+---
+
+#### 4. 在 Event Loop 中的执行时机
+
+```js
+console.log('1')
+
+// Fetch：.then() 是微任务
+fetch('/api').then(() => console.log('2'))
+
+// XHR：onload 是宏任务（事件队列）
+const xhr = new XMLHttpRequest()
+xhr.onload = () => console.log('3')
+xhr.open('GET', '/api2')
+xhr.send()
+
+Promise.resolve().then(() => console.log('4'))
+
+// 假设两个请求同时返回，输出顺序：
+// 1 → 4 → 2 → 3
+// 微任务（4、2）优先于宏任务（3）
+```
+
+---
+
+### 三、工程选型建议
+
+| 场景 | 推荐 | 原因 |
+|------|------|------|
+| **现代项目** | Fetch / Axios | Promise 语法、可取消、易封装 |
+| **需要上传/下载进度** | XHR / Axios | Fetch 原生不支持 `onprogress` |
+| **需要兼容 IE** | XHR / Axios | Fetch 需 polyfill |
+| **SSR / Node.js** | `node-fetch` / `axios` | Node 无原生 Fetch（18+ 内置） |
+| **取消请求** | Fetch + AbortController | 统一 API，支持批量取消 |
+
+---
+
+### 四、Axios 的实现原理
+
+Axios 是最流行的 HTTP 库，底层封装了 XHR（浏览器）和 `http` 模块（Node），统一返回 Promise。
+
+**核心优势：**
+
+- 自动转换 JSON
+- 请求/响应拦截器（统一处理 Token、错误）
+- 自动转换请求体格式
+- 取消请求（CancelToken / AbortController）
+- 超时控制
+- CSRF 防护（自动带 XSRF-TOKEN）
+
+```js
+// Axios 简化版实现（浏览器端）
+function axios(config) {
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest()
+    xhr.open(config.method, config.url, true)
+
+    // 设置请求头
+    Object.keys(config.headers || {}).forEach(key => {
+      xhr.setRequestHeader(key, config.headers[key])
+    })
+
+    // 超时
+    if (config.timeout) {
+      xhr.timeout = config.timeout
+      xhr.ontimeout = () => reject(new Error('timeout'))
+    }
+
+    // 响应处理
+    xhr.onload = () => {
+      const response = {
+        data: JSON.parse(xhr.responseText),
+        status: xhr.status,
+        statusText: xhr.statusText,
+        headers: parseHeaders(xhr.getAllResponseHeaders())
+      }
+      if (xhr.status >= 200 && xhr.status < 300) {
+        resolve(response)
+      } else {
+        reject(new Error(`Request failed with status ${xhr.status}`))
+      }
+    }
+
+    xhr.onerror = () => reject(new Error('Network Error'))
+
+    // 发送请求
+    xhr.send(config.data ? JSON.stringify(config.data) : null)
+  })
+}
+```
+
+---
+
+### 五、面试加分：如何封装一个通用请求库？
+
+**需求**：
+1. 支持超时（5秒）
+2. 自动重试（失败重试 3 次）
+3. 并发控制（最多同时 5 个请求）
+
+**思路（基于 Fetch）：**
+
+```js
+class RequestQueue {
+  constructor(maxConcurrency = 5) {
+    this.maxConcurrency = maxConcurrency
+    this.running = 0
+    this.queue = []
+  }
+
+  async request(url, options = {}) {
+    // 等待队列有空位
+    while (this.running >= this.maxConcurrency) {
+      await new Promise(resolve => this.queue.push(resolve))
+    }
+
+    this.running++
+    try {
+      return await this.fetchWithRetry(url, options)
+    } finally {
+      this.running--
+      const next = this.queue.shift()
+      if (next) next()
+    }
+  }
+
+  async fetchWithRetry(url, options, retries = 3) {
+    const controller = new AbortController()
+    const timeout = setTimeout(() => controller.abort(), 5000)
+
+    try {
+      const res = await fetch(url, {
+        ...options,
+        signal: controller.signal
+      })
+      clearTimeout(timeout)
+
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      return res.json()
+    } catch (err) {
+      if (retries > 0 && err.name !== 'AbortError') {
+        await new Promise(resolve => setTimeout(resolve, 1000))
+        return this.fetchWithRetry(url, options, retries - 1)
+      }
+      throw err
+    }
+  }
+}
+
+// 使用
+const queue = new RequestQueue(5)
+queue.request('/api/data').then(console.log)
+```
+
+**关键设计：**
+
+- **超时**：`AbortController` + `setTimeout`
+- **重试**：递归 + 指数退避
+- **并发控制**：计数器 + Promise 队列
+
+---
+
 ## Q: Proxy 简易实现与原生 Proxy 有何差异？
 
 **A:**

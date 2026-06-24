@@ -1,7 +1,7 @@
 ---
+name: main-menu
 description: "主入口模式 / main entry — 当用户说「开始」「你好」「帮我」「菜单」等关键词时，展示可用模式菜单，让用户选择后加载对应 Agent 指令。Use when: 用户刚进入对话、不确定用哪个模式、想查看所有可用功能。"
-name: "主菜单"
-tools: [read, search, edit, execute, todo, web]
+tools: Read, Glob, Grep, Edit, Write, Bash, TodoWrite, WebFetch, WebSearch
 ---
 
 # 主菜单（upKnowledge Main Agent）
@@ -60,9 +60,9 @@ tools: [read, search, edit, execute, todo, web]
 
 根据用户选择，**立即读取**对应 Agent 文件，完整加载其指令后，以该模式身份继续工作：
 
-- 开发模式 → 读取 `.github/agents/dev-mode.agent.md`
-- 面试官模式 → 读取 `.github/agents/interviewer.agent.md`
-- 题库维护模式 → 读取 `.github/agents/qa-maintain.agent.md`
+- 开发模式 → 读取 `.claude/agents/dev-mode.md`
+- 面试官模式 → 读取 `.claude/agents/interviewer.md`
+- 题库维护模式 → 读取 `.claude/agents/qa-maintain.md`
 
 加载完成后，**以对应模式的角色身份**向用户确认已进入该模式，然后按该模式的启动流程继续执行。
 

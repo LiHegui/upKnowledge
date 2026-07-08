@@ -236,4 +236,3 @@
 | [Vercel AI SDK](https://sdk.vercel.ai/) | 前端流式集成 |
 | [Claude Code 文档](https://docs.claude.com/en/docs/claude-code/overview) | AI 编程工具 |
 | [Cursor 文档](https://docs.cursor.com/) | IDE 内 AI 编程 |
-</content>

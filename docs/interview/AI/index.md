@@ -1,6 +1,6 @@
 ﻿# AI × 前端 技术要点
 
-> 随着大模型浪潮席卷，「AI + 前端」已成为 2024-2025 年前端工程师的必备技能方向。本文涵盖：大模型 API 接入、流式输出、Prompt 工程、RAG 应用、浏览器端 AI、AI 工程化等核心考点。
+> 随着大模型浪潮席卷，「AI + 前端」已成为 2025-2026 年前端工程师的必备技能方向。本文涵盖：大模型 API 接入、流式输出、Prompt 工程、RAG 应用、Agent / MCP、浏览器端 AI、AI 工程化等核心考点。
 
 ---
 
@@ -25,13 +25,14 @@ LLM 对前端来说本质是一个**接受文本输入、返回文本输出的 H
 ```
 
 常见厂商及 API 端点：
-| 厂商 | 模型 | API 特点 |
+| 厂商 | 代表模型 | API 特点 |
 |------|------|---------|
-| OpenAI | GPT-4o / GPT-4 | 标准 Chat Completions API |
-| Anthropic | Claude 3.5 | 同类接口，内容安全性更强 |
-| 阿里云 | 通义千问 | 兼容 OpenAI 协议 |
+| OpenAI | GPT-5 系列 | 标准 Chat Completions / Responses API |
+| Anthropic | Claude Opus 4.x / Sonnet | Messages API，工具调用与内容安全性强 |
+| Google | Gemini 3.x / 2.5 Pro | 超长上下文、原生多模态 |
+| DeepSeek | DeepSeek-V4 | 成本低、兼容 OpenAI 协议、国内友好 |
+| 阿里云 | 通义千问 Qwen | 兼容 OpenAI 协议 |
 | 字节跳动 | 豆包 | 火山引擎，支持 OpenAI 协议 |
-| 百度 | 文心一言 | ERNIE API |
 
 **2. Token 机制**
 
@@ -50,6 +51,36 @@ LLM 不处理字符，而是处理 **Token**（词元）。一个 Token 大约�
 - `temperature = 0`：确定性输出，适合代码/数据提取
 - `temperature = 0.7~1`：创意写作、对话生成
 - `temperature > 1`：高度随机，通常不推荐
+
+</details>
+
+---
+
+## Q: 什么是推理模型（Reasoning Model）？和普通模型有什么区别？
+
+<details><summary>查看答案</summary>
+
+**A:**
+
+**推理模型（Reasoning Model / Thinking Model）** 是在回答前会先进行一段**显式「思考」（Chain-of-Thought）** 的模型，代表有 OpenAI 的 o 系列、DeepSeek-R1、以及 Claude / Gemini 的 **thinking / extended thinking 模式**。
+
+### 与普通模型的区别
+
+| 维度 | 普通模型（如 GPT-5、Sonnet） | 推理模型（如 o 系列、R1、thinking 模式） |
+|------|------------------------------|------------------------------------------|
+| 响应方式 | 直接输出答案 | 先生成一段思考过程，再给最终答案 |
+| 擅长任务 | 对话、写作、简单指令 | 数学、代码、多步逻辑推理、复杂规划 |
+| 延迟 | 低 | 高（思考消耗额外时间和 token） |
+| 成本 | 低 | 高（思考过程也计费，属输出 token） |
+| Prompt 写法 | 需要显式写「一步步思考」 | **无需**，模型内置推理，过度引导反而降效 |
+
+### 前端接入的注意点
+
+- **首字延迟更长**：思考阶段可能数秒无输出，UI 要区分「🤔 思考中」与「正在回答」两种状态，避免用户以为卡死
+- **思考内容单独返回**：部分 API 用独立字段（如 `reasoning` / `thinking` 块）返回思考过程，前端可选择折叠展示或隐藏，**不要**和正式答案混在一起渲染
+- **不是所有场景都要用**：简单问答用推理模型是浪费成本和延迟，应按任务复杂度路由到不同档位模型
+
+> 💡 **一句话**：推理模型用「想得更久」换「答得更准」，适合难题；简单任务用普通模型更划算。
 
 </details>
 
@@ -112,13 +143,26 @@ const messages = [
 不要输出任何其他内容。
 ```
 
-### 前端 Prompt 优化原则
+### 结构化设计框架（RTCE）
 
-- **明确角色**：告诉模型它是谁
-- **明确任务**：任务描述越具体越好
-- **明确格式**：指定输出格式（JSON/Markdown/纯文本）
-- **提供上下文**：相关背景信息
-- **设置约束**：字数限制、语言、禁止事项
+一套好记的方法论，覆盖一个 Prompt 应该包含的核心要素：
+
+| 要素 | 含义 | 示例 |
+|------|------|------|
+| **Role（角色）** | 设定 AI 身份和职责 | 你是一名资深前端工程师 |
+| **Task（任务）** | 清晰说明需完成的目标 | 对以下代码进行 Code Review |
+| **Context（背景）** | 提供必要的领域知识 | 项目使用 Vue3 + TypeScript |
+| **Examples（示例）** | Few-Shot，展示期望的输入输出 | 好的回答示例：... |
+
+对应到前端优化原则：**明确角色 + 明确任务 + 明确格式（JSON/Markdown）+ 提供上下文 + 设置约束（字数/语言/禁止事项）**。
+
+### 工程化思维
+
+写 Prompt 不是「碰运气调词」，而应像写代码一样工程化：
+
+- **版本化管理**：Prompt 用 Git 管理 `.md` 文件，可回溯、可 Review
+- **评测基准集**：建立 20-50 条任务集，量化不同写法的命中率
+- **A/B 测试**：对比不同写法效果，选择最优版本
 
 </details>
 
@@ -182,6 +226,26 @@ AI 对前端的冲击是**真实的**，尤其是**还原类**（按设计稿出
 
 ---
 
+### 落到具体切入点：前端在 AI/Agent 赛道能做什么
+
+前端不只是「被冲击方」，在 Agent 系统里恰好占据**用户交互层**这个主战场：
+
+```
+用户 → [前端交互层] → [Agent 编排层] → [工具执行层] → [LLM 大脑]
+        ↑ 前端的主战场
+```
+
+| 方向 | 具体能做的事 |
+|------|-------------|
+| **流式 UI** | SSE/WebSocket 接收 token 流、渐进渲染 Markdown + 代码高亮、工具调用过程可视化（"正在搜索…""已找到结果…"）|
+| **Agent 交互设计** | 多步任务进度展示、失败的用户友好提示、Human-in-the-loop 审批界面 |
+| **本地/边缘端 AI** | WebLLM（WebGPU 跑小模型）、ONNX Runtime Web、隐私敏感场景本地推理 |
+| **MCP × 前端** | VS Code 扩展里实现 MCP Client、浏览器扩展做轻量 MCP Server |
+
+前端做 AI 应用的独特优势：**用户体验设计**（AI 产品成败常在交互细节）、**流式 UI 能力**（打字机动效/加载态是标配）、**可视化能力**（执行链路、数据图表）、**跨端一致体验**、**工程化思维**（组件封装/性能/状态管理）。
+
+---
+
 ### 一句话总结
 
 > 💡 **前端的护城河不再是语法熟练度，而是：产品感 + 系统化能力 + AI 输出的质量门禁。**
@@ -211,7 +275,7 @@ async function chat(messages) {
       'Authorization': `Bearer ${import.meta.env.VITE_OPENAI_KEY}`,
     },
     body: JSON.stringify({
-      model: 'gpt-4o',
+      model: 'gpt-5',
       messages,
       temperature: 0.7,
     }),
@@ -233,7 +297,7 @@ const client = new OpenAI({
 })
 
 const response = await client.chat.completions.create({
-  model: 'gpt-4o',
+  model: 'gpt-5',
   messages: [{ role: 'user', content: 'Hello!' }],
 })
 console.log(response.choices[0].message.content)
@@ -459,6 +523,59 @@ class ConversationManager {
 
 ---
 
+## Q: 如何让 LLM 稳定返回 JSON？什么是结构化输出（Structured Outputs）？
+
+<details><summary>查看答案</summary>
+
+**A:**
+
+前端经常需要把 LLM 输出**喂给代码**（渲染表格、填表单、做判断），这时最怕的是它返回一段带解释的自然语言、或格式漂移的「伪 JSON」导致 `JSON.parse` 报错。
+
+### 从「靠祈祷」到「有保证」的三个档位
+
+| 方案 | 做法 | 可靠性 |
+|------|------|--------|
+| **① 纯 Prompt 约束** | 在提示词里写「只返回 JSON，不要任何其他内容」 | ❌ 低，模型仍可能加解释、漏引号 |
+| **② JSON Mode** | 开启 `response_format: { type: 'json_object' }` | ⚠️ 中，保证是合法 JSON，但不保证字段结构 |
+| **③ Structured Outputs** | 传入 **JSON Schema**，API 层强制输出严格匹配该结构 | ✅ 高，字段、类型、枚举都被约束 |
+
+### 代码示例（Structured Outputs）
+
+```js
+const res = await openai.chat.completions.create({
+  model: 'gpt-5',
+  messages,
+  response_format: {
+    type: 'json_schema',
+    json_schema: {
+      name: 'sentiment_result',
+      strict: true, // 严格模式：强制匹配 schema
+      schema: {
+        type: 'object',
+        properties: {
+          sentiment: { type: 'string', enum: ['positive', 'negative', 'neutral'] },
+          confidence: { type: 'number' },
+        },
+        required: ['sentiment', 'confidence'],
+        additionalProperties: false,
+      },
+    },
+  },
+})
+
+const data = JSON.parse(res.choices[0].message.content) // 可安全解析
+```
+
+### 工程注意点
+
+- **和 Function Calling 的关系**：两者底层都是「让模型输出结构化数据」。Function Calling 面向「决定调哪个工具」，Structured Outputs 面向「直接拿到一个结构化结果」
+- **流式场景**：结构化输出流式返回时是**不完整的 JSON 片段**，不能边收边 `JSON.parse`，需累积到结束再解析（或用容错的增量 JSON 解析器）
+- **仍要兜底**：即使 `strict: true`，前端拿到后仍应做一层校验（Zod/Ajv），防御模型或网络异常
+
+</details>
+
+---
+
 ## RAG 与知识库篇
 
 ## Q: 什么是 RAG？前端开发中如何理解和使用 RAG？
@@ -612,7 +729,7 @@ const res = await fetch('/api/chat', {
 app.post('/api/chat', authenticate, async (req, res) => {
   const { messages } = req.body
   const response = await openai.chat.completions.create({
-    model: 'gpt-4o',
+    model: 'gpt-5',
     messages,
   })
   res.json(response.choices[0].message)
@@ -819,7 +936,7 @@ console.log(result) // [{ label: 'POSITIVE', score: 0.998 }]
 |------|---------|---------|
 | 数据隐私 | ✅ 数据不离开本地 | ❌ 数据上传到服务器 |
 | 网络依赖 | ✅ 离线可用 | ❌ 需要网络 |
-| 模型能力 | ❌ 受硬件限制，模型小 | ✅ GPT-4 级别 |
+| 模型能力 | ❌ 受硬件限制，模型小 | ✅ 前沿大模型级别 |
 | 首次加载 | ❌ 模型文件较大（几百MB~GB） | ✅ 无需加载 |
 | 费用 | ✅ 无 API 费用 | ❌ 按 Token 计费 |
 | 适用场景 | 隐私敏感、离线场景 | 复杂任务、高质量输出 |
@@ -840,10 +957,12 @@ console.log(result) // [{ label: 'POSITIVE', score: 0.998 }]
 
 | 工具 | 定位 | 核心功能 |
 |------|------|---------|
-| GitHub Copilot | VSCode 插件 | 代码补全、Chat、代码解释 |
-| Cursor | AI-first IDE | 多文件编辑、全局上下文理解 |
+| GitHub Copilot | IDE 插件 | 代码补全、Chat、Agent 模式 |
+| Cursor | AI-first IDE | 多文件编辑、Composer/Agent、全局上下文理解 |
+| Claude Code | 终端 / IDE Agent | 命令行智能体，自主读写文件、跑测试、多步任务 |
 | Windsurf | AI-first IDE | Cascade 模式，自动化编程 |
-| Codeium | 免费替代品 | 代码补全 |
+
+> 💡 趋势：AI 编程正从「**补全（Completion）**」走向「**自主执行的 Agent（agentic coding）**」——从 Tab 补全一行，到下达任务后由 Agent 自主编辑多文件、运行命令、验证结果。
 
 ### 工作原理（以 Copilot 为例）
 
@@ -887,7 +1006,7 @@ function filterAdultUsers(users: User[]): User[] {
 
 **A:**
 
-**Function Calling（工具调用）** 让 LLM 在回答时能够决策「调用哪个函数」以获取外部数据，而不是直接生成最终回答。
+**Function Calling（工具调用）** 是 OpenAI 于 2023 年最早推出的能力，允许开发者以 **JSON Schema** 格式定义函数描述，LLM 在推理时决策「调用哪个函数」并输出结构化参数，由开发者侧执行后将结果返回给模型——让 LLM 从「只能说」变成「能获取外部数据、执行动作」。
 
 ### 工作流程
 
@@ -927,7 +1046,7 @@ const tools = [
 
 // 第一步：发送给 LLM，包含工具定义
 const response = await openai.chat.completions.create({
-  model: 'gpt-4o',
+  model: 'gpt-5',
   messages,
   tools,
   tool_choice: 'auto',
@@ -953,7 +1072,7 @@ if (message.tool_calls) {
 
   // 第五步：再次调用 LLM 生成最终回答
   const finalResponse = await openai.chat.completions.create({
-    model: 'gpt-4o',
+    model: 'gpt-5',
     messages,
   })
   return finalResponse.choices[0].message.content
@@ -1188,7 +1307,7 @@ async function runAgent(userInput: string, sessionId: string) {
 
   for (let i = 0; i < 6; i++) {
     const llmResp = await callLLM({
-      model: 'gpt-4o',
+      model: 'gpt-5',
       messages,
       tools: toolSchemas,
       tool_choice: 'auto',
@@ -1277,13 +1396,13 @@ async function runAgent(userInput: string, sessionId: string) {
 
 ---
 
-## Q: 为什么要引入工具？单纯的大模型不行吗？
+## Q: 为什么要引入工具？工具给大模型扩展了怎样的能力？
 
 <details><summary>查看答案</summary>
 
 **A:**
 
-纯 LLM 有四大天然局限：
+### 为什么需要工具：纯 LLM 的四大天然局限
 
 | 局限 | 原因 | 工具如何解决 |
 |------|------|------------|
@@ -1294,62 +1413,17 @@ async function runAgent(userInput: string, sessionId: string) {
 
 本质：让 LLM 从「**知道**」变成「**能做**」。
 
-</details>
-
----
-
-## Q: 工具给大模型扩展了怎样的能力？
-
-<details><summary>查看答案</summary>
-
-**A:**
+### 工具扩展了哪些能力
 
 ```
 实时信息获取 → 搜索引擎、天气 API、股票行情
 计算与代码执行 → Python 解释器、数学计算器
 持久化操作 → 文件读写、数据库 CRUD、日历事件
 跨系统集成 → 支付、地图、CRM、工单系统
-多模态扩展 → 图像生成（DALL-E）、语音合成（TTS）
+多模态扩展 → 图像生成、语音合成（TTS）、图像理解
 ```
 
-工具让 LLM 突破了「语言智能」的边界，实现了对物理世界的操控。
-
-</details>
-
----
-
-## Q: 了解 Function Calling 吗？
-
-<details><summary>查看答案</summary>
-
-**A:**
-
-**Function Calling** 是 OpenAI 2023 年推出的能力，允许开发者以 **JSON Schema** 格式定义函数描述，LLM 在推理时选择调用哪个函数并输出结构化参数，由开发者侧执行后将结果返回给模型。
-
-完整流程：
-```
-用户输入
-  → LLM 判断是否需要调用工具
-  → 输出 { tool_name, arguments } 结构
-  → 开发者执行对应函数
-  → 将结果作为 tool_result 注入对话
-  → LLM 生成最终回答
-```
-
-工具描述示例：
-```json
-{
-  "name": "get_weather",
-  "description": "获取指定城市的实时天气",
-  "parameters": {
-    "type": "object",
-    "properties": {
-      "city": { "type": "string", "description": "城市名，如：北京" }
-    },
-    "required": ["city"]
-  }
-}
-```
+工具让 LLM 突破了「语言智能」的边界，实现了对外部世界的感知与操控。
 
 </details>
 
@@ -1486,39 +1560,7 @@ MCP Host（宿主）
 
 ---
 
-## Q: 说说你写提示词的方法论，或者说提示词工程的理解？
-
-<details><summary>查看答案</summary>
-
-**A:**
-
-**提示词工程** 是通过精心设计 LLM 的输入文本，引导模型输出符合预期结果的系统性方法。
-
-**结构化设计框架（RTCE）**：
-
-| 要素 | 含义 | 示例 |
-|------|------|------|
-| **Role（角色）** | 设定 AI 身份和职责 | 你是一名资深前端工程师 |
-| **Task（任务）** | 清晰说明需完成的目标 | 对以下代码进行 Code Review |
-| **Context（背景）** | 提供必要的领域知识 | 项目使用 Vue3 + TypeScript |
-| **Examples（示例）** | Few-Shot，展示期望的输入输出 | 好的回答示例：... |
-
-**常用技巧**：
-- **CoT（思维链）**：加入「请一步步思考」引导推理过程
-- **Few-Shot**：提供 2-3 个示例对，命中率显著提升
-- **ReAct**：推理（Thought）+ 行动（Action）交替，适合 Agent 场景
-- **输出约束**：明确指定格式（JSON / Markdown / 字数限制）
-
-**工程化思维**：
-- 将提示词版本化管理（如 Git 管理 .md 文件）
-- 建立评测基准集，量化提示词效果
-- A/B 测试不同写法，选择最优版本
-
-</details>
-
----
-
-## Q: 我听着有点像上下文工程，讲讲上下文工程的理解？
+## Q: 什么是上下文工程（Context Engineering）？
 
 <details><summary>查看答案</summary>
 
@@ -1664,7 +1706,7 @@ Claude 支持对 System Prompt 中的静态内容进行**缓存**，通过 `cach
 ```
 
 - 缓存命中时，该部分 Token **不重复计算**，成本降低约 **90%**
-- 缓存有效期：Haiku 约 5 分钟，Sonnet/Opus 约 1 小时
+- 缓存有效期：默认约 **5 分钟**（每次命中会刷新），也可选 **1 小时**的扩展缓存
 - 适合长 System Prompt、长文档的场景，显著降低延迟和成本
 
 </details>
@@ -1681,10 +1723,10 @@ Claude 支持对 System Prompt 中的静态内容进行**缓存**，通过 `cach
 
 | 模型 | 厂商 | 特点 |
 |------|------|------|
-| Claude 3.5/3.7 Sonnet | Anthropic | 指令跟随强、工具调用准确、200K 上下文 |
-| GPT-4o | OpenAI | Function Call 生态成熟，多模态 |
-| Gemini 1.5 Pro | Google | 超长上下文（100 万 Token），多模态 |
-| DeepSeek-V3/R1 | DeepSeek | 推理能力强、成本低、国内友好 |
+| Claude Opus 4.x / Sonnet | Anthropic | 指令跟随强、工具调用准确、Agentic 任务表现顶尖、支持 1M 上下文 |
+| GPT-5 系列 | OpenAI | Function Call / 终端 Agent 生态成熟，多模态 |
+| Gemini 3.x / 2.5 Pro | Google | 超长上下文（百万 Token 级）、原生多模态 |
+| DeepSeek-V4 | DeepSeek | 推理能力强、成本极低、兼容 Anthropic/OpenAI SDK、国内友好 |
 
 **Agent 系统选型核心维度**：
 
@@ -1692,9 +1734,9 @@ Claude 支持对 System Prompt 中的静态内容进行**缓存**，通过 `cach
 2. **指令跟随能力**：是否严格遵循 System Prompt 的约束，不乱发挥
 3. **上下文长度**：多轮 Agent 任务需要足够大的上下文窗口
 4. **推理能力**：复杂多步规划任务的分解能力
-5. **成本/延迟**：生产环境的性价比，Sonnet 比 Opus 便宜 5~10 倍
+5. **成本/延迟**：生产环境的性价比，同厂商 Sonnet/Flash 档比 Opus/Pro 档便宜数倍
 
-> 💡 **选 Claude Sonnet 的理由**：工具调用准确率在 Agent 场景高于 GPT-4，Prompt Caching 大幅降低长上下文成本，200K 上下文足够处理复杂任务链。
+> 💡 **选 Claude（Opus/Sonnet）的理由**：工具调用准确率与 Agentic 长任务稳定性在业界领先，Prompt Caching 大幅降低长上下文成本，大上下文窗口足够处理复杂任务链。选型时更该看「你的任务集实测表现」而非榜单，模型迭代极快、半年就会换代。
 
 </details>
 
@@ -1893,47 +1935,3 @@ async function retryWithBackoff(fn, maxRetries = 3) {
 > ⚠️ **设计哲学**：**可用性 > 功能完整性**。在极端情况下，宁可降级服务，也不能让系统完全不可用。保底策略的终极兜底永远是：**清晰地告知用户现状，给出替代路径**。
 
 </details>
-
----
-
-## 补充：AI × 前端工程师的核心竞争力
-
-> 作为前端工程师进入 AI 赛道，优势和切入点如下：
-
-### 前端在 Agent 系统中的角色
-
-```
-用户 → [前端交互层] → [Agent 编排层] → [工具执行层] → [LLM 大脑]
-        ↑ 前端的主战场
-```
-
-### 前端工程师可以做的事
-
-**① 流式 UI 实现（打字机效果）**
-- SSE / WebSocket 实时接收 token 流
-- 渐进渲染 Markdown + 代码高亮
-- 工具调用过程可视化（"正在搜索...""已找到结果..."）
-
-**② Agent 交互设计**
-- 多步任务的进度展示
-- 工具调用失败的用户友好提示
-- Human-in-the-loop 的审批界面
-
-**③ 本地/边缘端 AI**
-- WebLLM（基于 WebGPU 在浏览器运行小模型）
-- ONNX Runtime Web（浏览器端推理）
-- 隐私保护场景下的本地推理
-
-**④ MCP × 前端**
-- VS Code 扩展中实现 MCP Client
-- 浏览器扩展实现轻量 MCP Server
-
-### 前端工程师做 AI 应用的独特优势
-
-| 优势 | 为什么重要 |
-|------|-----------|
-| **用户体验设计** | AI 产品的成败往往在交互细节 |
-| **流式 UI 能力** | 打字机动效、加载态是标配 |
-| **可视化能力** | Agent 执行链路可视化、数据图表 |
-| **跨端适配** | AI 功能在 Web/小程序/App 的一致体验 |
-| **工程化思维** | 组件封装、性能优化、状态管理 |

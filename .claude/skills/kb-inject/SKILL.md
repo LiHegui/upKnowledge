@@ -125,270 +125,57 @@ argument-hint: "粘贴知识点内容，例如：关于 Vue3 响应式原理的�
 ### Step 3.5：可视化风格规范（适用于复杂流程图 / 多维对比）
 
 > 参考样本：`docs/interview/React/redux.md`（链路图部分）和 `docs/interview/React/react-rendering-behavior.md`
+>
+> ⚠️ **强制要求**：**禁止使用 HTML/CSS 卡片图解**。所有可视化必须使用纯 Markdown 格式（表格、ASCII 流程图、树形缩进图、代码块等）。
 
-#### 何时使用 HTML 卡片风格
+#### 优先使用纯 Markdown 的场景
 
-满足以下任一条件，**优先使用 HTML 卡片**代替纯 Markdown 表格或代码块：
+满足以下任一条件，**优先使用 Markdown 可视化**（表格 / ASCII 流程图 / 树形缩进）：
 
-| 场景 | 示例 |
-|------|------|
-| 多步骤流程 / 生命周期 | Redux 数据流、React 渲染流程、Event Loop |
-| 嵌套/分层结构 | 中间件洋葱模型、浏览器渲染层级 |
-| 多列横向对比 | 3+ 方案对比、各 API 职责对比 |
-| 时间线 / 阶段序列 | 渲染阶段顺序、异步流程步骤 |
-| 彩色高亮签名 / 语法分解 | 函数签名着色分析 |
+| 场景 | 推荐格式 | 示例 |
+|------|---------|------|
+| 多步骤流程 / 生命周期 | `→` 箭头 ASCII 流程图 | Redux 数据流：`Action → Reducer → Store → View` |
+| 嵌套/分层结构 | 树形缩进 ASCII 图 | 中间件洋葱模型：`dispatch → thunk → logger → next → action` |
+| 多列横向对比 | Markdown 表格 | 3+ 方案对比、各 API 职责对比 |
+| 时间线 / 阶段序列 | 有序列表 + 箭头 | 渲染阶段顺序 |
+| 条件判断 / 分支 | 表格 + ✅/❌ 标注 | 方案优劣对比 |
 
-普通 Q&A 的表格和代码块**不需要**用 HTML 风格，保持 Markdown 格式即可。
-
----
-
-#### CSS 样式模板（在文件首次使用前放置一次 `<style>` 块）
-
-> ⚠️ **要求**：每个 `.md` 文件使用唯一的 CSS 前缀，避免跨页面样式污染。
-> - 命名规则：取技术方向缩写，如 `rdx-`（Redux）、`vue-`（Vue）、`net-`（网络）、`js-`（JavaScript）、`rr-`（React渲染）
-> - 将 `<style>` 块放在文件中**第一次出现 HTML 卡片之前的 `---` 分隔线后面**
-
-````markdown
-<style>
-/* 将下方所有 rdx- 替换为当前文件的专属前缀，如 vue- / net- / js- */
-.rdx{font-family:'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;font-size:13px;line-height:1.6;color:#e0e4f0}
-.rdx-card{background:#1a1d27;border:1px solid #2e3347;border-radius:10px;padding:18px 20px;margin:14px 0}
-.rdx-title{font-size:11px;font-weight:700;color:#a8b0cc;text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px;padding-bottom:6px;border-bottom:1px solid #2e3347}
-.rdx-tl{position:relative;padding-left:28px}
-.rdx-tl::before{content:'';position:absolute;left:10px;top:0;bottom:0;width:2px;background:#2e3347}
-.rdx-ti{position:relative;margin-bottom:14px}
-.rdx-ti::before{content:'';position:absolute;left:-22px;top:7px;width:10px;height:10px;border-radius:50%;border:2px solid}
-.rdx-ti.b::before{border-color:#4f8ef7;background:#4f8ef7}
-.rdx-ti.g::before{border-color:#3ddc84;background:#3ddc84}
-.rdx-ti.p::before{border-color:#b57bee;background:#b57bee}
-.rdx-ti.y::before{border-color:#ffd166;background:#ffd166}
-.rdx-ti.o::before{border-color:#ff9f43;background:#ff9f43}
-.rdx-ti.c::before{border-color:#48cae4;background:#48cae4}
-.rdx-tl-lb{font-size:12px;font-weight:700;margin-bottom:2px}
-.rdx-tl-d{color:#8b90a8;font-size:11px}
-.rdx-flow{display:flex;align-items:stretch;gap:0;flex-wrap:wrap;margin:10px 0}
-.rdx-step{flex:1;padding:12px 10px;text-align:center;font-size:11px;font-weight:600;border-radius:7px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:4px;min-width:88px}
-.rdx-step sub{font-weight:400;color:#8b90a8;font-size:10px;display:block;margin-top:2px}
-.rdx-arr{color:#555;font-size:18px;padding:0 3px;flex-shrink:0;display:flex;align-items:center}
-.rdx-step-b{background:rgba(79,142,247,.12);border:1px solid rgba(79,142,247,.3);color:#7eb3ff}
-.rdx-step-g{background:rgba(61,220,132,.10);border:1px solid rgba(61,220,132,.25);color:#6ef5a8}
-.rdx-step-p{background:rgba(181,123,238,.10);border:1px solid rgba(181,123,238,.3);color:#d4a8ff}
-.rdx-step-y{background:rgba(255,209,102,.10);border:1px solid rgba(255,209,102,.25);color:#ffe599}
-.rdx-step-o{background:rgba(255,159,67,.10);border:1px solid rgba(255,159,67,.25);color:#ffbb7a}
-.rdx-step-c{background:rgba(72,202,228,.10);border:1px solid rgba(72,202,228,.25);color:#7be0f5}
-.rdx-note{padding:9px 13px;border-radius:7px;font-size:12px;margin-top:10px}
-.rdx-nb{background:rgba(79,142,247,.1);border-left:3px solid #4f8ef7;color:#7eb3ff}
-.rdx-ng{background:rgba(61,220,132,.08);border-left:3px solid #3ddc84;color:#6ef5a8}
-.rdx-nr{background:rgba(255,92,92,.08);border-left:3px solid #ff5c5c;color:#ff8f8f}
-.rdx-ny{background:rgba(255,209,102,.08);border-left:3px solid #ffd166;color:#ffe599}
-.rdx-np{background:rgba(181,123,238,.08);border-left:3px solid #b57bee;color:#d4a8ff}
-.rdx-row{display:flex;gap:10px;flex-wrap:wrap;margin:8px 0}
-.rdx-box{flex:1;min-width:155px;border-radius:9px;padding:13px 14px;border:1px solid #2e3347}
-.rdx-box h5{font-size:12px;font-weight:700;margin:0 0 8px}
-.rdx-box ul{list-style:none;padding:0;margin:0}
-.rdx-box li{font-size:11px;color:#8b90a8;padding:3px 0 3px 14px;position:relative}
-.rdx-box li::before{content:'▸';position:absolute;left:0;color:#555}
-.rdx-box-b{border-color:rgba(79,142,247,.35);background:rgba(79,142,247,.05)}
-.rdx-box-b h5{color:#7eb3ff}
-.rdx-box-g{border-color:rgba(61,220,132,.3);background:rgba(61,220,132,.04)}
-.rdx-box-g h5{color:#6ef5a8}
-.rdx-box-p{border-color:rgba(181,123,238,.35);background:rgba(181,123,238,.04)}
-.rdx-box-p h5{color:#d4a8ff}
-.rdx-box-o{border-color:rgba(255,159,67,.3);background:rgba(255,159,67,.04)}
-.rdx-box-o h5{color:#ffbb7a}
-.rdx-box-y{border-color:rgba(255,209,102,.3);background:rgba(255,209,102,.04)}
-.rdx-box-y h5{color:#ffe599}
-.rdx-box-c{border-color:rgba(72,202,228,.3);background:rgba(72,202,228,.04)}
-.rdx-box-c h5{color:#7be0f5}
-.rdx-onion{display:flex;flex-direction:column;gap:6px}
-.rdx-ol{border-radius:8px;padding:11px 14px;border:1px solid}
-.rdx-ol-inner{margin:8px 0 2px 16px;display:flex;flex-direction:column;gap:6px}
-.rdx-ol-lb{font-size:11px;font-weight:700}
-.rdx-ol-d{font-size:11px;color:#8b90a8;margin-top:2px}
-.rdx-ol-1{border-color:rgba(79,142,247,.4);background:rgba(79,142,247,.06)}
-.rdx-ol-1 .rdx-ol-lb{color:#7eb3ff}
-.rdx-ol-2{border-color:rgba(61,220,132,.35);background:rgba(61,220,132,.05)}
-.rdx-ol-2 .rdx-ol-lb{color:#6ef5a8}
-.rdx-ol-3{border-color:rgba(181,123,238,.35);background:rgba(181,123,238,.05)}
-.rdx-ol-3 .rdx-ol-lb{color:#d4a8ff}
-.rdx-ol-core{border-color:rgba(255,209,102,.4);background:rgba(255,209,102,.07)}
-.rdx-ol-core .rdx-ol-lb{color:#ffe599}
-.rdx-sig{display:inline-flex;gap:0;border-radius:6px;overflow:hidden;margin:8px 0 4px;font-family:'Cascadia Code','Fira Code',Consolas,monospace;font-size:11px}
-.rdx-s1{background:rgba(79,142,247,.2);color:#7eb3ff;padding:5px 10px}
-.rdx-sa{background:#1a1d27;color:#555;padding:5px 6px}
-.rdx-s2{background:rgba(61,220,132,.15);color:#6ef5a8;padding:5px 10px}
-.rdx-s3{background:rgba(181,123,238,.15);color:#d4a8ff;padding:5px 10px}
-.rdx-s4{background:rgba(255,209,102,.12);color:#ffe599;padding:5px 10px}
-.rdx-tag{display:inline-block;font-size:10px;font-weight:700;padding:1px 6px;border-radius:3px;margin-left:4px}
-.rdx-tg-b{background:#4f8ef7;color:#fff}.rdx-tg-g{background:#3ddc84;color:#000}
-.rdx-tg-p{background:#b57bee;color:#fff}.rdx-tg-y{background:#ffd166;color:#000}
-</style>
-````
+普通 Q&A 用表格和代码块即可，不需要额外图解。
 
 ---
 
-#### 组件速查手册
+#### Markdown 图解示例
 
-所有组件都用 `<div class="rdx">...</div>` 包裹（替换 `rdx` 为当前前缀）。
+**① 箭头流程图（线性流程）**
 
-**① 卡片容器 `rdx-card` + 标题 `rdx-title`**
-
-```html
-<div class="rdx-card">
-  <div class="rdx-title">🔄 标题文字</div>
-  <!-- 内容放在这里 -->
-</div>
+```
+Action（动作）→ Observable State（状态）→ Computed（派生）→ Reaction（反应）
 ```
 
----
+**② 树形缩进图（嵌套/分层）**
 
-**② 横向流程图 `rdx-flow`** — 适合展示线性流程（如数据流、编译流程）
-
-```html
-<div class="rdx-flow">
-  <div class="rdx-step rdx-step-b">步骤一<sub>副标题</sub></div>
-  <div class="rdx-arr">→</div>
-  <div class="rdx-step rdx-step-g">步骤二<sub>副标题</sub></div>
-  <div class="rdx-arr">→</div>
-  <div class="rdx-step rdx-step-p">步骤三<sub>副标题</sub></div>
-</div>
+```
+dispatch(action)
+  └── 中间件1（日志）
+      └── 中间件2（Thunk）
+          └── 原始 dispatch
+              └── Reducer → newState
 ```
 
-颜色后缀：`-b`蓝 / `-g`绿 / `-p`紫 / `-y`黄 / `-o`橙 / `-c`青
+**③ 表格对比（多维方案）**
 
----
+| 维度 | 方案A | 方案B |
+|------|------|------|
+| 性能 | ✅ 优 | ⚠️ 中 |
+| 复杂度 | ❌ 高 | ✅ 低 |
 
-**③ 竖向时间线 `rdx-tl` + `rdx-ti`** — 适合展示多步骤流程、生命周期阶段
+**④ ASCII 步骤分解**
 
-```html
-<div class="rdx-tl">
-  <div class="rdx-ti b">
-    <div class="rdx-tl-lb" style="color:#7eb3ff">① 步骤标题</div>
-    <div class="rdx-tl-d">步骤说明文字</div>
-  </div>
-  <div class="rdx-ti g">
-    <div class="rdx-tl-lb" style="color:#6ef5a8">② 步骤标题</div>
-    <div class="rdx-tl-d">步骤说明文字</div>
-  </div>
-</div>
 ```
-
-时间线节点颜色：`b`蓝 / `g`绿 / `p`紫 / `y`黄 / `o`橙 / `c`青
-
----
-
-**④ 多列信息卡 `rdx-row` + `rdx-box`** — 适合 3~4 个并列概念对比
-
-```html
-<div class="rdx-row">
-  <div class="rdx-box rdx-box-b">
-    <h5>概念A</h5>
-    <ul>
-      <li>特点一</li>
-      <li>特点二</li>
-    </ul>
-  </div>
-  <div class="rdx-box rdx-box-g">
-    <h5>概念B</h5>
-    <ul><li>特点一</li></ul>
-  </div>
-</div>
-```
-
-盒子颜色后缀：`-b`蓝 / `-g`绿 / `-p`紫 / `-o`橙 / `-y`黄 / `-c`青
-
----
-
-**⑤ 洋葱嵌套层 `rdx-onion`** — 适合展示中间件、包裹关系、嵌套结构
-
-```html
-<div class="rdx-onion">
-  <div class="rdx-ol rdx-ol-1">
-    <div class="rdx-ol-lb">外层</div>
-    <div class="rdx-ol-d">说明</div>
-    <div class="rdx-ol-inner">
-      <div class="rdx-ol rdx-ol-2">
-        <div class="rdx-ol-lb">内层</div>
-        <div class="rdx-ol-inner">
-          <div class="rdx-ol rdx-ol-core">
-            <div class="rdx-ol-lb">⭐ 核心</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-```
-
-层级颜色：`rdx-ol-1`蓝 / `rdx-ol-2`绿 / `rdx-ol-3`紫 / `rdx-ol-core`黄（核心）
-
----
-
-**⑥ 彩色代码签名 `rdx-sig`** — 适合分解函数签名 / 语法结构
-
-```html
-<div class="rdx-sig">
-  <div class="rdx-s1">参数1</div>
-  <div class="rdx-sa">=></div>
-  <div class="rdx-s2">参数2</div>
-  <div class="rdx-sa">=></div>
-  <div class="rdx-s3">参数3</div>
-  <div class="rdx-sa">=></div>
-  <div class="rdx-s4">{ 函数体 }</div>
-</div>
-```
-
----
-
-**⑦ 注意事项块 `rdx-note`**
-
-```html
-<div class="rdx-note rdx-nb">💡 信息提示（蓝）</div>
-<div class="rdx-note rdx-ng">✅ 正确做法（绿）</div>
-<div class="rdx-note rdx-nr">⚠️ 警告错误（红）</div>
-<div class="rdx-note rdx-ny">⚡ 注意事项（黄）</div>
-<div class="rdx-note rdx-np">📌 补充说明（紫）</div>
-```
-
----
-
-#### 完整使用模板（可直接复用）
-
-```markdown
-<style>
-/* 复制上方 CSS 模板，将所有 rdx- 替换为当前文件专属前缀 */
-</style>
-
-<div class="rdx">
-
-<div class="rdx-card">
-<div class="rdx-title">🔄 流程标题</div>
-
-<!-- 横向流程图 -->
-<div class="rdx-flow">
-  <div class="rdx-step rdx-step-b">第一步<sub>说明</sub></div>
-  <div class="rdx-arr">→</div>
-  <div class="rdx-step rdx-step-g">第二步<sub>说明</sub></div>
-</div>
-
-<div class="rdx-note rdx-nb">补充说明</div>
-</div>
-
-<div class="rdx-card">
-<div class="rdx-title">⚙️ 详细时间线</div>
-<div class="rdx-tl">
-  <div class="rdx-ti b">
-    <div class="rdx-tl-lb" style="color:#7eb3ff">① 步骤一</div>
-    <div class="rdx-tl-d">说明文字</div>
-  </div>
-  <div class="rdx-ti g">
-    <div class="rdx-tl-lb" style="color:#6ef5a8">② 步骤二</div>
-    <div class="rdx-tl-d">说明文字</div>
-  </div>
-</div>
-</div>
-
-</div>
+步骤  节点      操作
+ 1    App     beginWork → 有 child，走 child
+ 2    Header  beginWork → 无 child，completeWork → 走 sibling
+ 3    Main    beginWork → 有 child，走 child
 ```
 
 ---

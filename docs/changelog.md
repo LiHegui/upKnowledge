@@ -2,8 +2,23 @@
 
 > 本页由部署脚本根据 git 提交记录自动生成。
 
+## 2026-07-08
+
+- ✨ 添加长期记忆系统设计及优化策略，澄清核心误解 <span style="white-space:nowrap;opacity:.6;font-size:.85em"><img src="https://github.com/LiHegui.png?size=48" width="16" height="16" style="border-radius:50%;vertical-align:text-bottom" onerror="this.style.display='none'" /> Hegui Li `3d892bc`</span>
+- ✨ 移除无效内容，优化大模型应用开发学习计划文档 <span style="white-space:nowrap;opacity:.6;font-size:.85em"><img src="https://github.com/LiHegui.png?size=48" width="16" height="16" style="border-radius:50%;vertical-align:text-bottom" onerror="this.style.display='none'" /> Hegui Li `3279689`</span>
+- ✨ 更新大模型应用开发学习计划，调整进度追踪和模块状态 <span style="white-space:nowrap;opacity:.6;font-size:.85em"><img src="https://github.com/LiHegui.png?size=48" width="16" height="16" style="border-radius:50%;vertical-align:text-bottom" onerror="this.style.display='none'" /> Hegui Li `25fa89b`</span>
+
+## 2026-06-25
+
+- 📌 20260625 <span style="white-space:nowrap;opacity:.6;font-size:.85em"><img src="https://github.com/LiHegui.png?size=48" width="16" height="16" style="border-radius:50%;vertical-align:text-bottom" onerror="this.style.display='none'" /> Hegui Li `ad26961`</span>
+
+## 2026-06-24
+
+- ✨ 20260624 <span style="white-space:nowrap;opacity:.6;font-size:.85em"><img src="https://github.com/LiHegui.png?size=48" width="16" height="16" style="border-radius:50%;vertical-align:text-bottom" onerror="this.style.display='none'" /> Hegui Li `1a3b182`</span>
+
 ## 2026-06-15
 
+- ✨ 更新 Vue3 面试文档，添加完整更新流程和组合式函数与 mixin 的区别 <span style="white-space:nowrap;opacity:.6;font-size:.85em"><img src="https://github.com/LiHegui.png?size=48" width="16" height="16" style="border-radius:50%;vertical-align:text-bottom" onerror="this.style.display='none'" /> Hegui Li `1804401`</span>
 - ✨ update Vue3 interview documentation with new insights and examples <span style="white-space:nowrap;opacity:.6;font-size:.85em"><img src="https://github.com/LiHegui.png?size=48" width="16" height="16" style="border-radius:50%;vertical-align:text-bottom" onerror="this.style.display='none'" /> Hegui Li `437d53f`</span>
 
 ## 2026-06-11

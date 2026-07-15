@@ -757,3 +757,188 @@ startTransition(() => {
 - [MobX 官方文档](https://mobx.js.org/)
 - [Redux 完全指南](./redux.md)
 - [React 渲染行为完全指南](./react-rendering-behavior.md)
+
+---
+
+## 🎤 面试回答完整版（10分版）
+
+### 第一段：先定性——MobX 解决什么问题
+
+MobX 和 Redux 一样是 React 的状态管理方案，但设计哲学完全相反。Redux 走函数式、单向数据流、不可变数据，强调『每一次状态变更都可预测可追溯』；MobX 走响应式、OOP 风格、可变数据，强调『改数据 = 视图自动更新』，像 Vue 一样丝滑。它把 React 的状态管理从『手动 dispatch + selector』变成『直接赋值 + 自动订阅』。核心理念用一句话概括：『任何能从应用状态派生出来的东西，都应该自动地、同步地派生出来』。
+
+**Redux vs MobX 设计对比：**
+
+| 维度 | Redux | MobX |
+|------|-------|------|
+| 设计哲学 | 函数式 + 不可变 | 响应式 + OOP + 可变 |
+| 状态变更 | `dispatch(action)` | 直接 `store.xxx = yyy` |
+| 派生计算 | selector（需 reselect 缓存） | `@computed` 自动缓存 |
+| 组件订阅 | `useSelector` 手动 | `observer` HOC 自动订阅 |
+| 样板代码 | 多（action / reducer / type） | 少（一个 class 搞定） |
+| 学习曲线 | 陡峭 | 平缓（类 Vue） |
+| 性能 | 需手动优化 memo + reselect | 自动精确订阅，开箱即用 |
+| 调试 | ✅ DevTools 时间旅行强 | 一般 |
+| 适用场景 | 大型应用 / 严格状态追溯 | 中小型 / 快速开发 |
+
+---
+
+### 第二段：四个核心概念
+
+MobX 只有四个概念，比 Redux 少得多：
+
+- **Observable**（可观察状态）：状态源头，用 `makeAutoObservable(this)` 把 class 的普通字段标记为可观察
+- **Action**（动作）：状态变更的唯一入口。严格模式下（MobX 6 默认）必须在 action 内修改 observable，否则报错
+- **Computed**（计算值）：派生状态，类似 Vue 的 computed，**自动缓存**，依赖未变不重新计算
+- **Reaction**（反应）：副作用，包括 `observer` 组件的自动重渲染、`autorun`、`reaction`、`when` 等
+
+**数据流：**
+
+```
+Action（动作）
+    ↓ 修改
+Observable State（可观察状态）
+    ↓ 派生
+Computed Values（计算值）
+    ↓ 触发
+Reactions（反应：自动渲染 / autorun）
+```
+
+**核心对比表：**
+
+| 概念 | 角色 | 触发时机 | 示例 |
+|------|------|---------|------|
+| Observable | 状态源头 | 被 action 修改 | `this.count = 0` |
+| Action | 修改入口 | 用户操作 / 异步回调 | `increment() { this.count++ }` |
+| Computed | 派生值 | 依赖的 observable 变化时惰性重算 | `get double() { return this.count * 2 }` |
+| Reaction | 副作用 | 订阅的 observable 变化时触发 | `autorun(() => console.log(store.count))` |
+
+---
+
+### 第三段：响应式原理——与 Vue 同源
+
+MobX 5+ 用 **Proxy** 拦截 getter/setter，实现依赖收集和派发更新。原理与 Vue 3 高度相似，但 MobX 更底层、更灵活。
+
+```js
+// observable 的本质：把对象包装成 Proxy
+const state = observable({ count: 0 })
+// 等价于（简化）：
+const state = new Proxy({ count: 0 }, {
+  get(target, key) {
+    reportObserved(target, key)   // 依赖收集
+    return target[key]
+  },
+  set(target, key, value) {
+    target[key] = value
+    propagateChanged(target, key) // 派发更新
+    return true
+  }
+})
+```
+
+**三大核心数据结构：**
+
+| 概念 | 角色 |
+|------|------|
+| **Atom** | 最小观察单元，每个 observable 字段对应一个 |
+| **Reaction** | 副作用（observer 组件 / autorun / reaction） |
+| **Derivation** | 派生（Computed + Reaction 的基类） |
+
+**依赖图示例：**
+
+```
+Atom(todos)  ──→  Computed(doneCount)  ──→  Reaction(TodoList组件)
+                                       ──→  Reaction(Footer组件)
+```
+
+- Atom 变化 → 沿图传播 → 标记下游为「脏」
+- Computed 是**惰性的**：被读取时若是脏的才重新计算
+- Reaction 是**急切的**：脏了就立即重新执行
+
+**事务（Transaction）**：`action` 内多次修改只触发一次 Reaction，避免中间态渲染。
+
+---
+
+### 第四段：observer 如何让 React 自动响应
+
+`observer` 是 `mobx-react-lite` 提供的高阶组件（HOC），核心原理是把 React 组件包装成一个 Reaction，在渲染时**自动追踪**组件读取的每个 observable 字段，形成字段级精确订阅。没读的字段变化不会触发重渲染——这比 Redux 默认行为性能更好，不需要手动 memo 或 selector。
+
+当 observable 变化时，触发 Reaction → 调用内部 `forceUpdate` → 组件重渲染。
+
+**observer 内部简化实现：**
+
+```js
+function observer(Component) {
+  return function ObserverWrapper(props) {
+    const [, forceUpdate] = useState()
+    const reaction = useRef(new Reaction('observer', () => forceUpdate({})))
+
+    let rendering
+    // 在 reaction.track 中执行渲染，收集依赖
+    reaction.current.track(() => {
+      rendering = Component(props)
+    })
+    return rendering
+  }
+}
+```
+
+**精准订阅对比：**
+
+| 方案 | 订阅粒度 | 性能 |
+|------|---------|-----|
+| React-Redux `useSelector` | selector 返回值的引用比较 | 中（需手写 selector） |
+| Context | Provider value 全消费者联动 | 差 |
+| MobX `observer` | 组件**读取**的每个 observable 字段 | ✅ 字段级精确 |
+
+---
+
+### 第五段：MobX 6 的演进
+
+MobX 6（2020）是一次重大重构，核心目标是**降低使用门槛**和**移除装饰器依赖**。
+
+**关键变化：**
+
+| 维度 | MobX 5 | MobX 6 |
+|------|-------|-------|
+| 装饰器 | 强依赖（需 Babel 配置） | 可选 |
+| 初始化 | `@observable` / `@action` / `@computed` | `makeAutoObservable(this)` 自动推断 |
+| 严格模式 | 需手动开启 | 默认开启 `enforceActions: 'observed'` |
+| TypeScript | 需实验性装饰器 | 原生支持，类型推导准确 |
+| React 18 | 不兼容 | ✅ `useSyncExternalStore`，支持并发模式 |
+
+**MobX 6 写法示例：**
+
+```ts
+class Store {
+  count = 0
+  constructor() {
+    makeAutoObservable(this) // 自动：字段 → observable，getter → computed，方法 → action
+  }
+  increment() { this.count++ }
+  get double() { return this.count * 2 }
+}
+```
+
+---
+
+### 第六段：常见踩坑与最佳实践
+
+**常见踩坑速查：**
+
+| 坑 | 后果 | 正确做法 |
+|---|------|---------|
+| 异步操作直接改 state | 严格模式报错 | `runInAction(() => { ... })` 包裹 |
+| 解构 store 字段 | 丢失响应性，视图不更新 | 直接 `store.count` 访问 |
+| 子组件没包 `observer` | 不响应 state 变化 | 每个响应式组件都要 `observer` 包裹 |
+| 用 `new Map()` 当 observable | 不响应 | 用 `observable.map()` |
+| computed 里有副作用 | 破坏缓存、不可预测 | computed 必须纯函数 |
+
+**最佳实践总结：**
+- 用 `makeAutoObservable(this)` 替代装饰器
+- 异步回调用 `runInAction` 包裹状态变更
+- 直接访问 `store.field`，不解构
+- 每个响应式组件单独 `observer` 包裹
+- 项目组织用 **RootStore + 多子 Store** 模式 + React Context 注入
+- Map/Set 用 `observable.map()` / `observable.set()`
+
+**收尾：** MobX 与 Vue 的响应式系统同源（Proxy + 依赖收集），但更灵活、更底层。它的核心优势是『改数据 = 视图自动更新』的开发体验和字段级精确订阅的性能。适合中小型项目、OOP 偏好、追求开发效率的团队。大型项目如果强调时间旅行调试和严格状态追溯，Redux RTK 仍是更成熟的选择。

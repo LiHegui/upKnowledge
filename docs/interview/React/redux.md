@@ -4,6 +4,40 @@
 
 ---
 
+## 目录
+
+- [基础概念篇](#基础概念篇)
+  - [Q: Redux 是什么？解决了什么问题？](#q-redux-是什么解决了什么问题)
+  - [Q: Redux 核心概念有哪些？](#q-redux-核心概念有哪些)
+  - [Q: Action 和 Action Creator 是什么？](#q-action-和-action-creator-是什么)
+  - [Q: Reducer 是什么？有什么约束？](#q-reducer-是什么有什么约束)
+  - [Q: combineReducers 是什么？如何拆分 Reducer？](#q-combinereducers-是什么如何拆分-reducer)
+- [Redux 整体链路图（纯 Markdown 版）](#redux-整体链路图纯-markdown-版)
+- [核心 API 篇](#核心-api-篇)
+  - [Q: createStore 内部是如何实现的？](#q-createstore-内部是如何实现的)
+  - [Q: compose 函数是什么？有什么用？](#q-compose-函数是什么有什么用)
+- [中间件篇](#中间件篇)
+  - [Q: Redux 中间件的实现原理是什么？](#q-redux-中间件的实现原理是什么)
+  - [Q: redux-thunk 是什么？如何实现异步 action？](#q-redux-thunk-是什么如何实现异步-action)
+  - [Q: redux-saga 是什么？与 redux-thunk 有何区别？](#q-redux-saga-是什么与-redux-thunk-有何区别)
+- [react-redux 篇](#react-redux-篇)
+  - [Q: react-redux 如何连接 React 和 Redux？](#q-react-redux-如何连接-react-和-redux)
+  - [Q: useSelector 的性能注意事项有哪些？](#q-useselector-的性能注意事项有哪些)
+- [Redux Toolkit 篇](#redux-toolkit-篇)
+  - [Q: Redux Toolkit（RTK）是什么？核心 API 有哪些？](#q-redux-toolkitrtk-是什么核心-api-有哪些)
+  - [Q: createSlice 是如何工作的？](#q-createslice-是如何工作的)
+  - [Q: configureStore 与 createStore 有何区别？](#q-configurestore-与-createstore-有何区别)
+  - [Q: RTK Query 是什么？](#q-rtk-query-是什么)
+- [状态设计篇](#状态设计篇)
+  - [Q: Redux 如何实现多个组件之间的通信？](#q-redux-如何实现多个组件之间的通信)
+  - [Q: Redux 状态该如何设计？哪些状态适合放 Redux？](#q-redux-状态该如何设计哪些状态适合放-redux)
+- [选型对比篇](#选型对比篇)
+  - [Q: Redux vs Context vs Zustand vs Jotai 如何选择？](#q-redux-vs-context-vs-zustand-vs-jotai-如何选择)
+  - [Q: Zustand 相比 Redux 有哪些优势？](#q-zustand-相比-redux-有哪些优势)
+- [🎤 面试回答完整版（10分版）](#-面试回答完整版10分版)
+
+---
+
 ## 基础概念篇
 
 ## Q: Redux 是什么？解决了什么问题？
@@ -197,267 +231,114 @@ function combineReducers(reducers) {
 
 ---
 
-<style>
-.rdx{font-family:'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;font-size:13px;line-height:1.6;color:#e0e4f0}
-.rdx-card{background:#1a1d27;border:1px solid #2e3347;border-radius:10px;padding:18px 20px;margin:14px 0}
-.rdx-title{font-size:11px;font-weight:700;color:#a8b0cc;text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px;padding-bottom:6px;border-bottom:1px solid #2e3347}
-.rdx-tl{position:relative;padding-left:28px}
-.rdx-tl::before{content:'';position:absolute;left:10px;top:0;bottom:0;width:2px;background:#2e3347}
-.rdx-ti{position:relative;margin-bottom:14px}
-.rdx-ti::before{content:'';position:absolute;left:-22px;top:7px;width:10px;height:10px;border-radius:50%;border:2px solid}
-.rdx-ti.b::before{border-color:#4f8ef7;background:#4f8ef7}
-.rdx-ti.g::before{border-color:#3ddc84;background:#3ddc84}
-.rdx-ti.p::before{border-color:#b57bee;background:#b57bee}
-.rdx-ti.y::before{border-color:#ffd166;background:#ffd166}
-.rdx-ti.o::before{border-color:#ff9f43;background:#ff9f43}
-.rdx-ti.c::before{border-color:#48cae4;background:#48cae4}
-.rdx-tl-lb{font-size:12px;font-weight:700;margin-bottom:2px}
-.rdx-tl-d{color:#8b90a8;font-size:11px}
-.rdx-flow{display:flex;align-items:stretch;gap:0;flex-wrap:wrap;margin:10px 0}
-.rdx-step{flex:1;padding:12px 10px;text-align:center;font-size:11px;font-weight:600;border-radius:7px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:4px;min-width:88px}
-.rdx-step sub{font-weight:400;color:#8b90a8;font-size:10px;display:block;margin-top:2px}
-.rdx-arr{color:#555;font-size:18px;padding:0 3px;flex-shrink:0;display:flex;align-items:center}
-.rdx-step-b{background:rgba(79,142,247,.12);border:1px solid rgba(79,142,247,.3);color:#7eb3ff}
-.rdx-step-g{background:rgba(61,220,132,.10);border:1px solid rgba(61,220,132,.25);color:#6ef5a8}
-.rdx-step-p{background:rgba(181,123,238,.10);border:1px solid rgba(181,123,238,.3);color:#d4a8ff}
-.rdx-step-y{background:rgba(255,209,102,.10);border:1px solid rgba(255,209,102,.25);color:#ffe599}
-.rdx-step-o{background:rgba(255,159,67,.10);border:1px solid rgba(255,159,67,.25);color:#ffbb7a}
-.rdx-step-c{background:rgba(72,202,228,.10);border:1px solid rgba(72,202,228,.25);color:#7be0f5}
-.rdx-note{padding:9px 13px;border-radius:7px;font-size:12px;margin-top:10px}
-.rdx-nb{background:rgba(79,142,247,.1);border-left:3px solid #4f8ef7;color:#7eb3ff}
-.rdx-ng{background:rgba(61,220,132,.08);border-left:3px solid #3ddc84;color:#6ef5a8}
-.rdx-nr{background:rgba(255,92,92,.08);border-left:3px solid #ff5c5c;color:#ff8f8f}
-.rdx-ny{background:rgba(255,209,102,.08);border-left:3px solid #ffd166;color:#ffe599}
-.rdx-np{background:rgba(181,123,238,.08);border-left:3px solid #b57bee;color:#d4a8ff}
-.rdx-row{display:flex;gap:10px;flex-wrap:wrap;margin:8px 0}
-.rdx-box{flex:1;min-width:155px;border-radius:9px;padding:13px 14px;border:1px solid #2e3347}
-.rdx-box h5{font-size:12px;font-weight:700;margin:0 0 8px}
-.rdx-box ul{list-style:none;padding:0;margin:0}
-.rdx-box li{font-size:11px;color:#8b90a8;padding:3px 0 3px 14px;position:relative}
-.rdx-box li::before{content:'▸';position:absolute;left:0;color:#555}
-.rdx-box-b{border-color:rgba(79,142,247,.35);background:rgba(79,142,247,.05)}
-.rdx-box-b h5{color:#7eb3ff}
-.rdx-box-g{border-color:rgba(61,220,132,.3);background:rgba(61,220,132,.04)}
-.rdx-box-g h5{color:#6ef5a8}
-.rdx-box-p{border-color:rgba(181,123,238,.35);background:rgba(181,123,238,.04)}
-.rdx-box-p h5{color:#d4a8ff}
-.rdx-box-o{border-color:rgba(255,159,67,.3);background:rgba(255,159,67,.04)}
-.rdx-box-o h5{color:#ffbb7a}
-.rdx-box-y{border-color:rgba(255,209,102,.3);background:rgba(255,209,102,.04)}
-.rdx-box-y h5{color:#ffe599}
-.rdx-box-c{border-color:rgba(72,202,228,.3);background:rgba(72,202,228,.04)}
-.rdx-box-c h5{color:#7be0f5}
-.rdx-onion{display:flex;flex-direction:column;gap:6px}
-.rdx-ol{border-radius:8px;padding:11px 14px;border:1px solid}
-.rdx-ol-inner{margin:8px 0 2px 16px;display:flex;flex-direction:column;gap:6px}
-.rdx-ol-lb{font-size:11px;font-weight:700}
-.rdx-ol-d{font-size:11px;color:#8b90a8;margin-top:2px}
-.rdx-ol-1{border-color:rgba(79,142,247,.4);background:rgba(79,142,247,.06)}
-.rdx-ol-1 .rdx-ol-lb{color:#7eb3ff}
-.rdx-ol-2{border-color:rgba(61,220,132,.35);background:rgba(61,220,132,.05)}
-.rdx-ol-2 .rdx-ol-lb{color:#6ef5a8}
-.rdx-ol-3{border-color:rgba(181,123,238,.35);background:rgba(181,123,238,.05)}
-.rdx-ol-3 .rdx-ol-lb{color:#d4a8ff}
-.rdx-ol-core{border-color:rgba(255,209,102,.4);background:rgba(255,209,102,.07)}
-.rdx-ol-core .rdx-ol-lb{color:#ffe599}
-.rdx-sig{display:inline-flex;gap:0;border-radius:6px;overflow:hidden;margin:8px 0 4px;font-family:'Cascadia Code','Fira Code',Consolas,monospace;font-size:11px}
-.rdx-s1{background:rgba(79,142,247,.2);color:#7eb3ff;padding:5px 10px}
-.rdx-sa{background:#1a1d27;color:#555;padding:5px 6px}
-.rdx-s2{background:rgba(61,220,132,.15);color:#6ef5a8;padding:5px 10px}
-.rdx-s3{background:rgba(181,123,238,.15);color:#d4a8ff;padding:5px 10px}
-.rdx-s4{background:rgba(255,209,102,.12);color:#ffe599;padding:5px 10px}
-.rdx-tag{display:inline-block;font-size:10px;font-weight:700;padding:1px 6px;border-radius:3px;margin-left:4px}
-.rdx-tg-b{background:#4f8ef7;color:#fff}.rdx-tg-g{background:#3ddc84;color:#000}
-.rdx-tg-p{background:#b57bee;color:#fff}.rdx-tg-y{background:#ffd166;color:#000}
-</style>
+## Redux 整体链路图（纯 Markdown 版）
 
-## Redux 整体链路图
+### 🔄 一、完整数据流总览
 
-<div class="rdx">
+```
+Component(useDispatch)
+  ↓ dispatch(action)
+Middleware Chain（拦截 / 增强）
+  ↓ next(action)
+Reducer((prev, action) => newState)
+  ↓
+State Tree（不可变更新）
+  ↓ notify subscribers
+Component 重渲染（useSelector）
+```
 
-<div class="rdx-card">
-<div class="rdx-title">🔄 一、完整数据流总览</div>
-
-<div class="rdx-flow">
-  <div class="rdx-step rdx-step-b">Component<sub>useDispatch()</sub></div>
-  <div class="rdx-arr">→</div>
-  <div class="rdx-step rdx-step-o">dispatch<br/>(action)<sub>触发入口</sub></div>
-  <div class="rdx-arr">→</div>
-  <div class="rdx-step rdx-step-p">Middleware<br/>Chain<sub>拦截 / 增强</sub></div>
-  <div class="rdx-arr">→</div>
-  <div class="rdx-step rdx-step-y">Reducer<sub>(prev, action)⇒new</sub></div>
-  <div class="rdx-arr">→</div>
-  <div class="rdx-step rdx-step-g">State<br/>Tree<sub>不可变更新</sub></div>
-  <div class="rdx-arr">→</div>
-  <div class="rdx-step rdx-step-c">notify<br/>subscribers<sub>通知订阅者</sub></div>
-  <div class="rdx-arr">→</div>
-  <div class="rdx-step rdx-step-b">Component<br/>重渲染<sub>useSelector()</sub></div>
-</div>
-
-<div class="rdx-note rdx-nb">整个流程是<strong>单向的</strong>：数据只能从 dispatch → Reducer → State → 组件 单向流动，不能反向。</div>
-</div>
-
-<div class="rdx-card">
-<div class="rdx-title">⚙️ 二、Redux Store 内部：一次 dispatch 的完整生命周期</div>
-<div class="rdx-tl">
-  <div class="rdx-ti b">
-    <div class="rdx-tl-lb" style="color:#7eb3ff">① dispatch(action) — 唯一入口</div>
-    <div class="rdx-tl-d">组件调用 dispatch，传入一个描述"发生了什么"的 Action 对象（必须含 type 字段）</div>
-  </div>
-  <div class="rdx-ti o">
-    <div class="rdx-tl-lb" style="color:#ffbb7a">② Middleware Chain 处理</div>
-    <div class="rdx-tl-d">action 依次经过每个中间件；可在此拦截、转换、记录、处理异步（thunk / saga）。每个中间件调用 next(action) 将控制权传给下一层</div>
-  </div>
-  <div class="rdx-ti p">
-    <div class="rdx-tl-lb" style="color:#d4a8ff">③ 原始 store.dispatch — 进入 Reducer</div>
-    <div class="rdx-tl-d">中间件链末端调用原始 dispatch，触发 Reducer：<code>(prevState, action) => newState</code>。Reducer 必须是纯函数，返回新对象（不可变）</div>
-  </div>
-  <div class="rdx-ti y">
-    <div class="rdx-tl-lb" style="color:#ffe599">④ State Tree 更新</div>
-    <div class="rdx-tl-d">Store 将 Reducer 的返回值保存为新 state。<code>combineReducers</code> 会将所有子 Reducer 的结果合并为一棵完整的状态树</div>
-  </div>
-  <div class="rdx-ti g">
-    <div class="rdx-tl-lb" style="color:#6ef5a8">⑤ notify subscribers() — 通知订阅者</div>
-    <div class="rdx-tl-d">Store 调用所有通过 subscribe() 注册的监听函数；react-redux 的 useSelector 正是在此处执行 selector 并进行 === 比对</div>
-  </div>
-  <div class="rdx-ti c">
-    <div class="rdx-tl-lb" style="color:#7be0f5">⑥ 组件按需重渲染</div>
-    <div class="rdx-tl-d">useSelector 的返回值与上次不同（=== 比较失败）→ 触发组件重渲染，UI 更新</div>
-  </div>
-</div>
-<div class="rdx-note rdx-nr">⚠️ 每次 dispatch，<strong>所有 Reducer 都会被调用</strong>（combineReducers 内部遍历）。未匹配的 action 必须在 default 分支返回原 state，否则会被置为 undefined。</div>
-</div>
-
-<div class="rdx-card">
-<div class="rdx-title">🧅 三、Middleware 洋葱模型</div>
-<div class="rdx-onion">
-  <div class="rdx-ol rdx-ol-1">
-    <div class="rdx-ol-lb">middleware1（最外层）<span class="rdx-tag rdx-tg-b">如 logger</span></div>
-    <div class="rdx-ol-d">前置：打印 action 信息</div>
-    <div class="rdx-ol-inner">
-      <div class="rdx-ol rdx-ol-2">
-        <div class="rdx-ol-lb">middleware2<span class="rdx-tag rdx-tg-g">如 thunk</span></div>
-        <div class="rdx-ol-d">前置：判断 action 是否为函数，是则执行异步逻辑并 dispatch 新 action</div>
-        <div class="rdx-ol-inner">
-          <div class="rdx-ol rdx-ol-3">
-            <div class="rdx-ol-lb">middleware3<span class="rdx-tag rdx-tg-p">如 saga</span></div>
-            <div class="rdx-ol-d">前置：监听特定 action，交由 Generator 处理复杂流程</div>
-            <div class="rdx-ol-inner">
-              <div class="rdx-ol rdx-ol-core">
-                <div class="rdx-ol-lb">⭐ 原始 store.dispatch(action)</div>
-                <div class="rdx-ol-d">调用 Reducer → 更新 State → notify()，洋葱核心</div>
-              </div>
-            </div>
-            <div class="rdx-ol-d" style="margin-top:6px">后置：saga 处理完成回调</div>
-          </div>
-        </div>
-        <div class="rdx-ol-d" style="margin-top:6px">后置：thunk 无后置逻辑</div>
-      </div>
-    </div>
-    <div class="rdx-ol-d" style="margin-top:6px">后置：打印更新后的 state</div>
-  </div>
-</div>
-
-<div style="margin-top:12px">
-<div style="font-size:11px;color:#8b90a8;margin-bottom:6px">中间件签名（三层柯里化）：</div>
-<div class="rdx-sig">
-  <div class="rdx-s1">store</div><div class="rdx-sa">=></div>
-  <div class="rdx-s2">next</div><div class="rdx-sa">=></div>
-  <div class="rdx-s3">action</div><div class="rdx-sa">=></div>
-  <div class="rdx-s4">{ ... next(action) ... }</div>
-</div>
-<div style="font-size:11px;color:#8b90a8;margin-top:6px">
-  <span style="color:#7eb3ff">store</span> = applyMiddleware 注入 { getState, dispatch } ／
-  <span style="color:#6ef5a8">next</span> = 下一个中间件的 dispatch ／
-  <span style="color:#d4a8ff">action</span> = 实际传入的动作对象
-</div>
-</div>
-</div>
-
-<div class="rdx-card">
-<div class="rdx-title">🔌 四、react-redux 连接层</div>
-<div class="rdx-row">
-  <div class="rdx-box rdx-box-b">
-    <h5>🏗️ &lt;Provider store={store}&gt;</h5>
-    <ul>
-      <li>将 store 放入 React Context</li>
-      <li>包裹整个应用根节点</li>
-      <li>Context 传递 store 引用</li>
-      <li>Context 本身不触发子组件重渲染</li>
-    </ul>
-  </div>
-  <div class="rdx-box rdx-box-o">
-    <h5>⚡ useDispatch()</h5>
-    <ul>
-      <li>从 Context 取出 store.dispatch</li>
-      <li>返回经中间件增强的 dispatch</li>
-      <li>组件整个生命周期内引用稳定</li>
-      <li>建议配合 useCallback 缓存回调</li>
-    </ul>
-  </div>
-  <div class="rdx-box rdx-box-g">
-    <h5>👁️ useSelector(selector)</h5>
-    <ul>
-      <li>订阅 store，state 变化时执行 selector</li>
-      <li>与上次结果 === 比较，不同才重渲染</li>
-      <li>返回新引用（如 .filter）会无效重渲</li>
-      <li>优化：createSelector / shallowEqual</li>
-    </ul>
-  </div>
-</div>
-<div class="rdx-note rdx-ny">⚠️ useSelector 默认用 <strong>严格相等（===）</strong>比较。若 selector 每次返回新对象/数组，即使内容相同也会触发重渲染——此时需要 <code>createSelector</code>（Reselect 记忆化）或 <code>shallowEqual</code>。</div>
-</div>
-
-<div class="rdx-card">
-<div class="rdx-title">🛠️ 五、Redux Toolkit（RTK）各层职责</div>
-<div class="rdx-row">
-  <div class="rdx-box rdx-box-b">
-    <h5>configureStore</h5>
-    <ul>
-      <li>替代 createStore</li>
-      <li>自动 combineReducers</li>
-      <li>内置 redux-thunk 中间件</li>
-      <li>自动集成 Redux DevTools</li>
-      <li>开发模式可变性检测</li>
-    </ul>
-  </div>
-  <div class="rdx-box rdx-box-g">
-    <h5>createSlice</h5>
-    <ul>
-      <li>一次性定义 reducer + actions</li>
-      <li>内置 Immer，可"直接修改" state</li>
-      <li>自动生成 action creators</li>
-      <li>action type = "name/reducerKey"</li>
-      <li>extraReducers 处理外部 action</li>
-    </ul>
-  </div>
-  <div class="rdx-box rdx-box-p">
-    <h5>createAsyncThunk</h5>
-    <ul>
-      <li>封装异步操作为标准 thunk</li>
-      <li>自动生成 pending / fulfilled / rejected</li>
-      <li>支持 abort 取消请求</li>
-      <li>支持 condition 提前中止</li>
-      <li>在 extraReducers 中处理</li>
-    </ul>
-  </div>
-  <div class="rdx-box rdx-box-c">
-    <h5>RTK Query</h5>
-    <ul>
-      <li>服务端状态管理（≈ React Query）</li>
-      <li>自动缓存 &amp; 去重请求</li>
-      <li>自动生成 useXxxQuery / Mutation</li>
-      <li>tag 失效机制自动重新请求</li>
-      <li>与 Redux DevTools 深度集成</li>
-    </ul>
-  </div>
-</div>
-<div class="rdx-note rdx-np">💡 职责分工：<strong>createSlice</strong> 管客户端 UI 状态 ／ <strong>RTK Query</strong> 管服务端数据状态 ／ 两者职责应严格分离，不要把 API 数据手动存入 slice。</div>
-</div>
-
-</div>
+> 整个流程是**单向的**：数据只能从 dispatch → Reducer → State → 组件 单向流动，不能反向。
 
 ---
+
+### ⚙️ 二、一次 dispatch 的完整生命周期
+
+```
+① dispatch(action) — 唯一入口
+   组件调用 dispatch，传入一个描述"发生了什么"的 Action 对象（必须含 type 字段）
+   
+② Middleware Chain 处理
+   action 依次经过每个中间件；可在此拦截、转换、记录、处理异步（thunk / saga）
+   每个中间件调用 next(action) 将控制权传给下一层
+   
+③ 原始 store.dispatch — 进入 Reducer
+   中间件链末端调用原始 dispatch，触发 Reducer：(prevState, action) => newState
+   Reducer 必须是纯函数，返回新对象（不可变）
+   
+④ State Tree 更新
+   Store 将 Reducer 的返回值保存为新 state
+   combineReducers 将所有子 Reducer 的结果合并为一棵完整的状态树
+   
+⑤ notify subscribers() — 通知订阅者
+   Store 调用所有通过 subscribe() 注册的监听函数
+   react-redux 的 useSelector 在此处执行 selector 并进行 === 比对
+   
+⑥ 组件按需重渲染
+   useSelector 的返回值与上次不同（=== 比较失败）→ 触发组件重渲染，UI 更新
+```
+
+> ⚠️ **注意**：每次 dispatch，**所有 Reducer 都会被调用**（combineReducers 内部遍历）。未匹配的 action 必须在 default 分支返回原 state，否则会被置为 undefined。
+
+---
+
+### 🧅 三、Middleware 洋葱模型
+
+```
+middleware1（最外层 — 如 logger）
+  ├─ 前置：打印 action 信息
+  │
+  ├─ middleware2（如 thunk）
+  │  ├─ 前置：判断 action 是否为函数，是则执行异步逻辑并 dispatch 新 action
+  │  │
+  │  ├─ middleware3（如 saga）
+  │  │  ├─ 前置：监听特定 action，交由 Generator 处理复杂流程
+  │  │  │
+  │  │  ├─ ⭐ 原始 store.dispatch(action)
+  │  │  │    → 调用 Reducer → 更新 State → notify()
+  │  │  │
+  │  │  └─ 后置：saga 处理完成回调
+  │  │
+  │  └─ 后置：thunk 无后置逻辑
+  │
+  └─ 后置：打印更新后的 state
+```
+
+**中间件签名（三层柯里化）：**
+
+```
+store  =>  next  =>  action  =>  { ... next(action) ... }
+```
+
+| 参数 | 说明 |
+|------|------|
+| `store` | applyMiddleware 注入 `{ getState, dispatch }` |
+| `next` | 下一个中间件的 dispatch 函数 |
+| `action` | 实际传入的动作对象 |
+
+---
+
+### 🔌 四、react-redux 连接层
+
+| 组件 / Hook | 职责 | 要点 |
+|------------|------|------|
+| **`<Provider store={store}>`** | 将 store 放入 React Context | 包裹整个应用根节点；Context 本身不触发子组件重渲染 |
+| **`useDispatch()`** | 从 Context 取出 `store.dispatch` | 返回经中间件增强的 dispatch；建议配合 `useCallback` 缓存回调 |
+| **`useSelector(selector)`** | 订阅 store | 与上次结果 `===` 比较，不同才重渲染；返回新引用（如 `.filter`）会无效重渲 |
+
+> ⚠️ **注意**：useSelector 默认用**严格相等（===）**比较。若 selector 每次返回新对象/数组，即使内容相同也会触发重渲染——此时需要 `createSelector`（Reselect 记忆化）或 `shallowEqual`。
+
+---
+
+### 🛠️ 五、Redux Toolkit（RTK）各层职责
+
+| API | 职责 | 关键特性 |
+|-----|------|---------|
+| **`configureStore`** | 替代 `createStore` | 自动 `combineReducers`；内置 redux-thunk；自动集成 Redux DevTools；开发模式可变性检测 |
+| **`createSlice`** | 一次性定义 reducer + actions | 内置 Immer，可"直接修改"state；自动生成 action creators；`extraReducers` 处理外部 action |
+| **`createAsyncThunk`** | 封装异步操作为标准 thunk | 自动生成 pending/fulfilled/rejected；支持 abort 取消；支持 condition 提前中止 |
+| **RTK Query** | 服务端状态管理（≈ React Query） | 自动缓存 & 去重请求；自动生成 useXxxQuery/Mutation；tag 失效机制自动重新请求 |
+
+> 💡 **职责分工**：`createSlice` 管客户端 UI 状态 / `RTK Query` 管服务端数据状态。两者职责应严格分离，不要把 API 数据手动存入 slice。
 
 ## 核心 API 篇
 
@@ -907,7 +788,7 @@ import { useSelector } from 'react-redux'
 function UserName() {
   // 只订阅 state.user.name，其他字段变化不会触发重渲染
   const name = useSelector(state => state.user.name)
-  return <span>{name}</span>
+  return <span>{name}**
 }
 ```
 
@@ -1295,3 +1176,53 @@ function Counter() {
 | 迁移成本           | ❌ 改造代价大                                | ✅ 可逐步引入                    |
 
 > ⚠️ **注意**：对于已有 Redux 的大型项目，不建议强行迁移到 Zustand。新项目在不需要复杂中间件和时间旅行调试的场景下，Zustand 是更轻量的选择。
+
+---
+
+## 🎤 面试回答完整版（10分版）
+
+### 第一段：Redux 解决了什么问题
+
+Redux 解决的根本问题是——当你的应用有大量跨组件、跨层级共享状态时，直接传递 props 或组件间通信会导致数据流不可控、Bug 难以追踪。Redux 的方案是抽出全局 Store，通过单向数据流让每一次状态变更都变得可预测、可回溯。它本质上不是状态管理库，而是『状态变更流程的规范化框架』——把任意地方都可以修改任意状态，变成所有人都必须走同一个流程来申请修改。
+
+---
+
+### 第二段：核心概念速览
+
+Redux 有四个核心概念：Store——唯一状态容器，整个应用只有一个，保证了任何时候你只有一个真相来源。Action——描述发生了什么，是一个普通对象，必须有 `type` 字段。它的目的不是『通知 Reducer 改什么』，而是『记录刚才发生了什么』——这就是时间旅行调试的基础。Reducer——纯函数 `(state, action) => newState`，纯函数约束确保了可预测性：相同输入永远相同输出。这也是 Redux 可以不依赖框架独立使用的原因。Dispatch——触发状态变更的唯一途径，保证了没有隐式修改、没有双向绑定带来的『不知道谁改了数据』的问题。
+
+---
+
+### 第三段：三大原则
+
+三大原则是上面设计的具体体现：单一数据源、State 只读、纯函数更新。三者共同服务一个核心价值——可预测性。
+
+---
+
+### 第四段：中间件机制
+
+中间件是 Redux 最具设计巧思的部分。它本质是一个增强 dispatch 的机制——让你可以在 action 到达 Reducer 之前或之后插入自定义逻辑。它的实现核心是三层柯里化 + compose 函数组合。标准结构是 `store => next => action => { ... }`：第一层收到 `getState` 和 `dispatch`；第二层收到下一个中间件的 dispatch；第三层才是实际 action。`applyMiddleware` 内部用 `compose` 把所有中间件串成洋葱模型——action 从外层穿过所有中间件到达 Reducer，结果再穿回来。注意一个小设计：`middlewareAPI` 中的 `dispatch` 用闭包包了一层 `(action) => dispatch(action)`，这保证了中间件内部 dispatch 的新 action 仍会走完整中间件链，而不是绕过。
+
+---
+
+### 第五段：RTK——现代 Redux
+
+原始 Redux 最大的痛点是样板代码太多。官方在 2019 年推出了 Redux Toolkit。核心变化：① `createSlice` 合一——action type、creator、reducer 一步定义，自动生成。② 内置 Immer——不需要手写 `...state` 展开了。③ `configureStore`——替代 `createStore`，自动 `combineReducers`、自动挂载 thunk 中间件和 DevTools。④ `createAsyncThunk`——替代手写 thunk action creator，自动生成 pending/fulfilled/rejected 三个 action。现在做新项目，绝不要用原始 Redux 写法，一律用 RTK。
+
+---
+
+### 第六段：选型判断
+
+我的选型标准很简单：这个状态是否被两个以上不相关的组件需要？如果是，考虑 Redux 或 Zustand；如果不是，放组件本地。另外有个常见误区：用 Context 代替 Redux 来传递频繁更新的状态。Context 没有选择器机制，Provider 的值一变化，下面所有消费者都重渲染，性能反而不如 Redux 的精准订阅 + Reselect 记忆化。对于新项目，我个人倾向：简单全局状态用 Zustand、复杂业务逻辑用 RTK、服务端数据用 React Query / RTK Query——不混在一起。
+
+**状态管理方案选型对比：**
+
+| 维度 | Redux (RTK) | Zustand | MobX | Context + useReducer |
+|------|------------|---------|------|---------------------|
+| 样板代码 | 中（RTK 后减少） | 极少 | 少 | 少 |
+| 时间旅行调试 | ✅ DevTools 完整支持 | 需配置 | 一般 | ❌ |
+| 学习曲线 | 陡峭 | 平缓 | 平缓 | 平缓 |
+| 精准订阅 | ✅ Reselect 记忆化 | ✅ selector 函数 | ✅ computed 自动缓存 | ❌ 全消费者重渲染 |
+| 不可变性 | ✅ 强制（Immer） | 推荐 | ❌ 可变 | 推荐 |
+| 适用场景 | 大型复杂应用 | 轻量全局状态 | 中小型 / OOP 偏好 | 低频更新、简单状态 |
+| 服务端数据 | RTK Query | 需额外集成 | 需额外集成 | 需额外集成 |

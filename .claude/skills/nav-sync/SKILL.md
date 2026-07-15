@@ -130,6 +130,9 @@ argument-hint: "可选：指定同步方向，如「以侧边栏为准」「以�
 | React → `/interview/React/` | React 技术要点 → `./interview/React/index.md` |
 | React 渲染行为完全指南 → `/interview/React/react-rendering-behavior` | 同左 |
 | Fiber 架构与 Diff 算法深度解析 → `/interview/React/fiber-diff` | 同左 |
+| React 性能优化完全指南 → `/interview/React/react-性能优化` | 同左 |
+| Redux 完全指南 → `/interview/React/redux` | 同左 |
+| MobX 完全指南 → `/interview/React/mobx` | 同左 |
 
 ### 7. 工程化
 

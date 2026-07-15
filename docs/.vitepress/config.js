@@ -111,6 +111,7 @@ const frontendSidebar = [
       { text: 'React', link: '/interview/React/' },
       { text: 'React 渲染行为完全指南', link: '/interview/React/react-rendering-behavior' },
       { text: 'Fiber 架构与 Diff 算法深度解析', link: '/interview/React/fiber-diff' },
+      { text: 'React 性能优化完全指南', link: '/interview/React/react-性能优化' },
       { text: 'Redux 完全指南', link: '/interview/React/redux' },
       { text: 'MobX 完全指南', link: '/interview/React/mobx' },
     ],

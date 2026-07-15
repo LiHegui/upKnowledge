@@ -33,6 +33,9 @@ node_modules
 
 docs/.vuepress/dist/*
 
+# demo
+demo
+
 # VitePress
 docs/.vitepress/dist
 docs/.vitepress/cache

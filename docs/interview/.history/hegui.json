@@ -1,430 +1,562 @@
-﻿{
-    "_comment":  "Per-user history archive. Keep this file append-only as much as possible.",
-    "schemaVersion":  "1.0.0",
-    "user":  {
-                 "username":  "hegui",
-                 "displayName":  "hegui",
-                 "createdAt":  "2026-06-01T00:00:00+08:00",
-                 "updatedAt":  "2026-06-15T00:00:00+08:00"
-             },
-    "summary":  {
-                    "totalEvents":  28,
-                    "interviewPracticeCount":  4,
-                    "tsLevel":  1,
-                    "lastPracticeAt":  "2026-06-15T00:00:00+08:00"
-                },
-    "tags":  [
-                 "interview",
-                 "typescript",
-                 "learning"
-             ],
-    "events":  [
-                   {
-                       "_comment":  "Append new records here. Do not overwrite old events.",
-                       "id":  "evt-20260601-0001",
-                       "type":  "system.init",
-                       "topic":  "history",
-                       "title":  "Initialize personal history archive",
-                       "score":  null,
-                       "level":  0,
-                       "status":  "done",
-                       "source":  "system",
-                       "details":  {
-                                       "note":  "Archive file created from default template"
-                                   },
-                       "createdAt":  "2026-06-01T00:00:00+08:00"
-                   },
-                   {
-                       "id":  "evt-20260601-114427-181",
-                       "type":  "interview.practice",
-                       "topic":  "TypeScript",
-                       "title":  "TS guard basics",
-                       "status":  "done",
-                       "source":  "interviewer",
-                       "createdAt":  "2026-06-01T11:44:27+08:00",
-                       "score":  9,
-                       "level":  1,
-                       "details":  {
-                                       "question":  "Q: 什么是类型守卫"
-                                   }
-                   },
-                   {
-                       "id":  "evt-20260601-114428-395",
-                       "type":  "kb.inject",
-                       "topic":  "TypeScript",
-                       "title":  "Inject narrowing answer",
-                       "status":  "done",
-                       "source":  "kb-inject",
-                       "createdAt":  "2026-06-01T11:44:28+08:00",
-                       "details":  {
-                                       "target":  "docs/interview/Ts/index.md",
-                                       "operation":  "enhance"
-                                   }
-                   },
-                   {
-                       "id":  "evt-20260602-ts-inject-as",
-                       "type":  "kb.inject",
-                       "topic":  "TypeScript",
-                       "title":  "Inject as remap + mapped type patterns",
-                       "status":  "done",
-                       "source":  "kb-inject",
-                       "createdAt":  "2026-06-02T00:00:00+08:00",
-                       "details":  {
-                                       "target":  "docs/interview/Ts/index.md",
-                                       "operation":  "enhance",
-                                       "note":  "Added as remapping syntax, key filtering via never, mapped type result cheatsheet"
-                                   }
-                   },
-                   {
-                       "id":  "evt-20260603-ts-inject-required-modifier",
-                       "type":  "kb.inject",
-                       "topic":  "TypeScript",
-                       "title":  "Inject mapped modifier -? for Required",
-                       "status":  "done",
-                       "source":  "kb-inject",
-                       "createdAt":  "2026-06-03T00:00:00+08:00",
-                       "details":  {
-                                       "target":  "docs/interview/Ts/index.md",
-                                       "operation":  "enhance",
-                                       "note":  "Added +? and -? explanation with MyPartial/MyRequired examples"
-                                   }
-                   },
-                   {
-                       "id":  "evt-20260603-ts-inject-distribute-conditional",
-                       "type":  "kb.inject",
-                       "topic":  "TypeScript",
-                       "title":  "Inject distributive conditional types",
-                       "status":  "done",
-                       "source":  "kb-inject",
-                       "createdAt":  "2026-06-03T09:00:00+08:00",
-                       "details":  {
-                                       "target":  "docs/interview/Ts/index.md",
-                                       "operation":  "enhance",
-                                       "note":  "Added Exclude/Extract distribution behavior, no-distribute tuple trick, and T-vs-U clarification"
-                                   }
-                   },
-                   {
-                       "id":  "evt-20260603-ts-inject-as-key-slot",
-                       "type":  "kb.inject",
-                       "topic":  "TypeScript",
-                       "title":  "Inject as key-slot rules and pitfalls",
-                       "status":  "done",
-                       "source":  "kb-inject",
-                       "createdAt":  "2026-06-03T10:00:00+08:00",
-                       "details":  {
-                                       "target":  "docs/interview/Ts/index.md",
-                                       "operation":  "enhance",
-                                       "note":  "Added as-position mental model, PropertyKey requirement, and common wrong patterns"
-                                   }
-                   },
-                   {
-                       "id":  "evt-20260603-ts-inject-as-boundary-clarify",
-                       "type":  "kb.inject",
-                       "topic":  "TypeScript",
-                       "title":  "Clarify as key boundary and exceptions",
-                       "status":  "done",
-                       "source":  "kb-inject",
-                       "createdAt":  "2026-06-03T10:30:00+08:00",
-                       "details":  {
-                                       "target":  "docs/interview/Ts/index.md",
-                                       "operation":  "enhance",
-                                       "note":  "Added when T[K] can be key (constrained case), and corrected OmitByValue false branch rule"
-                                   }
-                   },
-                   {
-                       "id":  "evt-20260603-ts-inject-requiredkeys-formula",
-                       "type":  "kb.inject",
-                       "topic":  "TypeScript",
-                       "title":  "Inject RequiredKeys filtering formula",
-                       "status":  "done",
-                       "source":  "kb-inject",
-                       "createdAt":  "2026-06-03T11:00:00+08:00",
-                       "details":  {
-                                       "target":  "docs/interview/Ts/index.md",
-                                       "operation":  "enhance",
-                                       "note":  "Added {} extends Pick<T,K> optional-vs-required rule and mapped-loop explanation"
-                                   }
-                   },
-                   {
-                       "id":  "evt-20260603-ts-inject-keyof-vs-index-access",
-                       "type":  "kb.inject",
-                       "topic":  "TypeScript",
-                       "title":  "Clarify keyof vs T[keyof T]",
-                       "status":  "done",
-                       "source":  "kb-inject",
-                       "createdAt":  "2026-06-03T11:30:00+08:00",
-                       "details":  {
-                                       "target":  "docs/interview/Ts/index.md",
-                                       "operation":  "enhance",
-                                       "note":  "Added key-union vs value-union distinction and why [keyof T] extracts values"
-                                   }
-                   },
-                   {
-                       "id":  "evt-20260603-ts-inject-partial-family-compare",
-                       "type":  "kb.inject",
-                       "topic":  "TypeScript",
-                       "title":  "Inject Partial family comparison",
-                       "status":  "done",
-                       "source":  "kb-inject",
-                       "createdAt":  "2026-06-03T12:00:00+08:00",
-                       "details":  {
-                                       "target":  "docs/interview/Ts/index.md",
-                                       "operation":  "enhance",
-                                       "note":  "Added Partial/Required and ByKeys pair comparison with memory table"
-                                   }
-                   },
-                   {
-                       "id":  "evt-20260604-ts-inject-four-line-memory",
-                       "type":  "kb.inject",
-                       "topic":  "TypeScript",
-                       "title":  "Inject four-line utility memory",
-                       "status":  "done",
-                       "source":  "kb-inject",
-                       "createdAt":  "2026-06-04T00:00:00+08:00",
-                       "details":  {
-                                       "target":  "docs/interview/Ts/index.md",
-                                       "operation":  "enhance",
-                                       "note":  "Added Pick/Omit/Required/Partial four-line mnemonic for quick recall"
-                                   }
-                   },
-                   {
-                       "id":  "evt-20260604-ts-inject-first-rest-infer",
-                       "type":  "kb.inject",
-                       "topic":  "TypeScript",
-                       "title":  "Inject First infer rest-pattern explanation",
-                       "status":  "done",
-                       "source":  "kb-inject",
-                       "createdAt":  "2026-06-04T00:00:00+08:00",
-                       "details":  {
-                                       "target":  "docs/interview/Ts/index.md",
-                                       "operation":  "enhance",
-                                       "note":  "Added why ...infer Rest is used in tuple matching and clarified non-fixed naming"
-                                   }
-                   },
-                   {
-                       "id":  "evt-20260604-ts-inject-generic-constraint-mindset",
-                       "type":  "kb.inject",
-                       "topic":  "TypeScript",
-                       "title":  "Inject generic-constraint-first mindset",
-                       "status":  "done",
-                       "source":  "kb-inject",
-                       "createdAt":  "2026-06-04T00:00:00+08:00",
-                       "details":  {
-                                       "target":  "docs/interview/Ts/index.md",
-                                       "operation":  "enhance",
-                                       "note":  "Added why generic left-side constraints are preferred to prevent silent fallback errors"
-                                   }
-                   },
-                   {
-                       "id":  "evt-20260604-ts-inject-template-literal-matching",
-                       "type":  "kb.inject",
-                       "topic":  "TypeScript",
-                       "title":  "Inject template literal matching rules",
-                       "status":  "done",
-                       "source":  "kb-inject",
-                       "createdAt":  "2026-06-04T00:00:00+08:00",
-                       "details":  {
-                                       "target":  "docs/interview/Ts/index.md",
-                                       "operation":  "enhance",
-                                       "note":  "Added StartsWith/EndsWith/Contains pattern matching cheatsheet for first-time learners"
-                                   }
-                   },
-                   {
-                       "id":  "evt-20260604-ts-inject-runtime-vs-type-prefix",
-                       "type":  "kb.inject",
-                       "topic":  "TypeScript",
-                       "title":  "Inject runtime vs type-level prefix comparison",
-                       "status":  "done",
-                       "source":  "kb-inject",
-                       "createdAt":  "2026-06-04T00:00:00+08:00",
-                       "details":  {
-                                       "target":  "docs/interview/Ts/index.md",
-                                       "operation":  "enhance",
-                                       "note":  "Added runtime startsWith vs type-level StartsWith comparison table and examples"
-                                   }
-                   },
-                   {
-                       "id":  "evt-20260608-vue3-plan-created",
-                       "type":  "learning.plan.created",
-                       "topic":  "Vue3",
-                       "title":  "Create Vue3 5-day mastery learning plan",
-                       "status":  "in-progress",
-                       "source":  "learn-plan",
-                       "createdAt":  "2026-06-08T00:00:00+08:00",
-                       "details":  {
-                                       "target":  "docs/learning-plan/Vue3精通/index.md",
-                                       "operation":  "create",
-                                       "durationDays":  5,
-                                       "note":  "5-day plan: reactivity, composition API, compile optimization, ecosystem(Pinia/Router/TS), performance & practice"
-                                   }
-                   },
-                   {
-                       "id":  "evt-20260608-vue3-inject-proxy-traps-array",
-                       "type":  "kb.inject",
-                       "topic":  "Vue3",
-                       "title":  "Clarify Proxy 13 traps and Vue2 array opt-out",
-                       "status":  "done",
-                       "source":  "kb-inject",
-                       "createdAt":  "2026-06-08T00:00:00+08:00",
-                       "details":  {
-                                       "target":  "docs/interview/Vue3/index.md",
-                                       "operation":  "enhance",
-                                       "note":  "Added note: Proxy intercepts 13 traps (not any behavior); Vue2 deliberately opts out of array index/length tracking and overrides 7 mutation methods"
-                                   }
-                   },
-                   {
-                       "id":  "evt-20260608-vue3-inject-dep-collection",
-                       "type":  "kb.inject",
-                       "topic":  "Vue3",
-                       "title":  "Add dependency collection Q&A (3-layer structure + activeEffect)",
-                       "status":  "done",
-                       "source":  "kb-inject",
-                       "createdAt":  "2026-06-08T00:00:00+08:00",
-                       "details":  {
-                                       "target":  "docs/interview/Vue3/index.md",
-                                       "operation":  "add",
-                                       "note":  "New Q&A: dep = effect fn; WeakMap->Map->Set three layers with per-key isolation; only outer is WeakMap; activeEffect collection timing and effect stack for nesting"
-                                   }
-                   },
-                   {
-                       "id":  "evt-20260609-agent-plan-created",
-                       "type":  "learning.plan.created",
-                       "topic":  "AI-Agent",
-                       "title":  "Create AI Agent 7-day hands-on learning plan",
-                       "status":  "in-progress",
-                       "source":  "learn-plan",
-                       "createdAt":  "2026-06-09T00:00:00+08:00",
-                       "details":  {
-                                       "target":  "docs/learning-plan/AI-Agent实战/index.md",
-                                       "operation":  "create",
-                                       "durationDays":  7,
-                                       "note":  "7-day plan: Agent core concepts(2d), minimal Agent from scratch(2d), memory+streaming+orchestration(2d), final project(1d)"
-                                   }
-                   },
-                   {
-                       "id":  "evt-20260609-fullsite-plan-created",
-                       "type":  "learning.plan.created",
-                       "topic":  "全站知识体系",
-                       "title":  "Create full-site 8-week systematic learning plan",
-                       "status":  "in-progress",
-                       "source":  "learn-plan",
-                       "createdAt":  "2026-06-09T00:00:00+08:00",
-                       "details":  {
-                                       "target":  "docs/learning-plan/全站知识体系/index.md",
-                                       "operation":  "create",
-                                       "durationDays":  58,
-                                       "note":  "8-week plan covering 26+ topics, 350+ Q&A: JS/CSS/TS(2w) → Vue/React(2w) → Network/Browser/Perf(1w) → Engineering(0.5w) → Backend/DB(1w) → AI/Advanced(1w) → Mock interviews(0.5w). Node.js fast-tracked due to existing basics."
-                                   }
-                   },
-                   {
-                       "id":  "evt-20260611-vue3-day3-cleanup",
-                       "type":  "learning.progress",
-                       "topic":  "Vue3",
-                       "title":  "Day 3 cleanup: merge 性能提升, consolidate diff source code, add LIS Q&A",
-                       "status":  "done",
-                       "source":  "learn-plan",
-                       "createdAt":  "2026-06-11T00:00:00+08:00",
-                       "details":  {
-                                       "note":  "Deleted redundant 性能提升/ dir. Consolidated 3 diff source files into code/index.md. Added LIS algorithm Q&A to JavaScript/index.md."
-                                   }
-                   },
-                   {
-                       "id":  "evt-20260611-vue3-day4-pinia",
-                       "type":  "interview.practice",
-                       "topic":  "Vue3-Pinia",
-                       "title":  "Pinia Q1: mutation removal + $subscribe",
-                       "status":  "done",
-                       "source":  "learn-plan",
-                       "createdAt":  "2026-06-11T00:00:00+08:00",
-                       "score":  5,
-                       "level":  1,
-                       "details":  {
-                                       "note":  "Knew why mutation existed but not why Pinia can remove it. Pinia skipped for self-study."
-                                   }
-                   },
-                   {
-                       "id":  "evt-20260611-vue3-day4-router",
-                       "type":  "learning.lecture",
-                       "topic":  "Vue-Router-4",
-                       "title":  "Vue Router 4: guards, lazy loading, execution order",
-                       "status":  "done",
-                       "source":  "learn-plan",
-                       "createdAt":  "2026-06-11T00:00:00+08:00",
-                       "details":  {
-                                       "note":  "Lecture: beforeEach/beforeEnter/onBeforeRouteLeave, execution order, route lazy loading."
-                                   }
-                   },
-                   {
-                       "id":  "evt-20260611-vue3-day4-ts-vite",
-                       "type":  "learning.lecture",
-                       "topic":  "Vue3-TS-Vite",
-                       "title":  "defineProps two styles + Vite vs Webpack",
-                       "status":  "done",
-                       "source":  "learn-plan",
-                       "createdAt":  "2026-06-11T00:00:00+08:00",
-                       "details":  {
-                                       "note":  "Lecture: defineProps runtime vs type declaration, withDefaults, compiler macros. Vite native ESM + esbuild pre-bundling + Rollup production."
-                                   }
-                   },
-                   {
-                       "id":  "evt-20260615-vue3-day5-pinia-review",
-                       "type":  "interview.practice",
-                       "topic":  "Vue3-Pinia",
-                       "title":  "Pinia review: defineStore styles + storeToRefs",
-                       "status":  "done",
-                       "source":  "learn-plan",
-                       "createdAt":  "2026-06-15T00:00:00+08:00",
-                       "score":  8,
-                       "level":  2,
-                       "details":  {
-                                       "note":  "Self-studied Pinia, passed review. Q1 6/10 (knew private state, missed $reset). Q2 9/10 (storeToRefs correct). Understood getter caching, this circular inference."
-                                   }
-                   },
-                   {
-                       "id":  "evt-20260615-vue3-day5-perf",
-                       "type":  "interview.practice",
-                       "topic":  "Vue3-Performance",
-                       "title":  "Day 5: v-once/v-memo/shallowRef + keep-alive + update flow",
-                       "status":  "done",
-                       "source":  "learn-plan",
-                       "createdAt":  "2026-06-15T00:00:00+08:00",
-                       "score":  5,
-                       "level":  1,
-                       "details":  {
-                                       "note":  "v-once/v-memo partially known, shallowRef lectured. keep-alive 7/10. Update full flow 3/10 (only Proxy part, missed scheduler/render/diff/nextTick)."
-                                   }
-                   },
-                   {
-                       "id":  "evt-20260615-vue3-plan-complete",
-                       "type":  "learning.progress",
-                       "topic":  "Vue3",
-                       "title":  "Vue3 5-day learning plan completed + fused to knowledge base",
-                       "status":  "done",
-                       "source":  "learn-plan",
-                       "createdAt":  "2026-06-15T00:00:00+08:00",
-                       "details":  {
-                                       "note":  "All 5 days complete. Fused: defineProps two styles, Router guards, Vite principle, v-once/v-memo/shallowRef, keep-alive, update full flow. Weak points: update full chain, Diff 5 steps, defineProps."
-                                   }
-                   }
-               ],
-    "custom":  {
-                   "_comment":  "Free-form extension area for future categories.",
-                   "interviewProgress":  {
-                                             "completedQuestions":  [
-
-                                                                    ]
-                                         },
-                   "learningPlan":  {
-                                        "activePlan":  {
-                                                            "topic":  "AI-Agent",
-                                                            "path":  "docs/learning-plan/AI-Agent实战/index.md",
-                                                            "durationDays":  7,
-                                                            "currentDay":  1,
-                                                            "startedAt":  "2026-06-09T00:00:00+08:00"
-                                                        },
-                                        "checkpoints":  [
-
-                                                        ]
-                                    }
-               }
+{
+    "_comment": "Per-user history archive. Keep this file append-only as much as possible.",
+    "schemaVersion": "1.0.0",
+    "user": {
+        "username": "hegui",
+        "displayName": "hegui",
+        "createdAt": "2026-06-01T00:00:00+08:00",
+        "updatedAt": "2026-07-14T17:45:54+08:00"
+    },
+    "summary": {
+        "totalEvents": 35,
+        "interviewPracticeCount": 5,
+        "tsLevel": 1,
+        "lastPracticeAt": "2026-07-06T00:00:00+08:00"
+    },
+    "tags": [
+        "interview",
+        "typescript",
+        "learning"
+    ],
+    "events": [
+        {
+            "_comment": "Append new records here. Do not overwrite old events.",
+            "id": "evt-20260601-0001",
+            "type": "system.init",
+            "topic": "history",
+            "title": "Initialize personal history archive",
+            "score": null,
+            "level": 0,
+            "status": "done",
+            "source": "system",
+            "details": {
+                "note": "Archive file created from default template"
+            },
+            "createdAt": "2026-06-01T00:00:00+08:00"
+        },
+        {
+            "id": "evt-20260601-114427-181",
+            "type": "interview.practice",
+            "topic": "TypeScript",
+            "title": "TS guard basics",
+            "status": "done",
+            "source": "interviewer",
+            "createdAt": "2026-06-01T11:44:27+08:00",
+            "score": 9,
+            "level": 1,
+            "details": {
+                "question": "Q: 什么是类型守卫"
+            }
+        },
+        {
+            "id": "evt-20260601-114428-395",
+            "type": "kb.inject",
+            "topic": "TypeScript",
+            "title": "Inject narrowing answer",
+            "status": "done",
+            "source": "kb-inject",
+            "createdAt": "2026-06-01T11:44:28+08:00",
+            "details": {
+                "target": "docs/interview/Ts/index.md",
+                "operation": "enhance"
+            }
+        },
+        {
+            "id": "evt-20260602-ts-inject-as",
+            "type": "kb.inject",
+            "topic": "TypeScript",
+            "title": "Inject as remap + mapped type patterns",
+            "status": "done",
+            "source": "kb-inject",
+            "createdAt": "2026-06-02T00:00:00+08:00",
+            "details": {
+                "target": "docs/interview/Ts/index.md",
+                "operation": "enhance",
+                "note": "Added as remapping syntax, key filtering via never, mapped type result cheatsheet"
+            }
+        },
+        {
+            "id": "evt-20260603-ts-inject-required-modifier",
+            "type": "kb.inject",
+            "topic": "TypeScript",
+            "title": "Inject mapped modifier -? for Required",
+            "status": "done",
+            "source": "kb-inject",
+            "createdAt": "2026-06-03T00:00:00+08:00",
+            "details": {
+                "target": "docs/interview/Ts/index.md",
+                "operation": "enhance",
+                "note": "Added +? and -? explanation with MyPartial/MyRequired examples"
+            }
+        },
+        {
+            "id": "evt-20260603-ts-inject-distribute-conditional",
+            "type": "kb.inject",
+            "topic": "TypeScript",
+            "title": "Inject distributive conditional types",
+            "status": "done",
+            "source": "kb-inject",
+            "createdAt": "2026-06-03T09:00:00+08:00",
+            "details": {
+                "target": "docs/interview/Ts/index.md",
+                "operation": "enhance",
+                "note": "Added Exclude/Extract distribution behavior, no-distribute tuple trick, and T-vs-U clarification"
+            }
+        },
+        {
+            "id": "evt-20260603-ts-inject-as-key-slot",
+            "type": "kb.inject",
+            "topic": "TypeScript",
+            "title": "Inject as key-slot rules and pitfalls",
+            "status": "done",
+            "source": "kb-inject",
+            "createdAt": "2026-06-03T10:00:00+08:00",
+            "details": {
+                "target": "docs/interview/Ts/index.md",
+                "operation": "enhance",
+                "note": "Added as-position mental model, PropertyKey requirement, and common wrong patterns"
+            }
+        },
+        {
+            "id": "evt-20260603-ts-inject-as-boundary-clarify",
+            "type": "kb.inject",
+            "topic": "TypeScript",
+            "title": "Clarify as key boundary and exceptions",
+            "status": "done",
+            "source": "kb-inject",
+            "createdAt": "2026-06-03T10:30:00+08:00",
+            "details": {
+                "target": "docs/interview/Ts/index.md",
+                "operation": "enhance",
+                "note": "Added when T[K] can be key (constrained case), and corrected OmitByValue false branch rule"
+            }
+        },
+        {
+            "id": "evt-20260603-ts-inject-requiredkeys-formula",
+            "type": "kb.inject",
+            "topic": "TypeScript",
+            "title": "Inject RequiredKeys filtering formula",
+            "status": "done",
+            "source": "kb-inject",
+            "createdAt": "2026-06-03T11:00:00+08:00",
+            "details": {
+                "target": "docs/interview/Ts/index.md",
+                "operation": "enhance",
+                "note": "Added {} extends Pick<T,K> optional-vs-required rule and mapped-loop explanation"
+            }
+        },
+        {
+            "id": "evt-20260603-ts-inject-keyof-vs-index-access",
+            "type": "kb.inject",
+            "topic": "TypeScript",
+            "title": "Clarify keyof vs T[keyof T]",
+            "status": "done",
+            "source": "kb-inject",
+            "createdAt": "2026-06-03T11:30:00+08:00",
+            "details": {
+                "target": "docs/interview/Ts/index.md",
+                "operation": "enhance",
+                "note": "Added key-union vs value-union distinction and why [keyof T] extracts values"
+            }
+        },
+        {
+            "id": "evt-20260603-ts-inject-partial-family-compare",
+            "type": "kb.inject",
+            "topic": "TypeScript",
+            "title": "Inject Partial family comparison",
+            "status": "done",
+            "source": "kb-inject",
+            "createdAt": "2026-06-03T12:00:00+08:00",
+            "details": {
+                "target": "docs/interview/Ts/index.md",
+                "operation": "enhance",
+                "note": "Added Partial/Required and ByKeys pair comparison with memory table"
+            }
+        },
+        {
+            "id": "evt-20260604-ts-inject-four-line-memory",
+            "type": "kb.inject",
+            "topic": "TypeScript",
+            "title": "Inject four-line utility memory",
+            "status": "done",
+            "source": "kb-inject",
+            "createdAt": "2026-06-04T00:00:00+08:00",
+            "details": {
+                "target": "docs/interview/Ts/index.md",
+                "operation": "enhance",
+                "note": "Added Pick/Omit/Required/Partial four-line mnemonic for quick recall"
+            }
+        },
+        {
+            "id": "evt-20260604-ts-inject-first-rest-infer",
+            "type": "kb.inject",
+            "topic": "TypeScript",
+            "title": "Inject First infer rest-pattern explanation",
+            "status": "done",
+            "source": "kb-inject",
+            "createdAt": "2026-06-04T00:00:00+08:00",
+            "details": {
+                "target": "docs/interview/Ts/index.md",
+                "operation": "enhance",
+                "note": "Added why ...infer Rest is used in tuple matching and clarified non-fixed naming"
+            }
+        },
+        {
+            "id": "evt-20260604-ts-inject-generic-constraint-mindset",
+            "type": "kb.inject",
+            "topic": "TypeScript",
+            "title": "Inject generic-constraint-first mindset",
+            "status": "done",
+            "source": "kb-inject",
+            "createdAt": "2026-06-04T00:00:00+08:00",
+            "details": {
+                "target": "docs/interview/Ts/index.md",
+                "operation": "enhance",
+                "note": "Added why generic left-side constraints are preferred to prevent silent fallback errors"
+            }
+        },
+        {
+            "id": "evt-20260604-ts-inject-template-literal-matching",
+            "type": "kb.inject",
+            "topic": "TypeScript",
+            "title": "Inject template literal matching rules",
+            "status": "done",
+            "source": "kb-inject",
+            "createdAt": "2026-06-04T00:00:00+08:00",
+            "details": {
+                "target": "docs/interview/Ts/index.md",
+                "operation": "enhance",
+                "note": "Added StartsWith/EndsWith/Contains pattern matching cheatsheet for first-time learners"
+            }
+        },
+        {
+            "id": "evt-20260604-ts-inject-runtime-vs-type-prefix",
+            "type": "kb.inject",
+            "topic": "TypeScript",
+            "title": "Inject runtime vs type-level prefix comparison",
+            "status": "done",
+            "source": "kb-inject",
+            "createdAt": "2026-06-04T00:00:00+08:00",
+            "details": {
+                "target": "docs/interview/Ts/index.md",
+                "operation": "enhance",
+                "note": "Added runtime startsWith vs type-level StartsWith comparison table and examples"
+            }
+        },
+        {
+            "id": "evt-20260608-vue3-plan-created",
+            "type": "learning.plan.created",
+            "topic": "Vue3",
+            "title": "Create Vue3 5-day mastery learning plan",
+            "status": "in-progress",
+            "source": "learn-plan",
+            "createdAt": "2026-06-08T00:00:00+08:00",
+            "details": {
+                "target": "docs/learning-plan/Vue3精通/index.md",
+                "operation": "create",
+                "durationDays": 5,
+                "note": "5-day plan: reactivity, composition API, compile optimization, ecosystem(Pinia/Router/TS), performance & practice"
+            }
+        },
+        {
+            "id": "evt-20260608-vue3-inject-proxy-traps-array",
+            "type": "kb.inject",
+            "topic": "Vue3",
+            "title": "Clarify Proxy 13 traps and Vue2 array opt-out",
+            "status": "done",
+            "source": "kb-inject",
+            "createdAt": "2026-06-08T00:00:00+08:00",
+            "details": {
+                "target": "docs/interview/Vue3/index.md",
+                "operation": "enhance",
+                "note": "Added note: Proxy intercepts 13 traps (not any behavior); Vue2 deliberately opts out of array index/length tracking and overrides 7 mutation methods"
+            }
+        },
+        {
+            "id": "evt-20260608-vue3-inject-dep-collection",
+            "type": "kb.inject",
+            "topic": "Vue3",
+            "title": "Add dependency collection Q&A (3-layer structure + activeEffect)",
+            "status": "done",
+            "source": "kb-inject",
+            "createdAt": "2026-06-08T00:00:00+08:00",
+            "details": {
+                "target": "docs/interview/Vue3/index.md",
+                "operation": "add",
+                "note": "New Q&A: dep = effect fn; WeakMap->Map->Set three layers with per-key isolation; only outer is WeakMap; activeEffect collection timing and effect stack for nesting"
+            }
+        },
+        {
+            "id": "evt-20260609-agent-plan-created",
+            "type": "learning.plan.created",
+            "topic": "AI-Agent",
+            "title": "Create AI Agent 7-day hands-on learning plan",
+            "status": "in-progress",
+            "source": "learn-plan",
+            "createdAt": "2026-06-09T00:00:00+08:00",
+            "details": {
+                "target": "docs/learning-plan/AI-Agent实战/index.md",
+                "operation": "create",
+                "durationDays": 7,
+                "note": "7-day plan: Agent core concepts(2d), minimal Agent from scratch(2d), memory+streaming+orchestration(2d), final project(1d)"
+            }
+        },
+        {
+            "id": "evt-20260609-fullsite-plan-created",
+            "type": "learning.plan.created",
+            "topic": "全站知识体系",
+            "title": "Create full-site 8-week systematic learning plan",
+            "status": "in-progress",
+            "source": "learn-plan",
+            "createdAt": "2026-06-09T00:00:00+08:00",
+            "details": {
+                "target": "docs/learning-plan/全站知识体系/index.md",
+                "operation": "create",
+                "durationDays": 58,
+                "note": "8-week plan covering 26+ topics, 350+ Q&A: JS/CSS/TS(2w) → Vue/React(2w) → Network/Browser/Perf(1w) → Engineering(0.5w) → Backend/DB(1w) → AI/Advanced(1w) → Mock interviews(0.5w). Node.js fast-tracked due to existing basics."
+            }
+        },
+        {
+            "id": "evt-20260611-vue3-day3-cleanup",
+            "type": "learning.progress",
+            "topic": "Vue3",
+            "title": "Day 3 cleanup: merge 性能提升, consolidate diff source code, add LIS Q&A",
+            "status": "done",
+            "source": "learn-plan",
+            "createdAt": "2026-06-11T00:00:00+08:00",
+            "details": {
+                "note": "Deleted redundant 性能提升/ dir. Consolidated 3 diff source files into code/index.md. Added LIS algorithm Q&A to JavaScript/index.md."
+            }
+        },
+        {
+            "id": "evt-20260611-vue3-day4-pinia",
+            "type": "interview.practice",
+            "topic": "Vue3-Pinia",
+            "title": "Pinia Q1: mutation removal + $subscribe",
+            "status": "done",
+            "source": "learn-plan",
+            "createdAt": "2026-06-11T00:00:00+08:00",
+            "score": 5,
+            "level": 1,
+            "details": {
+                "note": "Knew why mutation existed but not why Pinia can remove it. Pinia skipped for self-study."
+            }
+        },
+        {
+            "id": "evt-20260611-vue3-day4-router",
+            "type": "learning.lecture",
+            "topic": "Vue-Router-4",
+            "title": "Vue Router 4: guards, lazy loading, execution order",
+            "status": "done",
+            "source": "learn-plan",
+            "createdAt": "2026-06-11T00:00:00+08:00",
+            "details": {
+                "note": "Lecture: beforeEach/beforeEnter/onBeforeRouteLeave, execution order, route lazy loading."
+            }
+        },
+        {
+            "id": "evt-20260611-vue3-day4-ts-vite",
+            "type": "learning.lecture",
+            "topic": "Vue3-TS-Vite",
+            "title": "defineProps two styles + Vite vs Webpack",
+            "status": "done",
+            "source": "learn-plan",
+            "createdAt": "2026-06-11T00:00:00+08:00",
+            "details": {
+                "note": "Lecture: defineProps runtime vs type declaration, withDefaults, compiler macros. Vite native ESM + esbuild pre-bundling + Rollup production."
+            }
+        },
+        {
+            "id": "evt-20260615-vue3-day5-pinia-review",
+            "type": "interview.practice",
+            "topic": "Vue3-Pinia",
+            "title": "Pinia review: defineStore styles + storeToRefs",
+            "status": "done",
+            "source": "learn-plan",
+            "createdAt": "2026-06-15T00:00:00+08:00",
+            "score": 8,
+            "level": 2,
+            "details": {
+                "note": "Self-studied Pinia, passed review. Q1 6/10 (knew private state, missed $reset). Q2 9/10 (storeToRefs correct). Understood getter caching, this circular inference."
+            }
+        },
+        {
+            "id": "evt-20260615-vue3-day5-perf",
+            "type": "interview.practice",
+            "topic": "Vue3-Performance",
+            "title": "Day 5: v-once/v-memo/shallowRef + keep-alive + update flow",
+            "status": "done",
+            "source": "learn-plan",
+            "createdAt": "2026-06-15T00:00:00+08:00",
+            "score": 5,
+            "level": 1,
+            "details": {
+                "note": "v-once/v-memo partially known, shallowRef lectured. keep-alive 7/10. Update full flow 3/10 (only Proxy part, missed scheduler/render/diff/nextTick)."
+            }
+        },
+        {
+            "id": "evt-20260615-vue3-plan-complete",
+            "type": "learning.progress",
+            "topic": "Vue3",
+            "title": "Vue3 5-day learning plan completed + fused to knowledge base",
+            "status": "done",
+            "source": "learn-plan",
+            "createdAt": "2026-06-15T00:00:00+08:00",
+            "details": {
+                "note": "All 5 days complete. Fused: defineProps two styles, Router guards, Vite principle, v-once/v-memo/shallowRef, keep-alive, update full flow. Weak points: update full chain, Diff 5 steps, defineProps."
+            }
+        },
+        {
+            "id": "evt-20260625-llmapp-module1-start",
+            "type": "learning.daily.generated",
+            "topic": "大模型应用开发",
+            "title": "Module 1 started: LLM 与 API 调用",
+            "status": "in-progress",
+            "source": "learn-plan",
+            "createdAt": "2026-06-25T00:00:00+08:00",
+            "details": {
+                "target": "docs/learning-plan/大模型应用开发/index.md",
+                "operation": "progress",
+                "note": "Corrected active plan to 大模型应用开发. Taught Module 1: LLM essence (next-token prediction), token/context/temperature, messages roles, request lifecycle, API key must stay backend. Hands-on: raw fetch + minimal backend proxy. Awaiting acceptance criteria."
+            }
+        },
+        {
+            "id": "evt-20260625-llmapp-module1-done",
+            "type": "interview.practice",
+            "topic": "大模型应用开发",
+            "title": "Module 1 passed: LLM 与 API 调用",
+            "status": "done",
+            "source": "learn-plan",
+            "createdAt": "2026-06-25T00:00:00+08:00",
+            "score": 8,
+            "level": 1,
+            "details": {
+                "target": "docs/learning-plan/大模型应用开发/index.md",
+                "operation": "progress",
+                "note": "Hands-on done with OpenAI SDK + 火山方舟(doubao) via baseURL, .env for key/model, verified usage incl reasoning_tokens. Oral check: Q1 8/10 (roles, missed system=highest-priority global & assistant carry-back), Q2 7/10 (messages array but missed client resends full history each call), Q3 7/10 (temp=randomness, added low=stable/high=creative scenarios)."
+            }
+        },
+        {
+            "id": "evt-20260625-llmapp-module2-paused",
+            "type": "learning.progress",
+            "topic": "大模型应用开发",
+            "title": "Module 2 concepts taught, paused for the day",
+            "status": "in-progress",
+            "source": "learn-plan",
+            "createdAt": "2026-06-25T00:00:00+08:00",
+            "details": {
+                "target": "docs/learning-plan/大模型应用开发/index.md",
+                "operation": "progress",
+                "note": "Stopped for the day. Module 2 (提示词工程) concepts covered: 5-part prompt structure, Few-shot/CoT/分隔符, structured JSON output, prompt injection. RESUME POINT: hands-on prompt.ts 评论分析器 (烂prompt→加料→stable JSON.parse). Reuse module-1 OpenAI client; suggest extracting client to shared file."
+            }
+        },
+        {
+            "id": "evt-20260626-llmapp-module2-handson",
+            "type": "learning.daily.generated",
+            "topic": "大模型应用开发",
+            "title": "Module 2 hands-on: prompt.ts 评论分析器",
+            "status": "in-progress",
+            "source": "learn-plan",
+            "createdAt": "2026-06-26T00:00:00+08:00",
+            "details": {
+                "target": "demo/back/prompt.ts",
+                "operation": "progress",
+                "note": "Module 2 hands-on started in TEACH-mode: user writes prompt.ts themselves, I only guide step-by-step (user pushed back on me writing the full solution — correct, plan rule: 能从空白文件写出来才算会). Deleted my draft. Teaching order: ① 烂prompt先跑感受不稳 → ② 加角色+任务+输出格式 → ③ Few-shot → ④ 分隔符防注入 → ⑤ 纯JSON+JSON.parse. User to write each layer. Awaiting user's first attempt."
+            }
+        },
+        {
+            "id": "evt-20260706-llmapp-module2-rag-redis",
+            "type": "learning.progress",
+            "topic": "大模型应用开发",
+            "title": "Module 2 done + RAG engine + Session + Redis",
+            "status": "done",
+            "source": "learn-plan",
+            "createdAt": "2026-07-06T00:00:00+08:00",
+            "details": {
+                "target": "demo/back/",
+                "operation": "progress",
+                "note": "Module 2 passed: prompt.ts v4 10/10. Built RAG engine + Session management + Redis storage."
+            }
+        },
+        {
+            "id": "evt-20260708-ai-inject-ltm-design",
+            "type": "kb.inject",
+            "topic": "AI",
+            "title": "Add long-term memory system design Q&A",
+            "status": "done",
+            "source": "kb-inject",
+            "createdAt": "2026-07-08T00:00:00+08:00",
+            "details": {
+                "target": "docs/interview/AI/index.md",
+                "operation": "add",
+                "note": "Added Q&A on long-term memory system design: Top-K truncation, compression, time decay, scenario isolation, retrieval bottleneck vs token cost misconception"
+            }
+        },
+        {
+            "id": "evt-20260709-react-inject-fiber-node-structure",
+            "type": "kb.inject",
+            "topic": "React",
+            "title": "Inject Fiber node data structure Q&A (fields + 3 pointers)",
+            "status": "done",
+            "source": "kb-inject",
+            "createdAt": "2026-07-09T00:00:00+08:00",
+            "details": {
+                "target": "docs/interview/React/index.md",
+                "operation": "add",
+                "note": "New Q&A: Fiber node data structure. All fields grouped by responsibility (pointers/identity/data/side-effects/scheduling/DOM). Three pointer traversal rules with App→Header→Main→Article→Sidebar example. Why linked-list vs nested tree for interruptible traversal."
+            }
+        },
+        {
+            "id": "evt-20260714-react-inject-useeffect-lifecycle-compare",
+            "type": "kb.inject",
+            "topic": "React",
+            "title": "useEffect vs 类生命周期对比示例（componentDidMount / componentDidUpdate / componentWillUnmount）",
+            "score": null,
+            "level": 0,
+            "status": "done",
+            "details": "写入 docs/interview/React/react-hooks.md（丰富 useEffect 段落）+ docs/interview/React/index.md（丰富 函数组件对应关系表格 之后）",
+            "action": "丰富",
+            "createdAt": "2026-07-14T17:09:10+08:00"
+        },
+        {
+            "id": "evt-20260714-react-refactor-fiber-diff-to-md",
+            "type": "kb.maintain",
+            "topic": "React",
+            "title": "fiber-diff.md 图解全部转为纯 Markdown 格式，优化图文衔接",
+            "score": null,
+            "level": 0,
+            "status": "done",
+            "details": "docs/interview/React/fiber-diff.md：移除全部 HTML/CSS 样式块（~100行），7个图解改用 Markdown 表格/代码块/列表，图文融合不再分离",
+            "action": "重构",
+            "createdAt": "2026-07-14T17:38:47+08:00"
+        },
+        {
+            "id": "evt-20260714-react-rewrite-setstate-mechanism",
+            "type": "kb.maintain",
+            "topic": "React",
+            "title": "重写 setState 执行机制 + 同异步两道 Q&A，修正错误表述",
+            "score": null,
+            "level": 0,
+            "status": "done",
+            "details": "docs/interview/React/index.md：删除原版含糊的步骤罗列，用\"提交请求→批量处理\"模型重写；修正合并规则描述；React 18 Automatic Batching 补充 flushSync 场景",
+            "action": "重写",
+            "createdAt": "2026-07-14T17:45:54+08:00"
+        }
+    ],
+    "custom": {
+        "_comment": "Free-form extension area for future categories.",
+        "interviewProgress": {
+            "completedQuestions": []
+        },
+        "learningPlan": {
+            "activePlan": {
+                "topic": "大模型应用开发",
+                "path": "docs/learning-plan/大模型应用开发/index.md",
+                "durationDays": 21,
+                "currentDay": 1,
+                "startedAt": "2026-06-24T00:00:00+08:00"
+            },
+            "checkpoints": []
+        }
+    }
 }

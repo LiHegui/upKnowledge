@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 320" fill="none">
+  <defs>
+    <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#a6e3a1"/>
+      <stop offset="1" stop-color="#3d8f5a"/>
+    </linearGradient>
+    <linearGradient id="g2" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" stop-color="#86c99a" stop-opacity="0.9"/>
+      <stop offset="1" stop-color="#5aa46f" stop-opacity="0.5"/>
+    </linearGradient>
+  </defs>
+
+  <!-- 玻璃底卡片 -->
+  <rect x="56" y="56" width="208" height="208" rx="34"
+        fill="#5aa46f" fill-opacity="0.06"
+        stroke="url(#g2)" stroke-width="1.5"/>
+  <rect x="80" y="80" width="160" height="160" rx="26"
+        fill="#5aa46f" fill-opacity="0.05"
+        stroke="#5aa46f" stroke-opacity="0.25" stroke-width="1.2"/>
+
+  <!-- 升级：递增的柱子 -->
+  <rect x="112" y="176" width="20" height="40" rx="6" fill="url(#g1)" fill-opacity="0.55"/>
+  <rect x="150" y="150" width="20" height="66" rx="6" fill="url(#g1)" fill-opacity="0.75"/>
+  <rect x="188" y="120" width="20" height="96" rx="6" fill="url(#g1)"/>
+
+  <!-- 上升箭头 -->
+  <path d="M108 150 L150 122 L192 96 L228 72"
+        stroke="url(#g1)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M204 70 L230 70 L230 96"
+        stroke="url(#g1)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- 点缀星火 -->
+  <path d="M96 104 l3 8 8 3 -8 3 -3 8 -3 -8 -8 -3 8 -3z" fill="#a6e3a1" fill-opacity="0.9"/>
+  <circle cx="236" cy="176" r="4" fill="#86c99a" fill-opacity="0.8"/>
+  <circle cx="92" cy="204" r="3" fill="#5aa46f" fill-opacity="0.7"/>
+</svg>

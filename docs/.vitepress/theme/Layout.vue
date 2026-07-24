@@ -6,9 +6,6 @@ const { Layout } = DefaultTheme
 
 <template>
   <Layout>
-    <template #nav-bar-content-after>
-      <FontSwitcher />
-    </template>
     <template #doc-footer-before>
       <div class="upk-contributors">
         <NolebaseGitContributors />

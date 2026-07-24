@@ -1,6 +1,6 @@
 import DefaultTheme from 'vitepress/theme'
 import Layout from './Layout.vue'
-import FontSwitcher from '../components/FontSwitcher.vue'
+import HomeContributors from './HomeContributors.vue'
 import {
   NolebaseGitChangelogPlugin,
 } from '@nolebase/vitepress-plugin-git-changelog/client'
@@ -12,7 +12,7 @@ export default {
   extends: DefaultTheme,
   Layout,
   enhanceApp({ app }) {
-    app.component('FontSwitcher', FontSwitcher)
+    app.component('HomeContributors', HomeContributors)
     app.use(NolebaseGitChangelogPlugin)
   },
 }

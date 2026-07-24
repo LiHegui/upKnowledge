@@ -213,6 +213,17 @@ export default defineConfig({
   ignoreDeadLinks: true,
   lastUpdated: true,
 
+  head: [
+    ['link', { rel: 'preconnect', href: 'https://cdn.jsdelivr.net' }],
+    // 中文 UI 字体：MiSans（小米开源无衬线，分片子集 + font-display:swap）
+    ['link', { rel: 'stylesheet', href: 'https://cdn.jsdelivr.net/npm/misans@4.0.0/lib/Normal/MiSans-Regular.min.css' }],
+    ['link', { rel: 'stylesheet', href: 'https://cdn.jsdelivr.net/npm/misans@4.0.0/lib/Normal/MiSans-Medium.min.css' }],
+    ['link', { rel: 'stylesheet', href: 'https://cdn.jsdelivr.net/npm/misans@4.0.0/lib/Normal/MiSans-Semibold.min.css' }],
+    ['link', { rel: 'stylesheet', href: 'https://cdn.jsdelivr.net/npm/misans@4.0.0/lib/Normal/MiSans-Bold.min.css' }],
+    // 西文 / 数字字体：Inter Variable
+    ['link', { rel: 'stylesheet', href: 'https://cdn.jsdelivr.net/npm/@fontsource-variable/inter@5.1.0/index.css' }],
+  ],
+
   vite: {
     plugins: [
       GitChangelog({

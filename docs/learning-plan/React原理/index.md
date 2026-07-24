@@ -124,7 +124,7 @@
 | ----- | -------------------------------------------------------------- |
 | 60min | 🛠️ 手写 Mini React：createElement + render + useState        |
 | 40min | 梳理核心原理笔记，整理 8 个必背高频问题                    |
-| 30min | 写入知识库：将核心原理补充到 `docs/interview/React/index.md` |
+| 30min | 写入知识库：将核心原理补充到 `docs/frontend/React/index.md` |
 
 - [ ] Mini React 能渲染组件并响应 useState 更新
 - [ ] 能不看资料说出 Fiber / diff / Hooks / 合成事件 的核心原理

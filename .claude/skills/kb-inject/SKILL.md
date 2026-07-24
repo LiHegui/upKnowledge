@@ -1,12 +1,12 @@
 ---
 name: kb-inject
-description: "知识点注入 / knowledge inject — 用户提供知识点内容，自动判断归属类别，找到 docs/interview/ 对应文件，智能决策：丰富已有面试题答案 或 新增一道 Q&A 题目。Use when: 用户说「加进去」「补充到对应位置」「加一个问题」「融合进来」「写进知识库」「把这个加进去」「更新知识库」。"
+description: "知识点注入 / knowledge inject — 用户提供知识点内容，自动判断归属类别，找到 docs/frontend/ 对应文件，智能决策：丰富已有面试题答案 或 新增一道 Q&A 题目。Use when: 用户说「加进去」「补充到对应位置」「加一个问题」「融合进来」「写进知识库」「把这个加进去」「更新知识库」。"
 argument-hint: "粘贴知识点内容，例如：关于 Vue3 响应式原理的补充说明..."
 ---
 
 # 知识点注入（kb-inject）
 
-用户提供知识点，自动归类并精准注入到 `docs/interview/` 对应文件中。
+用户提供知识点，自动归类并精准注入到 `docs/frontend/` 对应文件中。
 
 ---
 
@@ -30,7 +30,7 @@ argument-hint: "粘贴知识点内容，例如：关于 Vue3 响应式原理的�
 
 ```
 要把这个知识点写入知识库吗？
-→ 我会将它注入到 `docs/interview/[对应方向]/index.md` 中。
+→ 我会将它注入到 `docs/frontend/[对应方向]/index.md` 中。
 ```
 
 - 语气自然，不打断主要回答
@@ -48,20 +48,20 @@ argument-hint: "粘贴知识点内容，例如：关于 Vue3 响应式原理的�
 
 | 关键词 / 特征 | 对应文件 |
 |--------------|---------|
-| JS 基础、闭包、原型、this、Promise、Event Loop、ES6 | `docs/interview/JavaScript/index.md` |
-| Vue2、Vue3、响应式、组合式 API、生命周期 | `docs/interview/Vue3/index.md` 或 `Vue/vue.md` |
-| React、hooks、fiber、虚拟 DOM、Redux | `docs/interview/React/index.md` |
-| TypeScript、类型体操、泛型、装饰器 | `docs/interview/Ts/index.md` |
-| CSS、布局、BFC、动画、选择器 | `docs/interview/CSS/index.md` |
-| 网络、HTTP、HTTPS、TCP、WebSocket | `docs/interview/网络/index.md` |
-| 浏览器、渲染流程、缓存、安全、跨域 | `docs/interview/浏览器/index.md` |
-| Webpack、Vite、打包、构建优化 | `docs/interview/Webpack/index.md` 或 `Vite/index.md` |
-| Git、版本控制 | `docs/interview/git/index.md` |
-| 性能优化、首屏、懒加载 | `docs/interview/性能优化/index.md` |
-| 算法、数据结构、排序、二分 | `docs/interview/算法Code/index.md` |
-| Node.js、服务端 | `docs/interview/Node/index.md` |
-| 微前端 | `docs/interview/微前端/index.md` |
-| AI、大模型、LLM、Prompt | `docs/interview/AI/index.md` |
+| JS 基础、闭包、原型、this、Promise、Event Loop、ES6 | `docs/frontend/JavaScript/index.md` |
+| Vue2、Vue3、响应式、组合式 API、生命周期 | `docs/frontend/Vue3/index.md` 或 `Vue/vue.md` |
+| React、hooks、fiber、虚拟 DOM、Redux | `docs/frontend/React/index.md` |
+| TypeScript、类型体操、泛型、装饰器 | `docs/frontend/Ts/index.md` |
+| CSS、布局、BFC、动画、选择器 | `docs/frontend/CSS/index.md` |
+| 网络、HTTP、HTTPS、TCP、WebSocket | `docs/frontend/网络/index.md` |
+| 浏览器、渲染流程、缓存、安全、跨域 | `docs/frontend/浏览器/index.md` |
+| Webpack、Vite、打包、构建优化 | `docs/frontend/Webpack/index.md` 或 `Vite/index.md` |
+| Git、版本控制 | `docs/frontend/git/index.md` |
+| 性能优化、首屏、懒加载 | `docs/frontend/性能优化/index.md` |
+| 算法、数据结构、排序、二分 | `docs/frontend/算法Code/index.md` |
+| Node.js、服务端 | `docs/frontend/Node/index.md` |
+| 微前端 | `docs/frontend/微前端/index.md` |
+| AI、大模型、LLM、Prompt | `docs/frontend/AI/index.md` |
 
 若无法确定，**先读取目标文件大纲**再决策，不猜测。
 
@@ -88,7 +88,7 @@ argument-hint: "粘贴知识点内容，例如：关于 Vue3 响应式原理的�
 
 > ⚠️ **强制要求**：无论用户提供的是什么形式的知识点（概念说明、文章摘录、代码片段），注入时**必须转化为面试题 Q&A 格式**，不允许直接粘贴原文。
 
-严格遵循 `docs/interview/AI/index.md` 的样板风格：
+严格遵循 `docs/frontend/AI/index.md` 的样板风格：
 
 ```markdown
 ## Q: 问题标题（以「？」结尾）
@@ -124,7 +124,7 @@ argument-hint: "粘贴知识点内容，例如：关于 Vue3 响应式原理的�
 
 ### Step 3.5：可视化风格规范（适用于复杂流程图 / 多维对比）
 
-> 参考样本：`docs/interview/React/redux.md`（链路图部分）和 `docs/interview/React/react-rendering-behavior.md`
+> 参考样本：`docs/frontend/React/redux.md`（链路图部分）和 `docs/frontend/React/react-rendering-behavior.md`
 >
 > ⚠️ **强制要求**：**禁止使用 HTML/CSS 卡片图解**。所有可视化必须使用纯 Markdown 格式（表格、ASCII 流程图、树形缩进图、代码块等）。
 
@@ -193,7 +193,7 @@ dispatch(action)
 
 ### Step 5：写入统一历史档案（强制）
 
-每次知识点注入完成后，必须同步写入：`docs/interview/.history/{用户名}.json`
+每次知识点注入完成后，必须同步写入：`docs/.history/{用户名}.json`
 
 - 档案不存在：创建基础结构
 - 档案存在：仅追加 `events`，禁止覆盖历史
@@ -214,6 +214,6 @@ dispatch(action)
 - **不简单堆叠**：新增内容要与原有内容互补，避免重复表述
 - **不破坏原有格式**：只增不改，除非丰富已有答案需要重构结构
 - **不改变题目顺序**：按已有章节顺序插入，不随意调整
-- **历史机制强关联**：注入行为必须落档到 `docs/interview/.history/{用户名}.json`，不得写入其他临时存档格式
+- **历史机制强关联**：注入行为必须落档到 `docs/.history/{用户名}.json`，不得写入其他临时存档格式
 - **中文回复**：所有说明和注释使用中文
 - **主动优先**：技术对话中优先识别知识点，主动询问，不等用户说关键词

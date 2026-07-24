@@ -81,7 +81,7 @@
 
 **推荐学习路径**：
 
-1. **30min** — 阅读项目知识库 `docs/interview/AI/agent.md` 前四章（Agent 定义 → 四大组件 → ReAct 循环 → 工具机制）
+1. **30min** — 阅读项目知识库 `docs/frontend/AI/agent.md` 前四章（Agent 定义 → 四大组件 → ReAct 循环 → 工具机制）
 2. **30min** — 对照代码理解 ReAct 循环：`Thought → Action → Observation` 交替执行的本质
 3. **30min** — 动手实验：用任意 LLM API（OpenAI / 通义千问 / 豆包）发一次带 `tools` 参数的请求，观察返回的 `tool_calls` 字段
 4. **15min** — 总结：用自己的话写出 "Agent 和普通 LLM 调用的 3 个核心区别"
@@ -112,8 +112,8 @@
 
 **推荐学习路径**：
 
-1. **30min** — 阅读 `docs/interview/AI/agent.md` 第五章（手把手从零构建最小 Agent），重点看 `toolSchemas` 的 JSON Schema 结构
-2. **30min** — 阅读 `docs/interview/AI/workflow.md`，搞清楚 Workflow（固定流程）和 Agent（动态决策）的区别与适用场景
+1. **30min** — 阅读 `docs/frontend/AI/agent.md` 第五章（手把手从零构建最小 Agent），重点看 `toolSchemas` 的 JSON Schema 结构
+2. **30min** — 阅读 `docs/frontend/AI/workflow.md`，搞清楚 Workflow（固定流程）和 Agent（动态决策）的区别与适用场景
 3. **30min** — 动手实验：定义 2 个工具的 JSON Schema，发给 LLM，观察它如何选择工具
 4. **15min** — 画一张 Agent vs Workflow 对比脑图
 
@@ -307,9 +307,9 @@ Agent = LLM 大脑 + 工具手脚 + ReAct 循环。LLM 负责"决策"，代码�
 
 | 资源 | 用途 |
 |------|------|
-| 项目知识库 `docs/interview/AI/agent.md` | Agent 原理全解（已有，直接读） |
-| 项目知识库 `docs/interview/AI/workflow.md` | Workflow 对比（已有，直接读） |
-| 项目知识库 `docs/interview/AI/index.md` | LLM 基础 + Prompt 工程 |
+| 项目知识库 `docs/frontend/AI/agent.md` | Agent 原理全解（已有，直接读） |
+| 项目知识库 `docs/frontend/AI/workflow.md` | Workflow 对比（已有，直接读） |
+| 项目知识库 `docs/frontend/AI/index.md` | LLM 基础 + Prompt 工程 |
 | [OpenAI Function Calling 文档](https://platform.openai.com/docs/guides/function-calling) | 官方 Tool Calling 接口规范 |
 | [Anthropic Tool Use 文档](https://docs.anthropic.com/en/docs/build-with-claude/tool-use) | Claude Tool Use 接口 |
 | [LangChain.js](https://js.langchain.com/) | Agent 框架参考（了解即可，优先手写） |

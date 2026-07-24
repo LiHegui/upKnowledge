@@ -52,7 +52,7 @@ upKnowledge/
 │   ├── README.md            ← 站点首页（技术要点导航入口）
 │   ├── deploy.sh            ← GitHub Pages 部署脚本
 │   │
-│   ├── interview/           ← 技术要点模块（核心内容）
+│   ├── frontend/            ← 前端技术要点模块（核心内容，原 interview/，2026-07 重命名）
 │   │   ├── index.md         ← 技术要点总目录
 │   │   ├── 自测系列.md
 │   │   ├── 必问技术要点系列/index.md
@@ -66,13 +66,8 @@ upKnowledge/
 │   │   ├── Vue3/            ← Vue 3 新特性（diff、Tree-shaking、性能）
 │   │   ├── Webpack/         ← 构建工具 Webpack
 │   │   ├── Vite/            ← 构建工具 Vite
-│   │   ├── Node/            ← Node.js + 中间件
-│   │   ├── Nginx/           ← Nginx 配置
-│   │   ├── Linux/           ← Linux 常用命令
 │   │   ├── git/             ← Git 操作知识库
-│   │   ├── 网络/            ← HTTP/HTTPS/TCP/UDP
 │   │   ├── 浏览器/          ← 浏览器原理、缓存
-│   │   ├── 操作系统/        ← 基础操作系统知识
 │   │   ├── 性能优化/        ← 前端性能优化
 │   │   ├── 设计模式/        ← 设计模式（观察者、发布订阅）
 │   │   ├── 算法Code/        ← 算法实现（二分、排序、Stack 等）
@@ -82,6 +77,19 @@ upKnowledge/
 │   │       ├── 前端工程化/
 │   │       ├── 移动端适配/
 │   │       └── JWT登录方案/
+│   │
+│   ├── backend/             ← 🖥️ 后端 & 全栈知识库（2026-07 从 interview/ 拆出，独立板块）
+│   │   ├── index.md         ← 后端知识库落地页
+│   │   ├── 面经/            ← 后端面经记录台账（个人真实面试记录：时间/公司/岗位/复盘）
+│   │   ├── Node/            ← Node.js 服务端（核心/中间件/Nodemailer/部署）
+│   │   ├── MySQL/           ← 数据库
+│   │   ├── Redis/           ← 缓存
+│   │   ├── 网络/            ← HTTP/HTTPS/TCP/UDP/WebSocket
+│   │   ├── Nginx/           ← Nginx 配置
+│   │   ├── Docker/          ← Docker 速通
+│   │   ├── CICD/            ← CI/CD
+│   │   ├── Linux/           ← Linux 常用命令
+│   │   └── 操作系统/        ← 基础操作系统知识
 │   │
 │   ├── repository/          ← 知识库/工具库（进阶专题）
 │   │   ├── 模块化/          ← Rollup + 组件库搭建
@@ -146,9 +154,11 @@ upKnowledge/
 }
 ```
 
-**✅ 已完善**：sidebar 已全面配置，覆盖 interview / repository / tools / optimization 四大模块所有文档。navbar 已增加技术要点、知识库、工具合集三个主入口。
+**✅ 已完善**：sidebar 已全面配置，覆盖 frontend / backend / repository / tools / optimization 各模块所有文档。navbar 已增加技术要点、知识库、工具合集三个主入口。
 
-### 4.2 interview/ — 技术要点模块（核心）
+### 4.2 frontend/ — 前端技术要点模块（核心）
+
+> 2026-07 由 `interview/` 重命名为 `frontend/`，与 `backend/` 对称。
 
 每个技术方向对应一个子目录，通常包含：
 - `index.md`：该方向的题目汇总（Q&A 格式）
@@ -157,9 +167,18 @@ upKnowledge/
 
 **内容组织规范**：Markdown 格式，Q&A 结构，支持 `:::demo` 代码演示块。
 
+### 4.2.1 backend/ — 后端 & 全栈知识库（独立板块）
+
+2026-07 起，后端方向从 `interview/` 拆出为独立的 `docs/backend/`，与前端彻底分家：
+
+- 迁移的模块：`Node` / `MySQL` / `Redis` / `网络` / `Nginx` / `Docker` / `CICD` / `Linux` / `操作系统`
+- `backend/面经/`：**个人真实后端面经台账**（元信息：时间 / 公司 / 岗位 / 轮次 / 形式 / 结果 / 难度 + 考察题目 + 复盘）
+- **侧边栏路由约定**：`config.js` 中 `/backend/` 前缀统一走 `backendSidebar`（前端走 `frontendSidebar`）；`/backend/` 前缀会自动覆盖其所有子路径，新增后端子目录无需再单独注册路径 key，只需往 `backendSidebar` 数组加条目
+- 导航栏「后端知识库」与首页 hero/feature 卡片均指向 `/backend/`
+
 ### 4.3 repository/ — 进阶知识库
 
-面向更深入的原理解析和实战方案。相比 `interview/` 更注重深度而非广度。
+面向更深入的原理解析和实战方案。相比 `frontend/` 更注重深度而非广度。
 部分目录内容尚未整理完整（见 `需要整理的资料/`）。
 
 ### 4.4 project/rtc-demo/（最复杂的 Demo）
@@ -236,7 +255,7 @@ bash docs/deploy.sh
 
 | 状态 | 问题 | 说明 |
 |------|------|------|
-| ✅ 已解决 | ~~侧边栏（sidebar）未配置~~ | 已补全，覆盖 interview / repository / tools / optimization 全部文档 |
+| ✅ 已解决 | ~~侧边栏（sidebar）未配置~~ | 已补全，覆盖 frontend / backend / repository / tools / optimization 全部文档 |
 | ✅ 已解决 | ~~大量目录未注册路由~~ | 已全部注册到 sidebar，含深层子目录 |
 | ✅ 已解决 | ~~首页（README.md）导航链接不完整~~ | 已补全所有方向链接，新增知识库/性能优化分区 |
 | 🟡 待处理 | `需要整理的资料/` | `repository/需要整理的资料/index.md` 中积压了待整理内容 |
@@ -256,13 +275,13 @@ bash docs/deploy.sh
 |------|------|
 | `vuepress-starter/` 与主站重叠 | 该目录仅作为学习参考，可考虑移除或明确边界 |
 | 算法题缺少题目描述 | `算法Code/` 中的 `.js` 文件无对应题目说明 |
-| CSS Demo 文件散落 | `interview/CSS/` 中有多个 `.html` demo 文件未集成到文档 |
+| CSS Demo 文件散落 | `frontend/CSS/` 中有多个 `.html` demo 文件未集成到文档 |
 
 ---
 
 ## 七、内容覆盖矩阵
 
-| 技术方向 | interview/ | repository/ | 完整度评估 |
+| 技术方向 | frontend/ | repository/ | 完整度评估 |
 |----------|:----------:|:-----------:|:--------:|
 | CSS | ✅ | ✅ | 中 |
 | HTML | ✅ | — | 低 |
@@ -301,7 +320,7 @@ bash docs/deploy.sh
 新增文档时需同步更新 `docs/.vuepress/config.js` 的侧边栏配置（`sidebar`），格式参考：
 ```js
 sidebar: {
-  '/interview/CSS/': [{ text: 'CSS', children: ['/interview/CSS/index.md'] }],
+  '/frontend/CSS/': [{ text: 'CSS', children: ['/frontend/CSS/index.md'] }],
   // ...
 }
 ```

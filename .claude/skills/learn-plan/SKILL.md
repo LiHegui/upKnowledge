@@ -1,12 +1,12 @@
 ---
 name: learn-plan
-description: "学习计划制定 / learning plan — 为指定技术方向生成科学、循序渐进的学习路线图，创建结构化学习文档（docs/learning-plan/），支持每日任务分配、进度追踪、笔记填写，并强关联写入统一历史档案（docs/interview/.history/{用户名}.json）。Use when: 用户说「学习计划」「学习路线」「怎么学」「制定计划」「每天学什么」「规划学习」「帮我学xxx」「给我出个学习计划」。"
+description: "学习计划制定 / learning plan — 为指定技术方向生成科学、循序渐进的学习路线图，创建结构化学习文档（docs/learning-plan/），支持每日任务分配、进度追踪、笔记填写，并强关联写入统一历史档案（docs/.history/{用户名}.json）。Use when: 用户说「学习计划」「学习路线」「怎么学」「制定计划」「每天学什么」「规划学习」「帮我学xxx」「给我出个学习计划」。"
 argument-hint: "指定要学习的技术方向，例如：Three.js / Node.js / 算法 / Docker / Rust"
 ---
 
 # 学习计划制定（learn-plan）
 
-用户指定技术方向，自动生成科学的分阶段学习路线，在 `docs/learning-plan/` 下创建结构化学习文档，支持每日打卡与笔记记录，并将关键进度强关联写入统一历史档案 `docs/interview/.history/{用户名}.json`。
+用户指定技术方向，自动生成科学的分阶段学习路线，在 `docs/learning-plan/` 下创建结构化学习文档，支持每日打卡与笔记记录，并将关键进度强关联写入统一历史档案 `docs/.history/{用户名}.json`。
 
 ---
 
@@ -81,7 +81,7 @@ argument-hint: "指定要学习的技术方向，例如：Three.js / Node.js / �
 
 ### Step 5：同步写入统一历史档案（强制）
 
-每次创建计划或推进当日任务后，必须同步更新：`docs/interview/.history/{用户名}.json`
+每次创建计划或推进当日任务后，必须同步更新：`docs/.history/{用户名}.json`
 
 - 档案不存在：创建并初始化
 - 档案存在：在 `events` 追加事件，不覆盖旧记录
@@ -188,7 +188,7 @@ argument-hint: "指定要学习的技术方向，例如：Three.js / Node.js / �
 
 1. **读取** `docs/learning-plan/[技术名]/index.md`
 2. **找到**最近一个已填写的 Day，判断当前进度
-3. **读取** `docs/interview/.history/{用户名}.json`，确认近期历史与阶段状态
+3. **读取** `docs/.history/{用户名}.json`，确认近期历史与阶段状态
 4. **生成**今日具体任务：
    - 明确的学习目标（1-2 个知识点）
    - 推荐的学习资源（MDN / 官方文档 / 关键搜索词）
@@ -241,7 +241,7 @@ argument-hint: "指定要学习的技术方向，例如：Three.js / Node.js / �
 - **不一次生成全部 Day**：只生成路线图 + 前 3 天的详细计划，后续每天生成当日任务
 - **尊重用户节奏**：用户说「今天跳过」「这个先不学」立即调整计划顺序
 - **笔记区留空**：文档中供用户手动填写的区域不要预填占位符，保持干净
-- **文件存放**：统一在 `docs/learning-plan/` 目录下，不放进 `docs/interview/`
-- **历史档案唯一机制**：所有学习进度存档统一写入 `docs/interview/.history/{用户名}.json`，不得新增其他存档格式（如额外 md/txt/csv 进度文件）
+- **文件存放**：统一在 `docs/learning-plan/` 目录下，不放进 `docs/frontend/`
+- **历史档案唯一机制**：所有学习进度存档统一写入 `docs/.history/{用户名}.json`，不得新增其他存档格式（如额外 md/txt/csv 进度文件）
 - **进度状态 emoji**：⏳ 未开始 / 🔄 进行中 / ✅ 已完成 / ⏸️ 暂停
 - **中文回复**：所有说明使用中文，技术词汇保留英文原名

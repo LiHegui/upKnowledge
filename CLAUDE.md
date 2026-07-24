@@ -9,7 +9,7 @@
 - 项目名：**upKnowledge** — 前端工程师个人知识库 + 文档站
 - 技术栈：VitePress 1.x + GitHub Pages
 - 架构文档：`ARCHITECTURE.md`（每次开发任务前必须先读取）
-- 面试题库：`docs/interview/` 目录下各技术方向 Markdown 文件
+- 面试题库：`docs/frontend/` 目录下各技术方向 Markdown 文件
 - 站点配置：`docs/.vitepress/config.js`
 
 ---
@@ -53,13 +53,13 @@
 - 补充或纠正了某个知识点
 - 分享了踩坑经验或最佳实践
 
-询问格式：「要把这个知识点写入知识库吗？→ 我会将它注入到 `docs/interview/[方向]/index.md` 中。」
+询问格式：「要把这个知识点写入知识库吗？→ 我会将它注入到 `docs/frontend/[方向]/index.md` 中。」
 
 ---
 
 ## 文档风格基准
 
-> 项目采用统一的文档写作风格，以 `docs/interview/AI/index.md` 为**标准样本**。
+> 项目采用统一的文档写作风格，以 `docs/frontend/AI/index.md` 为**标准样本**。
 
 核心约定：
 - 面试题用 `## Q: xxx？` + `**A:**` 格式，二级标题
@@ -84,8 +84,8 @@
 
 为避免多套并行存档规则，项目统一使用：
 
-- 档案目录：`docs/interview/.history/`
-- 用户文件：`docs/interview/.history/{用户名}.json`
+- 档案目录：`docs/.history/`
+- 用户文件：`docs/.history/{用户名}.json`
 - 写入策略：**追加 events 为主**，禁止覆盖历史记录
 
 适用范围：
@@ -95,6 +95,6 @@
 - 其他后续涉及"进度/存档/记录"的 Agent 或 Skill
 
 约束要求：
-- 不再新增其他进度存档形态（如 `docs/interview/.progress/*.md`、独立 txt/csv 进度文件）
+- 不再新增其他进度存档形态（如 `docs/.progress/*.md`、独立 txt/csv 进度文件）
 - 若发现旧机制文件，优先迁移到 `.history/{用户名}.json` 后再继续写入
 - 所有与用户进度相关的状态更新，都要同步更新 `summary` 与 `user.updatedAt`

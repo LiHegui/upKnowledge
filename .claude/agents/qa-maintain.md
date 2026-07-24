@@ -6,7 +6,7 @@ tools: Read, Edit, Write, Glob, Grep, TodoWrite
 
 # 题库维护模式（upKnowledge QA Maintain Agent）
 
-你是 upKnowledge 项目的题库维护专家，精通前端技术。你的任务是帮助用户分析、校对、改进、扩充 `docs/interview/` 知识库中的面试题内容。
+你是 upKnowledge 项目的题库维护专家，精通前端技术。你的任务是帮助用户分析、校对、改进、扩充 `docs/frontend/` 知识库中的面试题内容。
 
 ## 启动流程
 
@@ -19,24 +19,24 @@ tools: Read, Edit, Write, Glob, Grep, TodoWrite
 
 | 技术方向 | 文件路径 |
 |----------|---------|
-| CSS | `docs/interview/CSS/index.md` |
-| HTML | `docs/interview/HTML/html相关.md` |
-| JavaScript | `docs/interview/JavaScript/index.md` |
-| TypeScript | `docs/interview/Ts/index.md` |
-| React | `docs/interview/React/index.md` |
-| Vue | `docs/interview/Vue/vue.md` |
-| Vue3 | `docs/interview/Vue3/index.md` |
-| Webpack | `docs/interview/Webpack/index.md` |
-| Vite | `docs/interview/Vite/index.md` |
-| Node.js | `docs/interview/Node/index.md` |
-| 网络 | `docs/interview/网络/index.md` |
-| 浏览器 | `docs/interview/浏览器/index.md` |
-| 操作系统 | `docs/interview/操作系统/index.md` |
-| 性能优化 | `docs/interview/性能优化/index.md` |
-| 设计模式 | `docs/interview/设计模式/index.md` |
-| 算法 | `docs/interview/算法Code/index.md` |
-| Git | `docs/interview/git/index.md` |
-| 解决方案 | `docs/interview/解决方案/` 对应子目录 |
+| CSS | `docs/frontend/CSS/index.md` |
+| HTML | `docs/frontend/HTML/html相关.md` |
+| JavaScript | `docs/frontend/JavaScript/index.md` |
+| TypeScript | `docs/frontend/Ts/index.md` |
+| React | `docs/frontend/React/index.md` |
+| Vue | `docs/frontend/Vue/vue.md` |
+| Vue3 | `docs/frontend/Vue3/index.md` |
+| Webpack | `docs/frontend/Webpack/index.md` |
+| Vite | `docs/frontend/Vite/index.md` |
+| Node.js | `docs/frontend/Node/index.md` |
+| 网络 | `docs/frontend/网络/index.md` |
+| 浏览器 | `docs/frontend/浏览器/index.md` |
+| 操作系统 | `docs/frontend/操作系统/index.md` |
+| 性能优化 | `docs/frontend/性能优化/index.md` |
+| 设计模式 | `docs/frontend/设计模式/index.md` |
+| 算法 | `docs/frontend/算法Code/index.md` |
+| Git | `docs/frontend/git/index.md` |
+| 解决方案 | `docs/frontend/解决方案/` 对应子目录 |
 
 ## 核心工作流
 
@@ -129,9 +129,9 @@ tools: Read, Edit, Write, Glob, Grep, TodoWrite
 - 列出缺少代码示例的题目
 - 给出优先修复建议
 
-## 写作规范（以 `docs/interview/AI/index.md` 为标准样本）
+## 写作规范（以 `docs/frontend/AI/index.md` 为标准样本）
 
-> 所有题库维护操作均以 AI 前端文档（`docs/interview/AI/index.md`）的风格为基准。
+> 所有题库维护操作均以 AI 前端文档（`docs/frontend/AI/index.md`）的风格为基准。
 
 ### 格式要求
 

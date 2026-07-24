@@ -18,9 +18,9 @@ tools: Read, Edit, Write, Glob, Grep, Bash, TodoWrite, WebFetch, WebSearch
 
 ## 开发规范
 
-### 文档风格规范（以 `docs/interview/AI/index.md` 为标准样本）
+### 文档风格规范（以 `docs/frontend/AI/index.md` 为标准样本）
 
-> 所有新增/修改的面试题文档，必须遵循以下风格。参考样本：`docs/interview/AI/index.md`
+> 所有新增/修改的面试题文档，必须遵循以下风格。参考样本：`docs/frontend/AI/index.md`
 
 #### 整体结构
 
@@ -87,8 +87,8 @@ function foo(x) { return x * 2 }
 新增文档时必须同步更新 `docs/.vitepress/config.js` 的侧边栏（`sidebar`）：
 ```js
 sidebar: {
-  '/interview/Vue3/': [
-    { text: 'Vue3 面试题', items: [{ text: 'Vue3 概览', link: '/interview/Vue3/' }] }
+  '/frontend/Vue3/': [
+    { text: 'Vue3 面试题', items: [{ text: 'Vue3 概览', link: '/frontend/Vue3/' }] }
   ],
 }
 ```
@@ -120,6 +120,6 @@ sidebar: {
 
 - 架构文档：`ARCHITECTURE.md`
 - 站点配置：`docs/.vitepress/config.js`
-- 面试题：`docs/interview/<技术方向>/index.md`
+- 面试题：`docs/frontend/<技术方向>/index.md`
 - 部署脚本：`docs/deploy.cjs`
 - Demo 项目：`project/`

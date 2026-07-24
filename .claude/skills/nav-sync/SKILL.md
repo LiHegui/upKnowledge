@@ -6,7 +6,7 @@ argument-hint: "可选：指定同步方向，如「以侧边栏为准」「以�
 
 # 导航同步（nav-sync）
 
-确保 **首页目录**（`docs/index.md`）与 **侧边栏配置**（`docs/.vitepress/config.js` 的 `sidebar['/interview/']`）始终一致。
+确保 **首页目录**（`docs/index.md`）与 **侧边栏配置**（`docs/.vitepress/config.js` 的 `sidebar['/frontend/']`）始终一致。
 
 ---
 
@@ -39,7 +39,7 @@ argument-hint: "可选：指定同步方向，如「以侧边栏为准」「以�
 
 同时读取：
 1. `docs/index.md` — 提取所有 `[文本](链接)` 条目，按章节分组
-2. `docs/.vitepress/config.js` — 提取 `sidebar['/interview/']` 的所有分组和 `items`
+2. `docs/.vitepress/config.js` — 提取 `sidebar['/frontend/']` 的所有分组和 `items`
 
 ### Step 2：对比差异
 
@@ -83,103 +83,103 @@ argument-hint: "可选：指定同步方向，如「以侧边栏为准」「以�
 
 | 侧边栏（`config.js`） | 首页（`docs/index.md`） |
 |----------------------|----------------------|
-| 笔试系列 → `/interview/笔试系列` | 笔试系列 → `./interview/笔试系列.md` |
+| 笔试系列 → `/frontend/笔试系列` | 笔试系列 → `./frontend/笔试系列.md` |
 | — | 算法练习：经典 150 题（外部链接，仅首页） |
 
 ### 2. 🤖 AI × 前端
 
 | 侧边栏 | 首页 |
 |--------|------|
-| AI × 前端技术要点 → `/interview/AI/` | AI × 前端技术要点 → `./interview/AI/index.md` |
+| AI × 前端技术要点 → `/frontend/AI/` | AI × 前端技术要点 → `./frontend/AI/index.md` |
 
 ### 3. 基础三件套
 
 | 侧边栏 | 首页 |
 |--------|------|
-| HTML → `/interview/HTML/html相关` | HTML → `./interview/HTML/html相关.md` |
-| CSS → `/interview/CSS/` | CSS → `./interview/CSS/index.md` |
-| Sass & Less → `/interview/CSS/sass和less` | Sass & Less → `./interview/CSS/sass和less.md` |
-| styled-components → `/interview/CSS/style-components` | styled-components → `./interview/CSS/style-components.md` |
-| JavaScript → `/interview/JavaScript/` | JavaScript → `./interview/JavaScript/index.md` |
+| HTML → `/frontend/HTML/html相关` | HTML → `./frontend/HTML/html相关.md` |
+| CSS → `/frontend/CSS/` | CSS → `./frontend/CSS/index.md` |
+| Sass & Less → `/frontend/CSS/sass和less` | Sass & Less → `./frontend/CSS/sass和less.md` |
+| styled-components → `/frontend/CSS/style-components` | styled-components → `./frontend/CSS/style-components.md` |
+| JavaScript → `/frontend/JavaScript/` | JavaScript → `./frontend/JavaScript/index.md` |
 
 ### 4. TypeScript
 
 | 侧边栏 | 首页 |
 |--------|------|
-| TypeScript 概览 → `/interview/Ts/` | TypeScript 总览 → `./interview/Ts/index.md` |
-| 类型 → `/interview/Ts/类型/` | 类型系统 → `./interview/Ts/类型/index.md` |
-| 接口 → `/interview/Ts/接口/` | 接口 → `./interview/Ts/接口/index.md` |
-| 类 → `/interview/Ts/类/` | 类 → `./interview/Ts/类/index.md` |
-| 函数 → `/interview/Ts/函数/` | 函数 → `./interview/Ts/函数/index.md` |
+| TypeScript 概览 → `/frontend/Ts/` | TypeScript 总览 → `./frontend/Ts/index.md` |
+| 类型 → `/frontend/Ts/类型/` | 类型系统 → `./frontend/Ts/类型/index.md` |
+| 接口 → `/frontend/Ts/接口/` | 接口 → `./frontend/Ts/接口/index.md` |
+| 类 → `/frontend/Ts/类/` | 类 → `./frontend/Ts/类/index.md` |
+| 函数 → `/frontend/Ts/函数/` | 函数 → `./frontend/Ts/函数/index.md` |
 
 ### 5. Vue 生态
 
 | 侧边栏 | 首页 |
 |--------|------|
-| Vue2 → `/interview/Vue/vue` | Vue2 → `./interview/Vue/vue.md` |
-| 权限管理 → `/interview/Vue/AuthorityManagement` | 权限管理 → `./interview/Vue/AuthorityManagement.md` |
-| Vue3 → `/interview/Vue3/` | Vue3 → `./interview/Vue3/index.md` |
-| Vue3 Diff 算法 → `/interview/Vue3/diff/` | Diff 算法 → `./interview/Vue3/diff/index.md` |
-| Vue3 性能提升 → `/interview/Vue3/性能提升/` | 性能提升 → `./interview/Vue3/性能提升/index.md` |
-| Tree-shaking → `/interview/Vue3/Treeshaking/` | Tree-shaking → `./interview/Vue3/Treeshaking/index.md` |
+| Vue2 → `/frontend/Vue/vue` | Vue2 → `./frontend/Vue/vue.md` |
+| 权限管理 → `/frontend/Vue/AuthorityManagement` | 权限管理 → `./frontend/Vue/AuthorityManagement.md` |
+| Vue3 → `/frontend/Vue3/` | Vue3 → `./frontend/Vue3/index.md` |
+| Vue3 Diff 算法 → `/frontend/Vue3/diff/` | Diff 算法 → `./frontend/Vue3/diff/index.md` |
+| Vue3 性能提升 → `/frontend/Vue3/性能提升/` | 性能提升 → `./frontend/Vue3/性能提升/index.md` |
+| Tree-shaking → `/frontend/Vue3/Treeshaking/` | Tree-shaking → `./frontend/Vue3/Treeshaking/index.md` |
 
 ### 6. React 生态
 
 | 侧边栏 | 首页 |
 |--------|------|
-| React → `/interview/React/` | React 技术要点 → `./interview/React/index.md` |
-| React 渲染行为完全指南 → `/interview/React/react-rendering-behavior` | 同左 |
-| Fiber 架构与 Diff 算法深度解析 → `/interview/React/fiber-diff` | 同左 |
-| React 性能优化完全指南 → `/interview/React/react-性能优化` | 同左 |
-| Redux 完全指南 → `/interview/React/redux` | 同左 |
-| MobX 完全指南 → `/interview/React/mobx` | 同左 |
+| React → `/frontend/React/` | React 技术要点 → `./frontend/React/index.md` |
+| React 渲染行为完全指南 → `/frontend/React/react-rendering-behavior` | 同左 |
+| Fiber 架构与 Diff 算法深度解析 → `/frontend/React/fiber-diff` | 同左 |
+| React 性能优化完全指南 → `/frontend/React/react-性能优化` | 同左 |
+| Redux 完全指南 → `/frontend/React/redux` | 同左 |
+| MobX 完全指南 → `/frontend/React/mobx` | 同左 |
 
 ### 7. 工程化
 
 | 侧边栏 | 首页 |
 |--------|------|
-| Webpack → `/interview/Webpack/` | Webpack → `./interview/Webpack/index.md` |
-| Webpack 基础配置 → `/interview/Webpack/webpack基础配置` | 同左 |
-| 模块化 History → `/interview/Webpack/模块化/history` | 模块化历史 → `./interview/Webpack/模块化/history.md` |
-| Rollup → `/interview/Webpack/模块化/Rollup` | 同左 |
-| 进阶-搭建组件库 → `/interview/Webpack/模块化/进阶-搭建组件库` | 搭建组件库 → 同左 |
-| Vite → `/interview/Vite/` | 同左 |
-| Git → `/interview/git/` | 同左 |
+| Webpack → `/frontend/Webpack/` | Webpack → `./frontend/Webpack/index.md` |
+| Webpack 基础配置 → `/frontend/Webpack/webpack基础配置` | 同左 |
+| 模块化 History → `/frontend/Webpack/模块化/history` | 模块化历史 → `./frontend/Webpack/模块化/history.md` |
+| Rollup → `/frontend/Webpack/模块化/Rollup` | 同左 |
+| 进阶-搭建组件库 → `/frontend/Webpack/模块化/进阶-搭建组件库` | 搭建组件库 → 同左 |
+| Vite → `/frontend/Vite/` | 同左 |
+| Git → `/frontend/git/` | 同左 |
 
 ### 8. 服务端 & 运维
 
 | 侧边栏 | 首页 |
 |--------|------|
-| Node.js → `/interview/Node/` | Node.js → `./interview/Node/index.md` |
-| Nodemailer → `/interview/Node/nodemailer` | nodemailer 邮件 → `./interview/Node/nodemailer.md` |
-| Server 准备工作 → `/interview/Node/server-准备工作` | 同左 |
-| Server 部署 → `/interview/Node/server-deploy` | 同左 |
-| Nginx → `/interview/Nginx/` | 同左 |
-| Linux → `/interview/Linux/` | Linux 常用命令 → `./interview/Linux/index.md` |
+| Node.js → `/frontend/Node/` | Node.js → `./frontend/Node/index.md` |
+| Nodemailer → `/frontend/Node/nodemailer` | nodemailer 邮件 → `./frontend/Node/nodemailer.md` |
+| Server 准备工作 → `/frontend/Node/server-准备工作` | 同左 |
+| Server 部署 → `/frontend/Node/server-deploy` | 同左 |
+| Nginx → `/frontend/Nginx/` | 同左 |
+| Linux → `/frontend/Linux/` | Linux 常用命令 → `./frontend/Linux/index.md` |
 
 ### 9. 浏览器 & 网络
 
 | 侧边栏 | 首页 |
 |--------|------|
-| 网络 → `/interview/网络/` | 网络（HTTP / TCP / WebSocket） → `./interview/网络/index.md` |
-| 浏览器 → `/interview/浏览器/` | 浏览器原理 → `./interview/浏览器/index.md` |
-| 浏览器缓存 → `/interview/浏览器/浏览器缓存` | 同左 |
-| 操作系统 → `/interview/操作系统/` | 同左 |
+| 网络 → `/frontend/网络/` | 网络（HTTP / TCP / WebSocket） → `./frontend/网络/index.md` |
+| 浏览器 → `/frontend/浏览器/` | 浏览器原理 → `./frontend/浏览器/index.md` |
+| 浏览器缓存 → `/frontend/浏览器/浏览器缓存` | 同左 |
+| 操作系统 → `/frontend/操作系统/` | 同左 |
 
 ### 10. 深入专题 & 解决方案
 
 | 侧边栏 | 首页 |
 |--------|------|
-| 性能优化 → `/interview/性能优化/` | 性能优化 → `./interview/性能优化/index.md` |
+| 性能优化 → `/frontend/性能优化/` | 性能优化 → `./frontend/性能优化/index.md` |
 | 图片加载优化策略 → `/optimization/加载图片优化策略` | 同左（`./optimization/加载图片优化策略.md`） |
-| 设计模式 → `/interview/设计模式/` | 同左 |
-| 前端登录 → `/interview/前端登录/登录的实现` | 前端登录方案 → 同左 |
-| 大文件断点续传 → `/interview/解决方案/大文件断点续传/` | 同左 |
-| JWT 登录方案 → `/interview/解决方案/JWT登录方案/` | 同左 |
-| 移动端适配 → `/interview/解决方案/移动端适配/` | 同左 |
-| 前端工程化 → `/interview/解决方案/前端工程化/` | 前端工程化方案 → 同左 |
-| 实时协同系统 → `/interview/解决方案/实时协同系统/` | 同左 |
-| 虚拟列表 → `/interview/解决方案/虚拟列表/` | 同左 |
+| 设计模式 → `/frontend/设计模式/` | 同左 |
+| 前端登录 → `/frontend/前端登录/登录的实现` | 前端登录方案 → 同左 |
+| 大文件断点续传 → `/frontend/解决方案/大文件断点续传/` | 同左 |
+| JWT 登录方案 → `/frontend/解决方案/JWT登录方案/` | 同左 |
+| 移动端适配 → `/frontend/解决方案/移动端适配/` | 同左 |
+| 前端工程化 → `/frontend/解决方案/前端工程化/` | 前端工程化方案 → 同左 |
+| 实时协同系统 → `/frontend/解决方案/实时协同系统/` | 同左 |
+| 虚拟列表 → `/frontend/解决方案/虚拟列表/` | 同左 |
 
 ### 11. 进阶专题（首页）↔ 多个独立分组（侧边栏）
 
@@ -200,6 +200,6 @@ argument-hint: "可选：指定同步方向，如「以侧边栏为准」「以�
 ## 注意事项
 
 - **不改变已有内容**：只增补缺失条目，不删除任何一方已有的链接
-- **链接格式统一**：首页用相对路径 `./interview/xxx`，侧边栏用绝对路径 `/interview/xxx`
+- **链接格式统一**：首页用相对路径 `./frontend/xxx`，侧边栏用绝对路径 `/frontend/xxx`
 - **中文回复**：所有说明使用中文
 - **幂等性**：多次执行结果一致，不产生重复条目

@@ -6,7 +6,7 @@
     "docs:build": "vitepress build docs",
     "docs:preview": "vitepress preview docs",
     "deploy": "node docs/deploy.cjs",
-    "history": "powershell -ExecutionPolicy Bypass -File ./docs/interview/.history/history.ps1"
+    "history": "powershell -ExecutionPolicy Bypass -File ./docs/.history/history.ps1"
   },
   "devDependencies": {
     "@nolebase/vitepress-plugin-git-changelog": "^2.18.2",

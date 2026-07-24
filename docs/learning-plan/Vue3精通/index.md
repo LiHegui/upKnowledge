@@ -49,7 +49,7 @@
 - [ ] Q7：`computed` 的缓存是怎么实现的？`dirty` 标志位的作用？ 📖 讲解模式，待回炉
 - [ ] Q8：手写题 —— 实现最小 `reactive` + `effect`，跑通自动更新 ✉️ 未开始
 
-> 参考：知识库 [docs/interview/Vue3/index.md](../../interview/Vue3/index.md)、[docs/interview/JavaScript/index.md](../../interview/JavaScript/index.md) 的 Proxy 响应式实现章节
+> 参考：知识库 [docs/frontend/Vue3/index.md](../../frontend/Vue3/index.md)、[docs/frontend/JavaScript/index.md](../../frontend/JavaScript/index.md) 的 Proxy 响应式实现章节
 
 ---
 

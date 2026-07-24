@@ -59,7 +59,7 @@ Week 8           Week 7-8                            │
 | 6 | 06-14 | HTML + 复习 | HTML 元素分类、SVG vs Canvas；JS 薄弱点回顾 | 3 题 |
 | 7 | 06-15 | 休息 / 自由复习 | 整理笔记、做闭包输出题 | - |
 
-**配套代码练习**：`docs/interview/JavaScript/code/` 下全部手写题
+**配套代码练习**：`docs/frontend/JavaScript/code/` 下全部手写题
 
 ### Week 2：CSS + TypeScript
 
@@ -73,7 +73,7 @@ Week 8           Week 7-8                            │
 | 13 | 06-21 | TS 实战 | infer 推断、模板字面量类型、联合分发 | 5 题 |
 | 14 | 06-22 | 阶段一复习 | 全部 70 题快速过一遍，标记薄弱点 | - |
 
-**配套练习**：`docs/interview/Ts/强化训练-100题.md`
+**配套练习**：`docs/frontend/Ts/强化训练-100题.md`
 
 ---
 
@@ -93,7 +93,7 @@ Week 8           Week 7-8                            │
 | 20 | 06-28 | Vue 生态总结 | Vue2 vs Vue3 对比、迁移策略、复习薄弱点 | 3 题 |
 | 21 | 06-29 | 休息 / 自由复习 | 整理 Vue 知识地图 | - |
 
-**配套**：`docs/interview/Vue/code/`、`docs/learning-plan/Vue3精通/`
+**配套**：`docs/frontend/Vue/code/`、`docs/learning-plan/Vue3精通/`
 
 ### Week 4：React
 
@@ -107,7 +107,7 @@ Week 8           Week 7-8                            │
 | 27 | 07-05 | 框架对比 | Vue vs React 设计哲学、适用场景、复习总结 | - |
 | 28 | 07-06 | 阶段二复习 | 全部 57 题快速过，标记薄弱点 | - |
 
-**配套**：`docs/interview/React/code/`、`docs/learning-plan/React原理/`
+**配套**：`docs/frontend/React/code/`、`docs/learning-plan/React原理/`
 
 ---
 
@@ -125,7 +125,7 @@ Week 8           Week 7-8                            │
 | 34 | 07-12 | 性能优化 | 虚拟列表、IntersectionObserver、Web Worker、大数据渲染 | 6 题 |
 | 35 | 07-13 | 性能优化实战 | Vue/React 性能优化、指标采集、复习总结 | 6 题 |
 
-**配套**：`docs/interview/解决方案/虚拟列表/`
+**配套**：`docs/frontend/解决方案/虚拟列表/`
 
 ---
 
@@ -237,7 +237,7 @@ Week 8           Week 7-8                            │
 
 **推荐学习路径**：
 
-1. **30min** — 阅读 `docs/interview/JavaScript/index.md` 前 4 道 Q&A（数据类型 → 类型判断 → 类型转换）
+1. **30min** — 阅读 `docs/frontend/JavaScript/index.md` 前 4 道 Q&A（数据类型 → 类型判断 → 类型转换）
 2. **30min** — 合上答案，用自己的话复述每道题的核心要点
 3. **30min** — 打开浏览器控制台，验证 `typeof null`、`[] == false`、`Object.prototype.toString.call()` 等细节
 4. **15min** — 总结：画一张「JS 类型体系」脑图
@@ -269,7 +269,7 @@ Week 8           Week 7-8                            │
 **推荐学习路径**：
 
 1. **30min** — 阅读作用域 + 闭包相关 Q&A
-2. **30min** — 做 `docs/interview/JavaScript/code/闭包输出题.js`，先自己做再对答案
+2. **30min** — 做 `docs/frontend/JavaScript/code/闭包输出题.js`，先自己做再对答案
 3. **30min** — 理解闭包的应用场景：防抖、节流、柯里化、模块模式
 4. **15min** — 总结闭包三句话定义
 
@@ -300,7 +300,7 @@ Week 8           Week 7-8                            │
 **推荐学习路径**：
 
 1. **30min** — 阅读原型链 + 继承相关 Q&A，画出 `__proto__` / `prototype` / `constructor` 三角关系图
-2. **30min** — 手写 `docs/interview/JavaScript/code/实现继承.js` 中的 6 种继承方式
+2. **30min** — 手写 `docs/frontend/JavaScript/code/实现继承.js` 中的 6 种继承方式
 3. **30min** — this 指向四条规则：默认 → 隐式 → 显式 → new
 4. **15min** — 总结：原型链查找流程图
 

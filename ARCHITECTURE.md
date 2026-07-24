@@ -80,7 +80,6 @@ upKnowledge/
 │   │
 │   ├── backend/             ← 🖥️ 后端 & 全栈知识库（2026-07 从 interview/ 拆出，独立板块）
 │   │   ├── index.md         ← 后端知识库落地页
-│   │   ├── 面经/            ← 后端面经记录台账（个人真实面试记录：时间/公司/岗位/复盘）
 │   │   ├── Node/            ← Node.js 服务端（核心/中间件/Nodemailer/部署）
 │   │   ├── MySQL/           ← 数据库
 │   │   ├── Redis/           ← 缓存
@@ -90,6 +89,11 @@ upKnowledge/
 │   │   ├── CICD/            ← CI/CD
 │   │   ├── Linux/           ← Linux 常用命令
 │   │   └── 操作系统/        ← 基础操作系统知识
+│   │
+│   ├── 面经/                ← 📝 面经台账（前后端共用，与 frontend/backend 同级，2026-07 抽出）
+│   │   ├── index.md         ← 简约总览 + 记录模板
+│   │   ├── LHG.md           ← 按人分档（个人真实面试记录：日期·公司·轮次 + 考察题目）
+│   │   └── SLP.md
 │   │
 │   ├── repository/          ← 知识库/工具库（进阶专题）
 │   │   ├── 模块化/          ← Rollup + 组件库搭建
@@ -172,7 +176,7 @@ upKnowledge/
 2026-07 起，后端方向从 `interview/` 拆出为独立的 `docs/backend/`，与前端彻底分家：
 
 - 迁移的模块：`Node` / `MySQL` / `Redis` / `网络` / `Nginx` / `Docker` / `CICD` / `Linux` / `操作系统`
-- `backend/面经/`：**个人真实后端面经台账**（元信息：时间 / 公司 / 岗位 / 轮次 / 形式 / 结果 / 难度 + 考察题目 + 复盘）
+- `backend/面经/`：~~个人真实后端面经台账~~ → 2026-07 抽出为顶层 `docs/面经/`（前后端共用，见下）
 - **侧边栏路由约定**：`config.js` 中 `/backend/` 前缀统一走 `backendSidebar`（前端走 `frontendSidebar`）；`/backend/` 前缀会自动覆盖其所有子路径，新增后端子目录无需再单独注册路径 key，只需往 `backendSidebar` 数组加条目
 - 导航栏「后端知识库」与首页 hero/feature 卡片均指向 `/backend/`
 

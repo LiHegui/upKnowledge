@@ -4,13 +4,6 @@ import { GitChangelog } from '@nolebase/vitepress-plugin-git-changelog/vite'
 // ────────── 后端侧边栏（复用于 /backend/ 及后端专属的 /frontend/xxx/ 路径）──────────
 const backendSidebar = [
   {
-    text: '📝 面经记录',
-    collapsed: false,
-    items: [
-      { text: '后端面经台账', link: '/backend/面经/' },
-    ],
-  },
-  {
     text: '🗄️ 数据库',
     collapsed: false,
     items: [
@@ -244,6 +237,7 @@ export default defineConfig({
     nav: [
       { text: '前端知识库', link: '/frontend/' },
       { text: '后端知识库', link: '/backend/' },
+      { text: '面经', link: '/面经/' },
       { text: '更新日志', link: '/changelog' },
       {
         text: '外部资源',
@@ -263,6 +257,19 @@ export default defineConfig({
       // ────────── 前端路径 → 前端侧边栏 ──────────
       '/frontend/': frontendSidebar,
       '/optimization/': frontendSidebar,
+
+      // ────────── 面经（前后端共用，独立台账）──────────
+      '/面经/': [
+        {
+          text: '📝 面经',
+          collapsed: false,
+          items: [
+            { text: '总览', link: '/面经/' },
+            { text: 'LHG', link: '/面经/LHG' },
+            { text: 'SLP', link: '/面经/SLP' },
+          ],
+        },
+      ],
 
 
       '/tools/': [

@@ -10,6 +10,9 @@ hero:
     - theme: brand
       text: 🖥️ 后端 & 全栈
       link: /backend/
+    - theme: alt
+      text: 📝 面经记录
+      link: /面经/
 
 features:
   - icon: 🤖

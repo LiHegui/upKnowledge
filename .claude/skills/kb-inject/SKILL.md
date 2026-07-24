@@ -1,12 +1,14 @@
 ---
 name: kb-inject
-description: "知识点注入 / knowledge inject — 用户提供知识点内容，自动判断归属类别，找到 docs/frontend/ 对应文件，智能决策：丰富已有面试题答案 或 新增一道 Q&A 题目。Use when: 用户说「加进去」「补充到对应位置」「加一个问题」「融合进来」「写进知识库」「把这个加进去」「更新知识库」。"
+description: "知识点注入 / knowledge inject — 用户提供知识点内容，自动判断归属类别（前端 docs/frontend/ 或 后端 docs/backend/），找到对应文件，智能决策：丰富已有面试题答案 或 新增一道 Q&A 题目。Use when: 用户说「加进去」「补充到对应位置」「加一个问题」「融合进来」「写进知识库」「把这个加进去」「更新知识库」。"
 argument-hint: "粘贴知识点内容，例如：关于 Vue3 响应式原理的补充说明..."
 ---
 
 # 知识点注入（kb-inject）
 
-用户提供知识点，自动归类并精准注入到 `docs/frontend/` 对应文件中。
+用户提供知识点，自动归类并精准注入到 `docs/frontend/`（前端）或 `docs/backend/`（后端）对应文件中。
+
+> ⚠️ **前后端分家**：2026-07 起后端方向（Node / MySQL / Redis / 网络 / Nginx / Docker / CICD / Linux / 操作系统）独立在 `docs/backend/`，不再放 `docs/frontend/`。归类时先判断前端还是后端。
 
 ---
 
@@ -30,7 +32,7 @@ argument-hint: "粘贴知识点内容，例如：关于 Vue3 响应式原理的�
 
 ```
 要把这个知识点写入知识库吗？
-→ 我会将它注入到 `docs/frontend/[对应方向]/index.md` 中。
+→ 我会将它注入到 `docs/frontend/[对应方向]/index.md`（前端）或 `docs/backend/[对应方向]/index.md`（后端）中。
 ```
 
 - 语气自然，不打断主要回答
@@ -44,24 +46,41 @@ argument-hint: "粘贴知识点内容，例如：关于 Vue3 响应式原理的�
 
 ### Step 1：识别知识点归属
 
-分析用户提供的内容，判断所属技术方向：
+分析用户提供的内容，**先判前端还是后端**，再定位到具体文件：
+
+**前端（`docs/frontend/`）**
 
 | 关键词 / 特征 | 对应文件 |
 |--------------|---------|
 | JS 基础、闭包、原型、this、Promise、Event Loop、ES6 | `docs/frontend/JavaScript/index.md` |
 | Vue2、Vue3、响应式、组合式 API、生命周期 | `docs/frontend/Vue3/index.md` 或 `Vue/vue.md` |
-| React、hooks、fiber、虚拟 DOM、Redux | `docs/frontend/React/index.md` |
+| React、hooks、fiber、虚拟 DOM、Redux、MobX | `docs/frontend/React/index.md` |
 | TypeScript、类型体操、泛型、装饰器 | `docs/frontend/Ts/index.md` |
-| CSS、布局、BFC、动画、选择器 | `docs/frontend/CSS/index.md` |
-| 网络、HTTP、HTTPS、TCP、WebSocket | `docs/frontend/网络/index.md` |
+| CSS、布局、BFC、动画、选择器、styled-components | `docs/frontend/CSS/index.md` |
 | 浏览器、渲染流程、缓存、安全、跨域 | `docs/frontend/浏览器/index.md` |
-| Webpack、Vite、打包、构建优化 | `docs/frontend/Webpack/index.md` 或 `Vite/index.md` |
+| Webpack、Vite、打包、构建优化、模块化 | `docs/frontend/Webpack/index.md` 或 `Vite/index.md` |
 | Git、版本控制 | `docs/frontend/git/index.md` |
-| 性能优化、首屏、懒加载 | `docs/frontend/性能优化/index.md` |
-| 算法、数据结构、排序、二分 | `docs/frontend/算法Code/index.md` |
-| Node.js、服务端 | `docs/frontend/Node/index.md` |
+| 性能优化、首屏、懒加载、虚拟列表 | `docs/frontend/性能优化/index.md` 或 `解决方案/` |
+| 设计模式 | `docs/frontend/设计模式/index.md` |
 | 微前端 | `docs/frontend/微前端/index.md` |
-| AI、大模型、LLM、Prompt | `docs/frontend/AI/index.md` |
+| Canvas、ECharts、Three.js、高德地图 | `docs/frontend/Canvas/` · `ECharts/` · `Web3D/` · `高德地图/` |
+| AI、大模型、LLM、Prompt、Agent、Workflow | `docs/frontend/AI/index.md` |
+
+**后端（`docs/backend/`）**
+
+| 关键词 / 特征 | 对应文件 |
+|--------------|---------|
+| Node.js、服务端、中间件、Nodemailer、部署 | `docs/backend/Node/index.md` |
+| MySQL、索引、事务、SQL 优化 | `docs/backend/MySQL/index.md` |
+| Redis、缓存、持久化、分布式锁 | `docs/backend/Redis/index.md` |
+| 网络、HTTP、HTTPS、TCP、UDP、WebSocket | `docs/backend/网络/index.md` |
+| Nginx、反向代理、负载均衡 | `docs/backend/Nginx/index.md` |
+| Linux、Shell、常用命令 | `docs/backend/Linux/index.md` |
+| Docker、容器、镜像 | `docs/backend/Docker/index.md` |
+| CI/CD、流水线、自动化部署 | `docs/backend/CICD/index.md` |
+| 操作系统、进程线程、内存、调度 | `docs/backend/操作系统/index.md` |
+
+> 面经属于**独立台账**（`docs/面经/`，按人分档），不是知识点注入目标——若用户是在记录一次真实面试的题目，应写入 `docs/面经/{姓名}.md` 而非知识库。
 
 若无法确定，**先读取目标文件大纲**再决策，不猜测。
 

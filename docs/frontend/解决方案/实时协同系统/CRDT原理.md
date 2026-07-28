@@ -1,5 +1,7 @@
-﻿# CRDT 协同编辑方案
+# CRDT 原理与 Yjs 实战
 
+> 本页是「[实时协同系统](./)」专题的**深入篇**，系统梳理 CRDT 面试高频考点。想看结合真实 demo 的逐行代码讲解，见 [Demo 逐行讲解](./Demo逐行讲解)。
+>
 > 无冲突可复制数据类型（CRDT）是现代协同编辑系统的核心技术，被 Figma、Linear 等产品广泛采用。
 
 ---
@@ -396,7 +398,7 @@ textarea.addEventListener('input', () => {
 });
 ```
 
-> ⚠️ **注意**：`suppressInput` 打破了「Yjs 更新 textarea → 触发 input → 再次更新 Yjs」的死循环；`origin === 'remote'` 打破了「收到远端 update → 触发 ydoc update 事件 → 再次发送」的死循环。
+> ⚠️ **注意**：`suppressInput` 打破了「Yjs 更新 textarea → 触发 input → 再次更新 Yjs」的死循环；`origin === 'remote'` 打破了「收到远端 update → 触发 ydoc update 事件 → 再次发送」的死循环。完整的 diff 举例与逐行拆解见 [Demo 逐行讲解](./Demo逐行讲解)。
 
 ---
 
@@ -742,3 +744,11 @@ redis.subscribe(`doc:${docId}`, (update) => {
 | 中等规模 | Node.js + `y-websocket` + `y-leveldb` |
 | 生产级别 | Node.js + Redis Pub/Sub + PostgreSQL（快照） + `y-redis` |
 | 去中心化 | Yjs + `y-webrtc`（P2P，无需服务器） |
+
+---
+
+## 相关阅读
+
+- 上层概览与技术选型：[实时协同系统](./)
+- 结合 demo 真实代码的逐行讲解：[Demo 逐行讲解](./Demo逐行讲解)
+- 信令与实时通道基础：后端知识库「🌐 网络 & 协议 → WebSocket 专题」

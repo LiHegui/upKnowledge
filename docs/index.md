@@ -58,12 +58,12 @@ features:
   - icon:
       src: /icons/perf.svg
     title: 性能 & 解决方案
-    details: 性能优化 · 虚拟列表 · 断点续传 · 实时协同
+    details: 性能优化 · 虚拟列表 · 实时协同 · WebRTC · 高德地图
     link: /frontend/性能优化/
   - icon:
       src: /icons/viz.svg
     title: 可视化 & 图形
-    details: Canvas · ECharts · 高德地图 · Three.js
+    details: Canvas · ECharts · Three.js
     link: /frontend/Canvas/
   - icon:
       src: /icons/server.svg

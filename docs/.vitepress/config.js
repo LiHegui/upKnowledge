@@ -157,8 +157,18 @@ const frontendSidebar = [
       { text: 'JWT 登录方案', link: '/frontend/解决方案/JWT登录方案/' },
       { text: '移动端适配', link: '/frontend/解决方案/移动端适配/' },
       { text: '前端工程化', link: '/frontend/解决方案/前端工程化/' },
-      { text: '实时协同系统', link: '/frontend/解决方案/实时协同系统/' },
+      {
+        text: '实时协同系统',
+        collapsed: true,
+        items: [
+          { text: '概览', link: '/frontend/解决方案/实时协同系统/' },
+          { text: 'CRDT 原理与 Yjs 实战', link: '/frontend/解决方案/实时协同系统/CRDT原理' },
+          { text: 'Demo 逐行讲解', link: '/frontend/解决方案/实时协同系统/Demo逐行讲解' },
+        ],
+      },
       { text: '虚拟列表', link: '/frontend/解决方案/虚拟列表/' },
+      { text: 'WebRTC 音视频通信', link: '/frontend/解决方案/WebRTC/' },
+      { text: '高德地图', link: '/frontend/高德地图/' },
     ],
   },
   {
@@ -199,7 +209,6 @@ const frontendSidebar = [
       { text: 'Canvas 技术要点', link: '/frontend/Canvas/' },
       { text: 'Canvas · 点云大数据渲染', link: '/frontend/Canvas/点云大数据渲染' },
       { text: 'ECharts 技术要点', link: '/frontend/ECharts/' },
-      { text: '高德地图 技术要点', link: '/frontend/高德地图/' },
       { text: 'Three.js', link: '/frontend/Web3D/three' },
     ],
   },

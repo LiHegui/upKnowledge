@@ -1,0 +1,25 @@
+{
+  "user": {
+    "name": "Hegui",
+    "createdAt": "2026-07-28T00:00:00.000Z",
+    "updatedAt": "2026-07-28T00:00:00.000Z"
+  },
+  "summary": {
+    "totalEvents": 1
+  },
+  "events": [
+    {
+      "type": "kb.inject",
+      "topic": "AI",
+      "title": "ReAct 的 Thought/Action/Observation 在 Function Calling 代码里的映射",
+      "status": "done",
+      "details": {
+        "file": "docs/frontend/AI/index.md",
+        "operation": "新增",
+        "section": "Agent 系统深度串讲篇",
+        "note": "Observation = role:'tool' 消息回填历史；Thought 在 function calling 下被隐式化"
+      },
+      "createdAt": "2026-07-28T00:00:00.000Z"
+    }
+  ]
+}

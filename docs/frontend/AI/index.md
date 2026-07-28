@@ -1278,6 +1278,65 @@ src/components/AIChat/
 
 ---
 
+## Q: ReAct 的「Thought / Action / Observation」在 Function Calling 代码里分别对应什么？
+
+<details><summary>查看答案</summary>
+
+**A:**
+
+很多人写完 Function Calling 的 Agent 主循环，会怀疑「是不是少了 Observation（观察）」。其实**三要素都在**，只是 Observation 藏在 `role: 'tool'` 的消息里，而 Thought 被模型隐式化了。
+
+### 三要素映射表
+
+| ReAct 阶段 | 对应代码 | 说明 |
+|-----------|---------|------|
+| **Thought（思考）** | LLM 内部推理 / `message.content` | ⚠️ function calling 下被**隐式化**，不强制输出成文本 |
+| **Action（行动）** | `message.tool_calls` + 实际执行 `toolHandlers[name](args)` | 模型决定调哪个工具、传什么参数 |
+| **Observation（观察）** | `messages.push({ role: 'tool', tool_call_id, content })` | **工具结果塞回消息历史，这一步就是观察** |
+
+### 关键点：Observation = 把工具结果塞回 messages
+
+```ts
+// 执行工具
+const toolResult = await toolHandlers[toolName]?.(toolArgs)
+
+// ★ 这一步就是 ReAct 的 Observation：
+//   把结果以 role:'tool' 追加进历史，下一轮 LLM 就能"看到"它
+messages.push({
+  role: 'tool',
+  tool_call_id: toolCall.id,   // 必须对应上 tool_calls 里的 id
+  content: JSON.stringify(toolResult),
+})
+
+continue  // 回到循环顶部，LLM 基于 observation 再次思考
+```
+
+下一轮 `for` 循环重新调用 LLM 时，这条 `role: 'tool'` 消息已在上下文里，模型据此决定「继续调工具」还是「给最终答案」——**观察闭环是完整的**。
+
+### 完整循环里的三要素
+
+```
+for 循环:
+  ├── LLM 调用 ──────────────→ Thought（隐式，可能带 message.content）
+  ├── message.tool_calls? ──── 有 → Action：执行工具
+  │     └── push role:'tool' ─→ Observation：结果回填历史
+  │     └── continue ─────────→ 回到顶部，带着 observation 再思考
+  └── 无 tool_calls ─────────→ Final Answer，退出循环
+```
+
+### 真正「薄」的是 Thought，不是 Observation
+
+经典 ReAct 论文里模型会**显式写出**推理文本（`Thought: 我需要先查天气...`）；而 function calling + `tool_choice: 'auto'` 把推理藏进了模型内部：
+
+- 好在:若模型调用工具时**同时**返回了 `content`（边想边调），`messages.push(message)` 会把它一起存下，思考不会丢
+- 想要经典 ReAct 的可观测性:引导模型先输出 reasoning 再调用，或改用 reasoning 模型
+
+> ⚠️ **两个常被漏掉的健壮性缺口**：① `JSON.parse(toolCall.function.arguments)` 遇到模型生成的非法 JSON 会抛错崩掉整个 Agent，需 try/catch 后以结构化错误回填 observation 让模型重试；② 到达最大步数时，别直接返回「已达最大步数」，应把已有 observation 交给 LLM 逼出一个总结性回答。
+
+</details>
+
+---
+
 ## Q: 如何从 0 到 1 搭建一个智能体（Agent）？
 
 <details><summary>查看答案</summary>
